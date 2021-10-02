@@ -14,7 +14,10 @@ const GuildSchema = new mongoose.Schema({
         type: mongoose.SchemaTypes.String,
         default: '/'
     },
-    logsChannelId: String
+    logsChannelId: String,
+    dashBureauChannelId: String,
+    dashStaffChannelId: String,
+    dashRespoChannelId: String
 });
 
 module.exports = mongoose.model('Guild', GuildSchema);

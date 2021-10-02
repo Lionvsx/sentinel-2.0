@@ -33,9 +33,7 @@ const UserSchema = new mongoose.Schema({
         default: false
     },
     school: String,
-    schoolYear: Number,
-    assosAsStaff: [AssoSchema],
-    assosAsVisitor: [AssoSchema],
+    schoolYear: Number
 });
 
 module.exports = mongoose.model('User', UserSchema);

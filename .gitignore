@@ -105,3 +105,5 @@ dist
 
 # Un-necessary files
 files/transcripts/*
+
+.idea
