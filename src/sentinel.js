@@ -1,15 +1,26 @@
 const client = require('./client');
-require('dotenv').config()
+const mongoose = require('mongoose');
+require('dotenv').config();
 
 const { 
     registerCommands, 
     registerEvents,
   } = require('../utils/register');
 
+  mongoose.connect(process.env.MONGODB_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+  }).then(connection => {
+    console.log(`Connected to MongoDB`)
+  }).catch(err => {
+    if (err) throw err;
+  });
+
 (async () => {
     client.commands = new Map();
-    client.admins = new Map();
-    client.membresAsso = new Map();
+    client.aliases = new Map();
+    client.config = new Map();
+    client.allUsers = new Map();
     client.reactionRoles = new Map();
     await registerCommands(client, '../commands');
     await registerEvents(client, '../events');

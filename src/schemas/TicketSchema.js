@@ -22,6 +22,10 @@ const TicketSchema = new mongoose.Schema({
     },
     claimedByUserId: String,
     messages: [MessageSchema],
+    archive: {
+        type: Boolean,
+        default: false
+    }
 })
 
 module.exports = mongoose.model('Ticket', TicketSchema);
