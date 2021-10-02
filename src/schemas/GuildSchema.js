@@ -12,7 +12,7 @@ const GuildSchema = new mongoose.Schema({
     },
     prefix: {
         type: mongoose.SchemaTypes.String,
-        default: '*'
+        default: '/'
     },
     logsChannelId: String
 });

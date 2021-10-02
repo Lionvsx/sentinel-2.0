@@ -1,14 +1,5 @@
 const mongoose =  require('mongoose');
 
-const AssoSchema = new mongoose.Schema({
-    assoName: {
-        type: String,
-        required: true
-    },
-    userStatus: String,
-    userIsBan: Boolean,
-});
-
 const UserSchema = new mongoose.Schema({
     firstName: String,
     lastName: String,
