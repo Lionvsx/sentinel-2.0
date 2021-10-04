@@ -1,3 +1,4 @@
+const { MessageEmbed } = require('discord.js')
 const BaseCommand = require('../../utils/structures/BaseCommand')
 
 module.exports = class PingCommand extends BaseCommand {
@@ -19,7 +20,7 @@ module.exports = class PingCommand extends BaseCommand {
     async run(client, message, args) {
         const loading = client.emojis.cache.get('741276138319380583')
         let msg = await message.channel.send(`**${loading} | **Pinging server ...`)
-        let embed = new Discord.MessageEmbed()
+        let embed = new MessageEmbed()
             .setColor('#2ecc71')
         msg.edit('', embed.addFields([
             {name: 'Ping', value: `\`${msg.createdTimestamp - message.createdTimestamp} ms\``, inline: true},

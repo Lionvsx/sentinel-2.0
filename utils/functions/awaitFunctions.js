@@ -22,7 +22,7 @@ function userResponse(channel, displayMessage) {
         const sentMsg = await channel.send({
             content: displayMessage
         })
-        channel.awaitMessages({ filter, max: 1, time: 5000, errors: ['time'] })
+        channel.awaitMessages({ filter, max: 1, time: 120000, errors: ['time'] })
             .then(collected => {
                 resolve(collected.first())
             }).catch(collected => {
@@ -38,7 +38,7 @@ function userResponseContent(channel, displayMessage) {
         const sentMsg = await channel.send({
             content: displayMessage
         })
-        channel.awaitMessages({ filter, max: 1, time: 60000, errors: ['time'] })
+        channel.awaitMessages({ filter, max: 1, time: 120000, errors: ['time'] })
             .then(collected => {
                 resolve(collected.first().content)
             }).catch(collected => {
@@ -51,7 +51,7 @@ function userResponseContent(channel, displayMessage) {
 function buttonInteraction(channel, message) {
     return new Promise((resolve, reject) => {
         const filter = interaction => interaction.isButton() === true && interaction.user.bot === false && interaction.message.id === message.id;
-        channel.awaitMessageComponent({ filter, time: 15000 })
+        channel.awaitMessageComponent({ filter, time: 30000 })
           .then(interaction => resolve(interaction))
           .catch(error => {
               reject(`User Response Timed Out`)

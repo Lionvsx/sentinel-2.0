@@ -13,13 +13,14 @@ module.exports = class TicketRemoveCommand extends BaseCommand {
             examples: ["ticket remove Lionvsx, Ominga|Retire Lionvsx et Ominga au ticket !"],
             serverOnly: true,
             admin: false,
-            subCommands: false
+            subCommands: false,
+            home: true
         });
     }
 
     async run(client, message, args) {
         const loading = client.emojis.cache.get('741276138319380583')
-        const existingDBTicket = await mongoose.model('Ticket').findOne({ linkedChannelId: message.channel.id })
+        const existingDBTicket = await mongoose.model('Ticket').findOne({ linkedChannelId: message.channel.id, archive: false })
         if (existingDBTicket && existingDBTicket.id) {
             args.splice(0, 2)
             let memberToString = args.join(' ')

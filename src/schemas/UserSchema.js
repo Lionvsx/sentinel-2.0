@@ -34,10 +34,7 @@ const UserSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
-    roleResponsable: {
-        type: String,
-        unique: true
-    },
+    roleResponsable: String,
     onServer: {
         type: Boolean,
         required: true

@@ -103,6 +103,7 @@ module.exports = class TicketStaffButtonInteraction extends BaseInteraction {
                         { name: '🔗 | LIENS', value: links},
                         { name: '🎥 | CAST', value: webTVBoolean ? 'Oui' : 'Non'},
                     )
+                    .setColor('#fdcb6e')
                 const accessEmbed = new MessageEmbed()
                     .setTitle(`🎫 NOUVEAU TICKET : \`${ticketName}\``)
                     .setDescription(`Nouveau ticket de \`${interaction.user.username}\`\nNom de l'event : \`${eventFullName}\`\nJeu associé : \`${ticketGame}\`\nDate : \`${eventTime}\``)
@@ -124,12 +125,13 @@ module.exports = class TicketStaffButtonInteraction extends BaseInteraction {
                     content: '@everyone',
                     embeds: [ticketEmbed]
                 })
-                Ticket.create({
+                const newTicket = await Ticket.create({
                     ticketChannelId: newChannel.id,
                     guildId: newChannel.guild.id,
                     authorId: interaction.user.id,
                     name: ticketName
                 })
+                client.allTickets.set(newTicket.ticketChannelId, newTicket);
                 for (const channelId of accessChannelsAudience) {
                     let requestChannel = allChannels.get(channelId)
                     await requestChannel.send({

@@ -12,7 +12,8 @@ module.exports = class TicketCommand extends BaseCommand {
             serverOnly: true,
             admin: false,
             subCommands: true,
-            arguments: `\`commands\` : claim, close, delete, exit, transcript`,
+            home: true,
+            arguments: `\`commands\` : add, remove, close, exit, transcript`,
         });
     }
 

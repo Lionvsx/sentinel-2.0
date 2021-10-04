@@ -13,7 +13,8 @@ module.exports = class TicketCloseCommand extends BaseCommand {
             examples: [],
             serverOnly: true,
             admin: false,
-            subCommands: false
+            subCommands: false,
+            home: true
         });
     }
 
@@ -23,16 +24,14 @@ module.exports = class TicketCloseCommand extends BaseCommand {
             existingDBTicket.archive = true
             await existingDBTicket.save();
 
-            let dmUser = message.guild.members.cache.get(existingDBTicket.userId);
-            dmUser.createDM().then(dmChannel => {
-                dmChannel.send(`**✅ | **Votre problème a été marqué comme résolu par \`\`${message.author.username}\`\`, si ce n'est pas le cas veuillez simplement renvoyer un message ci dessous !`)
-            })
-            await mongoose.model('Ticket').deleteOne({ linkedChannelId: message.channel.id })
             let deleteEmbed = new MessageEmbed()
                 .setDescription("Suppression du ticket dans 5 secondes...")
                 .setColor('ff5733')
-            message.channel.send(deleteEmbed);
+            message.channel.send({
+                embeds: [deleteEmbed]
+            });
             await sleep(5000);
+            client.allTickets.delete(message.channel.id)
             message.channel.delete();
         } else {
             message.channel.send(`**❌ | **Cette commande peut uniquement être utilisée dans un ticket !`)

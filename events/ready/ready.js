@@ -4,6 +4,7 @@ const { Routes } = require('discord-api-types/v9');
 
 const Guild = require('../../src/schemas/GuildSchema')
 const User = require('../../src/schemas/UserSchema')
+const Tickets = require('../../src/schemas/TicketSchema')
 const { showCommandLoad } = require('../../utils/register')
 
 require('dotenv').config
@@ -67,6 +68,11 @@ module.exports = class ReadyEvent extends BaseEvent {
         for (const user of Users) {
             client.allUsers.set(user.discordId, user)
         }
+        // const Tickets = await Tickets.find({ archive: false })
+        // for (const ticket of Tickets) {
+        //     client.allTickets.set(ticket.ticketChannelId, ticket)
+        // }
+
         console.log(`Cached Users : ${client.allUsers.size}`)
 
         

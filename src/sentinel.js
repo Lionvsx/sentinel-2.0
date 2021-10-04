@@ -23,6 +23,7 @@ const {
     client.aliases = new Map();
     client.config = new Map();
     client.allUsers = new Map();
+    client.allTickets = new Map();
     client.reactionRoles = new Map();
     await registerCommands(client, '../commands');
     await registerEvents(client, '../events');

@@ -15,12 +15,13 @@ module.exports = class TicketTranscriptCommand extends BaseCommand {
             examples: [],
             serverOnly: true,
             admin: false,
-            subCommands: false
+            subCommands: false,
+            home: true
         });
     }
 
     async run(client, message, args) {
-        const existingDBTicket = await mongoose.model('Ticket').findOne({ linkedChannelId: message.channel.id })
+        const existingDBTicket = await mongoose.model('Ticket').findOne({ linkedChannelId: message.channel.id, archive: false })
         if (existingDBTicket && existingDBTicket.id) {
             let ticketMember = message.guild.members.cache.get(existingDBTicket.userId)
             if (!ticketMember) return;
@@ -37,7 +38,9 @@ module.exports = class TicketTranscriptCommand extends BaseCommand {
                     { name: "Lien du transcript", value: `[Link](${sendedAttachment.url})`, inline: true },
                 )
                 .setColor('#f1c40f')
-            message.channel.send(embed)
+            message.channel.send({
+                embeds: [embed]
+            })
                 
         } else {
             message.channel.send(`**❌ | **Cette commande peut uniquement être utilisée dans un ticket !`)
