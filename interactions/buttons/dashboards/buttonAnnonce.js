@@ -1,5 +1,5 @@
 const BaseInteraction = require('../../../utils/structures/BaseInteraction')
-const { userResponse, reactionEmbedSelector, selectorReply, askForConfirmation } = require('../../../utils/functions/awaitFunctions')
+const { userResponse, userResponseContent, reactionEmbedSelector, selectorReply, askForConfirmation } = require('../../../utils/functions/awaitFunctions')
 const { getUsersFromString } = require('../../../utils/functions/utilitaryFunctions')
 const { MessageEmbed } = require('discord.js')
 const DiscordLogger = require('../../../utils/services/discordLoggerService')
@@ -52,7 +52,7 @@ module.exports = class AnnonceButtonInteraction extends BaseInteraction {
                     const confirmation = await askForConfirmation(dmChannel, `Etes vous sûrs de vouloir envoyer un message à **tout le serveur** : \`${audience.size}\` utilisateurs !`).catch(err => console.log(err))
                     
                     if (!confirmation) return
-                    if (confirmation === true) broadcastMessage(client, dmChannel, audience, {
+                    broadcastMessage(client, dmChannel, audience, {
                         content: annoucementMessage.content,
                         embeds: [signatureEmbed],
                         files: annoucementMessage.attachments
@@ -65,7 +65,7 @@ module.exports = class AnnonceButtonInteraction extends BaseInteraction {
                     
                     annonceLogger.setLogData(audience.map(member => member.user.tag).join('\n'))
                     if (!confirmation) return
-                    if (confirmation === true) broadcastMessage(client, dmChannel, audience, {
+                    broadcastMessage(client, dmChannel, audience, {
                         content: annoucementMessage.content,
                         embeds: [signatureEmbed],
                         files: annoucementMessage.attachments
@@ -106,6 +106,17 @@ module.exports = class AnnonceButtonInteraction extends BaseInteraction {
                         break;
                     case '⭐':
                         selectorReply(selectorChannelsInteraction, emojiSelectorChannel, "Envoyez dans certains poles (staff)")
+                        const StaffAnnonceChannels = [
+                            ['da', '741810169700286544'],
+                            ['com', '742069661495066774'],
+                            ['esport', '742069647679160411'],
+                            ['event', '742083440450732043'],
+                            ['webtv', '741961820876570724']
+                        ]
+                        const selectedChannels = await userResponseContent(dmChannel, "Dans quels poles voulez vous envoyez votre message? \`(tous, da, webtv, esport, com, event, séparées d'une virgule !)\`").catch(err => console.log(err))
+                        if (!selectedChannels) return
+                    
+                        
                         break;
                     case '🔗':
                         selectorReply(selectorChannelsInteraction, emojiSelectorChannel, "Envoyez dans un channel personnalisé")
