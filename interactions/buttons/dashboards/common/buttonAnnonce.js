@@ -1,8 +1,8 @@
-const BaseInteraction = require('../../../utils/structures/BaseInteraction')
-const { userResponse, reactionEmbedSelector, selectorReply, askForConfirmation } = require('../../../utils/functions/awaitFunctions')
-const { getUsersFromString } = require('../../../utils/functions/utilitaryFunctions')
+const BaseInteraction = require('../../../../utils/structures/BaseInteraction')
+const { userResponse, reactionEmbedSelector, selectorReply, askForConfirmation } = require('../../../../utils/functions/awaitFunctions')
+const { getUsersFromString } = require('../../../../utils/functions/utilitaryFunctions')
 const { MessageEmbed } = require('discord.js')
-const DiscordLogger = require('../../../utils/services/discordLoggerService')
+const DiscordLogger = require('../../../../utils/services/discordLoggerService')
 const annonceLogger = new DiscordLogger('annonces', '#a29bfe')
 
 module.exports = class AnnonceButtonInteraction extends BaseInteraction {

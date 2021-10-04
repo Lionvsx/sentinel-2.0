@@ -30,7 +30,7 @@ module.exports = class DashBureauCommand extends BaseCommand {
             .addFields(
                 { name: '\u200B', value: '\u200B' },
                 { name: '📢 | ANNONCES', value: 'Ouvre une interface en MP afin de créer une annonce personnalisée', inline: true },
-                { name: '✅ | ACCESS CHANNELS', value: "Vous permet d'accéder à la catégorie souhaitée", inline: true },
+                { name: '✅ | ACCESS CATEGORY', value: "Vous permet d'accéder à la catégorie souhaitée", inline: true },
                 { name: '🎓 | ADD / REMOVE RESPO', value: "Ajoute ou supprime un membre de la liste des responsables", inline: true },
                 { name: '\u200B', value: '\u200B' },
                 { name: '🎫 | OPEN CUSTOM TICKET', value: "Ouvre un ticket avec des paramètres personnalisés", inline: true },
@@ -39,7 +39,7 @@ module.exports = class DashBureauCommand extends BaseCommand {
             )
             const Row1 = createButtonActionRow([
                 createEmojiButton('buttonAnnonce', 'Faire une annonce', 'PRIMARY', '📢'),
-                createEmojiButton('buttonAccessChannel', 'Accès aux Catégories', 'SECONDARY', '✅'),
+                createEmojiButton('buttonAccessCategory', 'Accès aux Catégories', 'SECONDARY', '✅'),
                 createEmojiButton('buttonManageRespo', 'Gérer les respos', 'SECONDARY', '🎓')
             ])
             const Row2 = createButtonActionRow([
