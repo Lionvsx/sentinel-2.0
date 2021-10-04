@@ -205,23 +205,23 @@ module.exports = class TicketStaffButtonInteraction extends BaseInteraction {
                 if (!ticketEventConfirmation || ticketEventConfirmation === false) return
                 ticketLogger.setLogData(`NOM: ${ticketName}\nJEU: ${ticketGame}\nTEAM / JOUEURS: ${teamOrPlayers}\nLIENS: ${links}\nCAST${webTVBoolean ? 'OUI' : 'NON'}`)
 
-                const newChannel = await interaction.guild.channels.create(`🎫┃${ticketName}`, {
+                const newEventTicket = await interaction.guild.channels.create(`🎫┃${eventTicketName}`, {
                     type: 'GUILD_TEXT',
                     position: 100,
-                    permissionOverwrites: ticketPermissions,
+                    permissionOverwrites: eventTicketPermissions,
                     parent: allChannels.find(channel => channel.name.includes('📨tickets📨') && channel.type === 'GUILD_CATEGORY')
                 })
-                await newChannel.send({
+                await newEventTicket.send({
                     content: '@everyone',
-                    embeds: [ticketEmbed]
+                    embeds: [ticketEventEmbed]
                 })
-                const newTicket = await Ticket.create({
+                const newEventTicket = await Ticket.create({
                     ticketChannelId: newChannel.id,
                     guildId: newChannel.guild.id,
                     authorId: interaction.user.id,
                     name: ticketName
                 })
-                client.allTickets.set(newTicket.ticketChannelId, newTicket);
+                client.allTickets.set(newEventTicket.ticketChannelId, newEventTicket);
                 for (const channelId of accessChannelsAudience) {
                     let requestChannel = allChannels.get(channelId)
                     await requestChannel.send({
