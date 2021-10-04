@@ -31,21 +31,21 @@ module.exports = class DashBureauCommand extends BaseCommand {
                 { name: '\u200B', value: '\u200B' },
                 { name: '📢 | ANNONCES', value: 'Ouvre une interface en MP afin de créer une annonce personnalisée', inline: true },
                 { name: '✅ | ACCESS CHANNELS', value: "Vous permet d'accéder à la catégorie souhaitée", inline: true },
-                { name: '🕐 | TEMP CHANNEL', value: "Créez un channel vocal temporaire (ex: reunion)", inline: true },
+                { name: '🎓 | ADD / REMOVE RESPO', value: "Ajoute ou supprime un membre de la liste des responsables", inline: true },
                 { name: '\u200B', value: '\u200B' },
-                { name: '👋 | KICK & BAN', value: "Vous permet d'expulser n'importe quel membre du discord", inline: true },
-                { name: '🛑 | NUKE', value: "Nuke les roles d'un utilisateur", inline: true },
-                { name: '🎫 | OPEN CUSTOM TICKET', value: "Ouvre un ticket avec des paramètres forcés", inline: true },
+                { name: '🎫 | OPEN CUSTOM TICKET', value: "Ouvre un ticket avec des paramètres personnalisés", inline: true },
+                { name: '▶️ | START AG', value: "Vous permet de démarrer une Assemblée Générale", inline: true },
+                { name: '⏹️ | END AG', value: "Vous permet de mettre fin à une Assemblée Générale", inline: true },
             )
             const Row1 = createButtonActionRow([
-                createEmojiButton('buttonAnnonce', 'Annonces', 'PRIMARY', '📢'),
-                createEmojiButton('buttonAccessChannel', 'Accès aux Catégories', 'PRIMARY', '✅'),
-                createEmojiButton('buttonTempChannel', 'Channel Temporaire', 'PRIMARY', '🕐')
+                createEmojiButton('buttonAnnonce', 'Faire une annonce', 'PRIMARY', '📢'),
+                createEmojiButton('buttonAccessChannel', 'Accès aux Catégories', 'SECONDARY', '✅'),
+                createEmojiButton('buttonManageRespo', 'Gérer les respos', 'SECONDARY', '🎓')
             ])
             const Row2 = createButtonActionRow([
-                createEmojiButton('buttonKickBan', 'A définir', 'PRIMARY', '👋'),
-                createEmojiButton('buttonNuke', 'A définir', 'PRIMARY', '🛑'),
-                createEmojiButton('buttonCustomTicket', 'Custom Ticket', 'PRIMARY', '🎫'),
+                createEmojiButton('buttonCustomTicket', 'Créer un ticket', 'SECONDARY', '🎫'),
+                createEmojiButton('buttonStartAG', 'Démarrer l\'AG', 'SUCCESS', '▶️'),
+                createEmojiButton('buttonEndAG', 'Arrêter l\'AG', 'DANGER', '⏹️'),
             ])
             message.channel.send({
                 embeds: [DashBoardBureau],
