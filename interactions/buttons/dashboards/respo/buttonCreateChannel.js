@@ -2,7 +2,7 @@ const BaseInteraction = require('../../../../utils/structures/BaseInteraction')
 const { userResponse, reactionEmbedSelector, selectorReply, askForConfirmation } = require('../../../../utils/functions/awaitFunctions')
 const { MessageEmbed } = require('discord.js')
 
-module.exports = class CustomTicketButtonInteraction extends BaseInteraction {
+module.exports = class CreateChannelButtonInteraction extends BaseInteraction {
     constructor() {
         super('buttonCreateChannel', 'dashboards', 'button', {
             userPermissions: [],

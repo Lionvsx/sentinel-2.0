@@ -1,12 +1,12 @@
-const BaseInteraction = require('../../../utils/structures/BaseInteraction')
-const { userResponse, reactionEmbedSelector, selectorReply, askForConfirmation, askYesOrNo, userResponseContent } = require('../../../utils/functions/awaitFunctions')
-const { getUsersFromString } = require('../../../utils/functions/utilitaryFunctions')
-const { createButtonActionRow, createButton } = require('../../../utils/functions/messageComponents')
+const BaseInteraction = require('../../../../utils/structures/BaseInteraction')
+const { userResponse, reactionEmbedSelector, selectorReply, askForConfirmation, askYesOrNo, userResponseContent } = require('../../../../utils/functions/awaitFunctions')
+const { getUsersFromString } = require('../../../../utils/functions/utilitaryFunctions')
+const { createButtonActionRow, createButton } = require('../../../../utils/functions/messageComponents')
 const { MessageEmbed, Permissions } = require('discord.js')
 const mongoose = require('mongoose')
-const Ticket = require('../../../src/schemas/TicketSchema')
+const Ticket = require('../../../../src/schemas/TicketSchema')
 
-const DiscordLogger = require('../../../utils/services/discordLoggerService')
+const DiscordLogger = require('../../../../utils/services/discordLoggerService')
 const ticketLogger = new DiscordLogger('tickets', '#ffeaa7')
 
 const StaffChannels = new Map([
@@ -35,8 +35,8 @@ module.exports = class TicketStaffButtonInteraction extends BaseInteraction {
         const embedTicketSelection = new MessageEmbed()
             .setDescription(`Bonjour \`${interaction.user.username}\`\nQuel type de ticket voulez vous créer?`)
             .addFields(
-                { name: '💬', value: "Ticket Communication", inline: true },
-                { name: '🎪', value: "Ticket Staff Event", inline: true },
+                { name: '💬', value: "Ticket Communication (Tournoi, Esport)", inline: true },
+                { name: '🎪', value: "Ticket Staff Event (Evenement Associatif)", inline: true },
                 { name: '❌', value: "Annulez la commande", inline: true },
             )
         ticketLogger.setGuild(interaction.guild)
@@ -153,13 +153,13 @@ module.exports = class TicketStaffButtonInteraction extends BaseInteraction {
                 const eventTicketFullName = await userResponseContent(dmChannel, "Veuillez entrez le nom complet de l'evenement :").catch(err => console.log(err))
                 if (!eventTicketFullName) return
                 const eventTicketTime = await userResponseContent(dmChannel, "Veuillez renseigner la date et l'heure de l'evenement :").catch(err => console.log(err))
-                if (!eventTicketName) return
+                if (!eventTicketTime) return
                 const eventWebTVBoolean = await askYesOrNo(dmChannel, `Souhaitez vous une couverture de l'evenement par la Web TV?`).catch(err => console.log(err))
-                if (eventWebTVBoolean != undefined) return
+                if (eventWebTVBoolean === undefined) return
                 const comBoolean = await askYesOrNo(dmChannel, `Souhaitez vous que le staff communication soit inclus dans le ticket de l'evenement?`).catch(err => console.log(err))
-                if (comBoolean != undefined) return
+                if (comBoolean === undefined) return
                 const daBoolean = await askYesOrNo(dmChannel, `Souhaitez vous que le staff direction artistique soit inclus dans le ticket de l'evenement?`).catch(err => console.log(err))
-                if (daBoolean != undefined) return
+                if (daBoolean === undefined) return
                 const eventUserToAddString = await userResponseContent(dmChannel, "Quels autres utilisateurs souhaitez vous rajouter au ticket : \`(pseudos discord séparés d'une virgule, tapez \"aucun\" si il n'y en a aucun)\`").catch(err => console.log(err))
                 if (!eventUserToAddString) return
 
@@ -172,6 +172,65 @@ module.exports = class TicketStaffButtonInteraction extends BaseInteraction {
                         eventTicketPermissions.push({ id: member.user.id, allow: [Permissions.FLAGS.VIEW_CHANNEL]})
                     }
                 }
+
+                ResponsableEVENT && ResponsableEVENT.discordId ? ticketPermissions.push({ id: ResponsableEVENT.discordId, allow: [Permissions.FLAGS.VIEW_CHANNEL] }) : null
+
+                if (eventWebTVBoolean) {
+                    if (ResponsableWebTV && ResponsableWebTV.discordId) eventTicketPermissions.push({ id: ResponsableWebTV.discordId, allow: [Permissions.FLAGS.VIEW_CHANNEL] })
+                    eventAccessChannelsAudience.push(StaffChannels.get('webtv'))
+                }
+                if (comBoolean) {
+                    if (ResponsableCOM && ResponsableCOM.discordId) eventTicketPermissions.push({ id: ResponsableCOM.discordId, allow: [Permissions.FLAGS.VIEW_CHANNEL] })
+                    eventAccessChannelsAudience.push(StaffChannels.get('com'))
+                }
+                if (daBoolean) {
+                    if (ResponsableDA && ResponsableDA.discordId) eventTicketPermissions.push({ id: ResponsableDA.discordId, allow: [Permissions.FLAGS.VIEW_CHANNEL] })
+                    eventAccessChannelsAudience.push(StaffChannels.get('da'))
+                }
+                const ticketEventEmbed = new MessageEmbed()
+                    .setTitle(eventTicketFullName.toUpperCase())
+                    .setDescription(`🎪 Nouveau ticket évenementiel crée, request envoyée au staff event !`)
+                    .addFields(
+                        { name: '📆 | DATE', value: eventTicketTime},
+                        { name: '🎥 | WEBTV', value: eventWebTVBoolean ? 'Oui' : 'Non'},
+                        { name: '📱 | COMMUNICATION', value: comBoolean ? 'Oui' : 'Non'},
+                        { name: '🎨 | DA', value: daBoolean ? 'Oui' : 'Non'},
+                    )
+                const eventAccessEmbed = new MessageEmbed()
+                    .setTitle(`🎪 NOUVEAU TICKET EVENEMENT : \`${eventTicketName}\``)
+                    .setDescription(`Nouveau ticket de \`${interaction.user.username}\`\nNom de l'event : \`${eventTicketFullName}\`\nDate : \`${eventTicketTime}\``)
+                    .setTimestamp()
+
+                const ticketEventConfirmation = await askForConfirmation(dmChannel, `Etes vous sur de vouloir ouvrir un ticket avec les paramètres suivants : \`\`\`NOM: ${eventTicketName}}\nDATE: ${eventTicketTime}\nWEBTV: ${eventWebTVBoolean ? 'OUI' : 'NON'}\nCOM: ${comBoolean ? 'OUI' : 'NON'}\nDA: ${daBoolean ? 'OUI' : 'NON'} \n\nUTILISATEURS ADDITIONNELS:\n${eventUsersAudience ? eventUsersAudience.map(member => member.user.tag).join('\n') : 'Aucun'} \`\`\``).catch(err => console.log(err))
+                if (!ticketEventConfirmation || ticketEventConfirmation === false) return
+                ticketLogger.setLogData(`NOM: ${ticketName}\nJEU: ${ticketGame}\nTEAM / JOUEURS: ${teamOrPlayers}\nLIENS: ${links}\nCAST${webTVBoolean ? 'OUI' : 'NON'}`)
+
+                const newChannel = await interaction.guild.channels.create(`🎫┃${ticketName}`, {
+                    type: 'GUILD_TEXT',
+                    position: 100,
+                    permissionOverwrites: ticketPermissions,
+                    parent: allChannels.find(channel => channel.name.includes('📨tickets📨') && channel.type === 'GUILD_CATEGORY')
+                })
+                await newChannel.send({
+                    content: '@everyone',
+                    embeds: [ticketEmbed]
+                })
+                const newTicket = await Ticket.create({
+                    ticketChannelId: newChannel.id,
+                    guildId: newChannel.guild.id,
+                    authorId: interaction.user.id,
+                    name: ticketName
+                })
+                client.allTickets.set(newTicket.ticketChannelId, newTicket);
+                for (const channelId of accessChannelsAudience) {
+                    let requestChannel = allChannels.get(channelId)
+                    await requestChannel.send({
+                        embeds: [accessEmbed],
+                        components: [createButtonActionRow([createButton(`buttonAccessChannel|${newChannel.id}`, 'Accédez au ticket', 'SUCCESS'), createButton(`buttonKillAccessChannel`, "Fermez l'accès au ticket", 'DANGER')])]
+                    })
+                }
+
+                ticketLogger.info(`<@!${interaction.user.id}> a crée un ticket de **communication** avec les paramètres suivants :`)
                 break;
             case '❌':
                 selectorReply(ticketSelectionInteraction, emoji, 'Commande annulée')
