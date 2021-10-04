@@ -1,5 +1,9 @@
 const BaseCommand = require('../../utils/structures/BaseCommand')
 const Discord = require('discord.js'); 
+const {
+    createButtonActionRow,
+    createEmojiButton
+} = require('../../utils/functions/messageComponents')
 
 module.exports = class DashRespoCommand extends BaseCommand {
     constructor () {
@@ -18,6 +22,7 @@ module.exports = class DashRespoCommand extends BaseCommand {
     }
 
     async run (bot, message, args) {
+        
         const DashBoardRespo = new Discord.MessageEmbed()
             .setColor('#0099ff')
             .setTitle('DASHBOARD RESPONSABLES')
@@ -26,22 +31,29 @@ module.exports = class DashRespoCommand extends BaseCommand {
             .addFields(
                 { name: '\u200B', value: '\u200B' },
                 { name: '📢 | ANNONCES', value: 'Ouvre une interface en MP afin de créer une annonce personnalisée', inline: true },
-                { name: '✅ | CREATE CHANNEL', value: "Vous permet de créer un channel personnalisé dans vôtre catégorie", inline: true },
-                { name: '❌ | DELETE CHANNEL', value: "Vous permet de supprimer un channel personnalisé dans vôtre catégorie", inline: true },
+                { name: '✅ | CREATE CHANNEL', value: "Vous permet de créer un salon personnalisé dans votre catégorie", inline: true },
+                { name: '❌ | DELETE CHANNEL', value: "Vous permet de supprimer un salon de votre catégorie", inline: true },
                 { name: '\u200B', value: '\u200B' },
-                { name: '🆕 | ADD NEW USER', value: "Ajoutez un nouvel utilisateur à votre catégorie", inline: true },
-                { name: '⏏️ | KICK USER', value: "Ejecter un utilisateur de des channels de vôtre catégorie", inline: true },
-                { name: '🎫 | OPEN CUSTOM TICKET', value: "Ouvre un ticket avec des paramètres forcés", inline: true },
+                { name: '🎫 | OPEN CUSTOM TICKET', value: "Ouvre un ticket avec des paramètres personnalisés", inline: true },
+                { name: '➕ | ADD USER', value: "Ajoutez un utilisateur à votre pôle", inline: true },
+                { name: '➖ | REMOVE USER', value: "Retire un utilisateur de votre pôle", inline: true },
             )
-        message.channel.send(DashBoardRespo).then(async (msg) => {
-            await msg.react('📢')
-            await msg.react('✅')
-            await msg.react('❌')
-            await msg.react('🆕')
-            await msg.react('⏏️')
-            await msg.react('🎫')
+        const Row1 = createButtonActionRow([
+            createEmojiButton('buttonAnnonce', 'Faire une annonce', 'PRIMARY', '📢'),
+            createEmojiButton('buttonCreateChannel', 'Créer un salon', 'SUCCESS', '✅'),
+            createEmojiButton('buttonDeleteChannel', 'Supprimer un salon', 'DANGER', '❌')
+        ])
+        const Row2 = createButtonActionRow([
+            createEmojiButton('buttonCustomTicket', 'Créer un ticket', 'SECONDARY', '🎫'),
+            createEmojiButton('buttonAddUser', 'Ajouter un user', 'SUCCESS', '➕'),
+            createEmojiButton('buttonRemoveUser', 'Retirer un user', 'DANGER', '➖'),
+        ])
+        message.channel.send({
+            embeds: [DashBoardRespo],
+            components: [Row1, Row2]
         })
 
         message.delete()
+
     }
 }
