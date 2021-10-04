@@ -39,10 +39,12 @@ module.exports = class RemoveRoleCommand extends BaseCommand {
         } else if (!args[1]) {
             message.react('✅')
             message.author.createDM().then(async (dmChannel) => {
-                let usersToAdd = userResponse(dmChannel, `Veuillez entrer les utilisateurs à selectionner \`(pseudos discord séparés d'une virgule)\` :`).catch(errorMessage => dmChannel.send(errorMessage))
-                let usersArgs = usersToAdd.content.split(/\s*[,]\s*/)
-                let rolesToAdd = userResponse(dmChannel, `Veuillez entrer un/des role(s) à leur retirer \`(roles séparés d'une virgule)\` :`).catch(errorMessage => dmChannel.send(errorMessage))
-                let rolesArgs = rolesToAdd.content.split(/\s*[,]\s*/)
+                let usersToRemove = userResponse(dmChannel, `Veuillez entrer les utilisateurs à selectionner \`(pseudos discord séparés d'une virgule)\` :`).catch(err => console.log(err))
+                if (!usersToRemove) return
+                let usersArgs = usersToRemove.content.split(/\s*[,]\s*/)
+                let rolesToRemove = userResponse(dmChannel, `Veuillez entrer un/des role(s) à leur retirer \`(roles séparés d'une virgule)\` :`).catch(err => console.log(err))
+                if (!rolesToRemove) return
+                let rolesArgs = rolesToRemove.content.split(/\s*[,]\s*/)
                 let tempMsg = await dmChannel.send(`**${loading} |** Suppression des roles en cours...`)
                 let errorsCount = 0
                 for (const userString of usersArgs) {

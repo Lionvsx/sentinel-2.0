@@ -73,7 +73,7 @@ module.exports = class TicketStaffButtonInteraction extends BaseInteraction {
                 const links = await userResponseContent(dmChannel, "Avez vous des liens utiles à renseigner liés a l'event? \`(Si aucun tapez \"aucun\")\`").catch(err => console.log(err))
                 if (!links) return;
                 const webTVBoolean = await askYesOrNo(dmChannel, `Souhaitez vous une couverture de l'evenement par la Web TV?`).catch(err => console.log(err))
-                if (!webTVBoolean) return
+                if (webTVBoolean === undefined) return
                 const userToAddString = await userResponseContent(dmChannel, "Quels autres utilisateurs souhaitez vous rajouter au ticket : \`(pseudos discord séparés d'une virgule, tapez \"aucun\" si il n'y en a aucun)\`").catch(err => console.log(err))
                 if (!userToAddString) return;
 
@@ -155,11 +155,11 @@ module.exports = class TicketStaffButtonInteraction extends BaseInteraction {
                 const eventTicketTime = await userResponseContent(dmChannel, "Veuillez renseigner la date et l'heure de l'evenement :").catch(err => console.log(err))
                 if (!eventTicketName) return
                 const eventWebTVBoolean = await askYesOrNo(dmChannel, `Souhaitez vous une couverture de l'evenement par la Web TV?`).catch(err => console.log(err))
-                if (!eventWebTVBoolean) return
+                if (eventWebTVBoolean != undefined) return
                 const comBoolean = await askYesOrNo(dmChannel, `Souhaitez vous que le staff communication soit inclus dans le ticket de l'evenement?`).catch(err => console.log(err))
-                if (!comBoolean) return
+                if (comBoolean != undefined) return
                 const daBoolean = await askYesOrNo(dmChannel, `Souhaitez vous que le staff direction artistique soit inclus dans le ticket de l'evenement?`).catch(err => console.log(err))
-                if (!daBoolean) return
+                if (daBoolean != undefined) return
                 const eventUserToAddString = await userResponseContent(dmChannel, "Quels autres utilisateurs souhaitez vous rajouter au ticket : \`(pseudos discord séparés d'une virgule, tapez \"aucun\" si il n'y en a aucun)\`").catch(err => console.log(err))
                 if (!eventUserToAddString) return
 

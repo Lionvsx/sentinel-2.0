@@ -38,9 +38,11 @@ module.exports = class AddRoleCommand extends BaseCommand {
         } else if (!args[1]) {
             message.react('✅')
             message.author.createDM().then(async (dmChannel) => {
-                let usersToAdd = await userResponse(dmChannel, `Veuillez entrer les utilisateurs à selectionner \`(pseudos discord séparés d'une virgule)\` :`).catch(errorMessage => dmChannel.send(errorMessage))
+                let usersToAdd = await userResponse(dmChannel, `Veuillez entrer les utilisateurs à selectionner \`(pseudos discord séparés d'une virgule)\` :`).catch(err => console.log(err))
+                if (!usersToAdd) return
                 let usersArgs = usersToAdd.content.split(/\s*[,]\s*/)
-                let rolesToAdd = await userResponse(dmChannel, `Veuillez entrer un/des role(s) à leur ajouter \`(roles séparés d'une virgule)\` :`).catch(errorMessage => dmChannel.send(errorMessage))
+                let rolesToAdd = await userResponse(dmChannel, `Veuillez entrer un/des role(s) à leur ajouter \`(roles séparés d'une virgule)\` :`).catch(err => console.log(err))
+                if (!rolesToAdd) return
                 let rolesArgs = rolesToAdd.content.split(/\s*[,]\s*/)
                 let tempMsg = await dmChannel.send(`**${loading} |** Ajouts des roles en cours...`)
                 let errorsCount = 0
