@@ -1,4 +1,4 @@
-const emojiRegex = require('emoji-regex/RGI_Emoji.js');
+const emojiRegex = require('emoji-regex');
 const fs = require('fs-extra');
 const https = require('https');
 
@@ -46,13 +46,34 @@ const sleep = (ms) => {
     return new Promise(resolve => setTimeout(resolve, ms))
 }
 
+const getUsersFromString = (guild, searchArgs) => {
+    return new Promise(async (resolve) => {
+        const userArray = []
+        for (const arg of searchArgs) {
+            const roleMatch = guild.roles.cache.find(role => role.name.toLowerCase().includes(arg.toLowerCase()))
+            const userMatch = guild.members.cache.find(m => m.user.tag.toLowerCase().includes(arg.toLowerCase()))
+            if (roleMatch) {
+                const userMatchingRole = guild.members.cache.filter(m => m.roles.cache.has(roleMatch.id))
+                for (const [key, member] of userMatchingRole) {
+                    userArray.push(member)
+                }
+            } else if (userMatch) {
+                userArray.push(userMatch)
+            }
+        }
+
+        resolve(userArray)
+    })
+}
+
 module.exports = {
     removeEmojis,
     getEmoji,
     removeDivider,
     downloadFile,
     readFile,
-    sleep
+    sleep,
+    getUsersFromString
 }
 
 

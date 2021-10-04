@@ -1,5 +1,4 @@
 const BaseCommand = require('../../utils/structures/BaseCommand')
-const { MessageActionRow, MessageButton } = require('discord.js')
 
 module.exports = class PingCommand extends BaseCommand {
     constructor() {
@@ -10,25 +9,21 @@ module.exports = class PingCommand extends BaseCommand {
             userPermissions: [],
             clientPermissions: [],
             examples: [],
-            hide: false,
             admin: false,
-            home: false
+            home: false,
+            serverOnly: false,
+            subCommands: false
         })
     }
 
     async run(client, message, args) {
-
-        const row = new MessageActionRow()
-        .addComponents(
-            new MessageButton()
-                .setCustomId('ping')
-                .setLabel('Test')
-                .setStyle('PRIMARY'),
-        );
-
-        message.channel.send({
-            content: 'Test',
-            components: [row]
-        });
+        const loading = client.emojis.cache.get('741276138319380583')
+        let msg = await message.channel.send(`**${loading} | **Pinging server ...`)
+        let embed = new Discord.MessageEmbed()
+            .setColor('#2ecc71')
+        msg.edit('', embed.addFields([
+            {name: 'Ping', value: `\`${msg.createdTimestamp - message.createdTimestamp} ms\``, inline: true},
+            {name: 'API Latency', value: `\`${Math.round(bot.ws.ping)} ms\``, inline: true}
+        ]))
     }
 }

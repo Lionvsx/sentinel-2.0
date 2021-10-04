@@ -1,8 +1,6 @@
 const mongoose =  require('mongoose');
 
 const UserSchema = new mongoose.Schema({
-    firstName: String,
-    lastName: String,
     discordId: {
         type: String,
         required: true,
@@ -12,18 +10,43 @@ const UserSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    userTag: {
+        type: String,
+        required: true
+    },
     avatarURL: {
         type: String,
         required: true
+    },
+    isMember: {
+        type: Boolean,
+        default: false
     },
     isAdmin: {
         type: Boolean,
         default: false
     },
+    isBureau: {
+        type: Boolean,
+        default: false
+    },
+    isResponsable: {
+        type: Boolean,
+        default: false
+    },
+    roleResponsable: {
+        type: String,
+        unique: true
+    },
+    onServer: {
+        type: Boolean,
+        required: true
+    },
+    firstName: String,
+    lastName: String,
     school: String,
     schoolYear: Number,
     role: String,
-       
 });
 
 module.exports = mongoose.model('User', UserSchema);

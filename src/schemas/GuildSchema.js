@@ -14,10 +14,11 @@ const GuildSchema = new mongoose.Schema({
         type: mongoose.SchemaTypes.String,
         default: '/'
     },
-    logsChannelId: String,
-    dashBureauChannelId: String,
-    dashStaffChannelId: String,
-    dashRespoChannelId: String
+    slashCommands: {
+        type: Boolean,
+        default: false
+    },
+    logChannelId: String,
 });
 
 module.exports = mongoose.model('Guild', GuildSchema);
