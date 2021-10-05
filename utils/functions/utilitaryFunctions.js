@@ -2,6 +2,9 @@ const emojiRegex = require('emoji-regex');
 const fs = require('fs-extra');
 const https = require('https');
 
+const DiscordLogger = require('../services/discordLoggerService')
+const envLogger = new DiscordLogger('environnement', '#00cec9')
+
 function removeEmojis (string) {
     var regex = emojiRegex();
   
@@ -49,6 +52,7 @@ const sleep = (ms) => {
 const getUsersFromString = (guild, searchArgs) => {
     return new Promise(async (resolve) => {
         const userArray = []
+        await updateGuildMemberCache(guild)
         for (const arg of searchArgs) {
             const roleMatch = guild.roles.cache.find(role => role.name.toLowerCase().includes(arg.toLowerCase()))
             const userMatch = guild.members.cache.find(m => m.user.tag.toLowerCase().includes(arg.toLowerCase()))
@@ -66,6 +70,47 @@ const getUsersFromString = (guild, searchArgs) => {
     })
 }
 
+const updateGuildMemberCache = async (guild) => {
+    const guildMembersCache = guild.members.cache
+
+    envLogger.setLogMember(guild.client)
+    envLogger.setGuild(guild)
+    envLogger.setLogData(`CACHED USERS: ${guildMembersCache.size}\nUSERS ON SERVER: ${guild.memberCount}\nUNCACHED USERS: ${guild.memberCount - guildMembersCache.size}`)
+
+    if (guildMembersCache.size != guild.memberCount) {
+        envLogger.warning(`Le cache des utilisateurs du serveur \`${guild.name}\` était incomplet\nProcédure de remise en cache :`)
+        await guild.members.fetch();
+    } else {
+        envLogger.info(`Demande de mise à jour du cache des utilisateurs effectué pour le serveur \`${guild.name}\`\nCache à jour :`)
+    }
+    return guild.members.cache
+}
+
+const updateGuildChannelCache = async (guild) => {
+    const guildChannelsCache = guild.channels.cache
+    const cachedChannelsBefore = guildChannelsCache ? guildChannelsCache.size : undefined
+
+    envLogger.setLogMember(guild.client)
+    envLogger.setGuild(guild)
+
+    await guild.channels.fetch()
+    const cachedChannelsAfter = guildChannelsCache ? guildChannelsCache.size : undefined
+    envLogger.setLogData(`CACHED CHANNELS: ${cachedChannelsBefore}\nCHANNELS ON SERVER: ${cachedChannelsAfter}\nUNCACHED CHANNELS: ${cachedChannelsAfter - cachedChannelsBefore}`)
+    if (cachedChannelsAfter != cachedChannelsBefore) {
+        envLogger.warning(`Le cache des channels du serveur \`${guild.name}\` était incomplet\nProcédure de remise en cache :`)
+    } else {
+        envLogger.info(`Demande de mise à jour du cache des channels effectué pour le serveur \`${guild.name}\`\nCache à jour :`)
+    }
+    return guild.channels.cache
+}
+
+const updateGuildCache = async (guild) => {
+    const fetchedGuild = await guild.fetch();
+    await updateGuildMemberCache(fetchedGuild);
+    await updateGuildChannelCache(fetchedGuild);
+    return fetchedGuild
+}
+
 module.exports = {
     removeEmojis,
     getEmoji,
@@ -73,7 +118,9 @@ module.exports = {
     downloadFile,
     readFile,
     sleep,
-    getUsersFromString
+    getUsersFromString,
+    updateGuildCache,
+    updateGuildMemberCache
 }
 
 

@@ -1,6 +1,6 @@
 const BaseInteraction = require('../../../../utils/structures/BaseInteraction')
 const { userResponse, userResponseContent, reactionEmbedSelector, selectorReply, askForConfirmation } = require('../../../../utils/functions/awaitFunctions')
-const { getUsersFromString } = require('../../../../utils/functions/utilitaryFunctions')
+const { getUsersFromString, updateGuildMemberCache } = require('../../../../utils/functions/utilitaryFunctions')
 const { MessageEmbed } = require('discord.js')
 const DiscordLogger = require('../../../../utils/services/discordLoggerService')
 const annonceLogger = new DiscordLogger('annonces', '#a29bfe')
@@ -18,9 +18,12 @@ module.exports = class AnnonceButtonInteraction extends BaseInteraction {
             content: `Check tes messages privés !`,
             ephemeral: true
         })
+
+
         const dmChannel = await interaction.user.createDM()
         
         const allChannels = interaction.guild.channels.cache
+        const allMembers = await updateGuildMemberCache(interaction.guild);
 
         const signatureEmbed = new MessageEmbed()
             .setDescription(`Message d'annonce diffusé par le **Head Staff**\nAuteur : \`${interaction.user.tag}\``)
@@ -48,7 +51,7 @@ module.exports = class AnnonceButtonInteraction extends BaseInteraction {
                 const searchTerm = await userResponse(dmChannel, "A quels utilisateurs voulez vous envoyer votre message? \`(everyone ou nom d'un rôle ou pseudo, séparées d'une virgule)\`").catch(err => console.log(err))
                 if (!searchTerm) return
                 if (searchTerm.content == 'everyone') {
-                    let audience = interaction.guild.members.cache.filter(m => m.user.bot === false)
+                    let audience = allMembers.cache.filter(m => m.user.bot === false)
                     const confirmation = await askForConfirmation(dmChannel, `Etes vous sûrs de vouloir envoyer un message à **tout le serveur** : \`${audience.size}\` utilisateurs !`).catch(err => console.log(err))
                     
                     if (!confirmation) return
@@ -70,8 +73,6 @@ module.exports = class AnnonceButtonInteraction extends BaseInteraction {
                         embeds: [signatureEmbed],
                         files: annoucementMessage.attachments
                     })
-                    
-                    
                 }
 
                 break;
@@ -115,7 +116,7 @@ module.exports = class AnnonceButtonInteraction extends BaseInteraction {
                         ]
                         const selectedChannels = await userResponseContent(dmChannel, "Dans quels poles voulez vous envoyez votre message? \`(tous, da, webtv, esport, com, event, séparées d'une virgule !)\`").catch(err => console.log(err))
                         if (!selectedChannels) return
-                    
+                        // A TERMINER
                         
                         break;
                     case '🔗':
@@ -124,13 +125,16 @@ module.exports = class AnnonceButtonInteraction extends BaseInteraction {
                         dmChannel.send({
                             embeds: [new MessageEmbed().setTitle(`Catégories du serveur ${interaction.guild.name}`).setDescription(`\`\`\`${categoryChannels.map(channel => channel.name).join('\n')}\`\`\``)]
                         })
-                        const selectedCategoryString = await userResponse(dmChannel, "Dans quelle catégorie voulez vous envoyez votre message?")
+                        const selectedCategoryString = await userResponseContent(dmChannel, "Dans quelle catégorie voulez vous envoyez votre message?")
                         if (!selectedCategoryString) return
+
+                        //A TERMINER
                         break;
                     case '❌':
                         selectorReply(selectorChannelsInteraction, emojiSelectorChannel, 'Commande annulée')
                         break;
                     default: 
+                        selectorReply(selectorChannelsInteraction, emojiSelectorChannel, 'Commande Invalide')
                         break;
                 }
                 break;

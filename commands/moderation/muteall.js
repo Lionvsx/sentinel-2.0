@@ -1,4 +1,5 @@
 const BaseCommand = require('../../utils/structures/BaseCommand')
+const { updateGuildMemberCache } = require('../../utils/functions/utilitaryFunctions')
 
 module.exports = class MoveAllCommand extends BaseCommand {
     constructor () {
@@ -18,7 +19,7 @@ module.exports = class MoveAllCommand extends BaseCommand {
 
     async run (bot, message, args) {
         const guild = message.guild
-        const allMembers = guild.members.cache
+        const allMembers = await updateGuildMemberCache(guild);
         const invocationChannel = allMembers.get(message.author.id).voice.channel
 
         let toMute = invocationChannel.members.filter(m => !m.permissions.has('MUTE_MEMBERS'))

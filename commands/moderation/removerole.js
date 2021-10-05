@@ -1,5 +1,6 @@
 const BaseCommand = require('../../utils/structures/BaseCommand');
 const { userResponse } = require('../../utils/functions/awaitFunctions');
+const { updateGuildMemberCache } = require('../../utils/functions/utilitaryFunctions')
 
 module.exports = class RemoveRoleCommand extends BaseCommand {
     constructor () {
@@ -20,7 +21,7 @@ module.exports = class RemoveRoleCommand extends BaseCommand {
     async run (bot, message, args) {
         const loading = bot.emojis.cache.get('741276138319380583')
         let guild = message.guild
-        let allMembers = guild.members.cache
+        let allMembers = await updateGuildMemberCache(guild)
         let allRoles = guild.roles.cache
         const filter = m => m.author.bot === false
 

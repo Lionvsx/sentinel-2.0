@@ -8,6 +8,7 @@ module.exports = class MessageCreateEvent extends BaseEvent {
     async run(client, message) {
         if (message.author.bot) return
         if (!message.guild) return
+        if (message.partial) message = await message.fetch()
 
         const prefix = client.config.get(message.guild.id).prefix;
         const allMembers = message.guild.members.cache

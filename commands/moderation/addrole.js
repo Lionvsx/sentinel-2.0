@@ -1,5 +1,6 @@
 const BaseCommand = require('../../utils/structures/BaseCommand');
 const { userResponse } = require('../../utils/functions/awaitFunctions');
+const { updateGuildMemberCache } = require('../../utils/functions/utilitaryFunctions')
 
 module.exports = class AddRoleCommand extends BaseCommand {
     constructor () {
@@ -9,7 +10,7 @@ module.exports = class AddRoleCommand extends BaseCommand {
             categoryDisplayName: `🛡️ Moderation`,
             userPermissions: ['MANAGE_ROLES'],
             clientPermissions: [],
-            examples: ['addrole Ominga Streameur|Retire le role streameur de l\'utilisateur Ominga', "addrole|Ouvre une interface en DM pour ajouter plusieurs roles à plusieurs utilisateurs en meme temps"],
+            examples: ['addrole Ominga Streameur|Ajoute le role streameur de l\'utilisateur Ominga', "addrole|Ouvre une interface en DM pour ajouter plusieurs roles à plusieurs utilisateurs en meme temps"],
             serverOnly: true,
             admin: false,
             home: false,
@@ -20,7 +21,7 @@ module.exports = class AddRoleCommand extends BaseCommand {
     async run (bot, message, args) {
         const loading = bot.emojis.cache.get('741276138319380583')
         let guild = message.guild
-        let allMembers = guild.members.cache
+        let allMembers = await updateGuildMemberCache(guild);
         let allRoles = guild.roles.cache
 
         if (args[2]) {

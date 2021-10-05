@@ -1,5 +1,5 @@
 const BaseInteraction = require('../../../../utils/structures/BaseInteraction')
-const { userResponse, reactionEmbedSelector, selectorReply, askForConfirmation } = require('../../../../utils/functions/awaitFunctions')
+const { userResponseContent, reactionEmbedSelector, selectorReply, askForConfirmation } = require('../../../../utils/functions/awaitFunctions')
 const { MessageEmbed } = require('discord.js')
 
 module.exports = class ManageRespoButtonInteraction extends BaseInteraction {

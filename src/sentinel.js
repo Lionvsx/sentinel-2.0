@@ -29,4 +29,4 @@ const {
     await registerEvents(client, '../events');
     await registerInteractions(client, '../interactions')
     await client.login(process.env.DISCORD_BOT_TOKEN);
-  })(); 
+  })();

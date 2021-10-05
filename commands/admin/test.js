@@ -1,8 +1,11 @@
 const BaseCommand = require('../../utils/structures/BaseCommand')
 const {
-    reactionEmbedSelector
-} = require('../../utils/functions/awaitFunctions')
-const { MessageEmbed } = require('discord.js')
+    createMessageActionRow,
+    createSelectionMenu,
+    createSelectionMenuOption
+} = require('../../utils/functions/messageComponents');
+
+const { MessageEmbed } = require('discord.js');
 
 module.exports = class TestCommand extends BaseCommand {
     constructor() {
@@ -22,12 +25,13 @@ module.exports = class TestCommand extends BaseCommand {
 
     async run(client, message, args) {
         const embed = new MessageEmbed().setTitle('Test')
-        const interaction = await reactionEmbedSelector(message.channel, ['💫', '💔'], embed)
+        const row = createMessageActionRow([
+            createSelectionMenu('test', 'Veuillez selectionner une option', [createSelectionMenuOption('testOption', 'TestOption', 'DescriptionTest'), createSelectionMenuOption('testOption2', 'TestEmoji', 'DescriptionTest', '🧡'), createSelectionMenuOption('testSSrienDD', 'Test sans rien')], 2, 2)
+        ])
 
-        interaction.update({
-            content: `Selectionné : ${interaction.customId}`,
-            components: [],
-            embeds: []
+        message.channel.send({
+            embeds: [embed],
+            components: [row]
         })
     }
 }

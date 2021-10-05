@@ -27,32 +27,41 @@ module.exports = class ReadyEvent extends BaseEvent {
         }
         
     
+        console.log('Started refreshing application (/) commands.');
         for (const [key, value] of client.guilds.cache) {
             const guildConfig = await Guild.findOne({ guildId: key });
-            await client.guilds.cache.get(key).members.fetch()
+            const guild = await client.guilds.cache.get(key)
+            await guild.members.fetch()
             if (guildConfig) {
                 client.config.set(key, guildConfig)
                 console.log(`Loaded data for guild : ${value.name}`)
-
                 if (guildConfig.slashCommands === true) {
                     if (commands.length > 0) {
-                        try {
-                            console.log('Started refreshing application (/) commands.');
+                        // try {
+                        //     
                 
-                            await rest.put(
-                                Routes.applicationGuildCommands(client.user.id, key),
-                                { body: commands },
-                            );
+                        //     await rest.put(
+                        //         Routes.applicationGuildCommands(client.user.id, key),
+                        //         { body: commands },
+                        //     );
 
-                            console.log(`Loaded ${commands.length} (/) commands !`)
+                        //     
                 
-                            console.log('Successfully reloaded application (/) commands.');
-                        } catch (error) {
-                            console.error(error);
+                        //     
+                        // } catch (error) {
+                        //     console.error(error);
+                        // }
+
+                        try {
+                            client.application.commands.set(commands, guild.id)
+                            console.log(`Loaded ${commands.length} (/) commands for guild ${guild.name}`)
+                        } catch (err) {
+                            console.error(err)
                         }
-                    }
+                    } else guild.commands.set([])
                     
-                }
+                } else guild.commands.set([])
+                
             } else {
                 Guild.create({
                     guildId: key,
@@ -62,8 +71,9 @@ module.exports = class ReadyEvent extends BaseEvent {
                     else console.error(`⚠️ Guild : ${value.name} wasn't saved in the database, created new entry ! ⚠️`)
                 }) 
             }
+            
         }
-
+        console.log('Successfully reloaded application (/) commands.');
         const Users = await User.find({ onServer: true })
         for (const user of Users) {
             client.allUsers.set(user.discordId, user)

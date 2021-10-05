@@ -1,10 +1,13 @@
-const { MessageButton, MessageActionRow } = require('discord.js')
+const { MessageButton, MessageActionRow, MessageSelectMenu } = require('discord.js')
 
 module.exports = {
     createButton,
     createEmojiButton,
     createButtonActionRow,
-    createEmojiActionRow
+    createEmojiActionRow,
+    createMessageActionRow,
+    createSelectionMenu,
+    createSelectionMenuOption
 }
 
 function createButton(buttonId, buttonText, buttonStyle) {
@@ -42,3 +45,31 @@ function createButtonActionRow(buttonArray) {
     return buttonActionRow
 }
 
+function createMessageActionRow(componentsArray) {
+    const actionRow = new MessageActionRow()
+    for (const component of componentsArray) {
+        actionRow.addComponents(
+            component
+        )
+    }
+    return actionRow
+}
+
+function createSelectionMenu(menuId, placeholderText, menuOptionArray, minSelections, maxSelections) {
+    return new MessageSelectMenu()
+        .setCustomId(menuId)
+        .setPlaceholder(placeholderText)
+        .addOptions(menuOptionArray)
+        .setMinValues(minSelections)
+        .setMaxValues(maxSelections)
+}
+
+function createSelectionMenuOption(optionId, displayText, optDescription, optEmoji, optIsDefaultOption) {
+    return {
+        label: displayText,
+        value: optionId,
+        description: optDescription ?  optDescription : undefined,
+        emoji: optEmoji ? optEmoji : undefined,
+        default: optIsDefaultOption ? optIsDefaultOption : undefined
+    }
+}

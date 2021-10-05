@@ -34,8 +34,8 @@ module.exports = class DashBureauCommand extends BaseCommand {
                 { name: '🎓 | ADD / REMOVE RESPO', value: "Ajoute ou supprime un membre de la liste des responsables", inline: true },
                 { name: '\u200B', value: '\u200B' },
                 { name: '🎫 | OPEN CUSTOM TICKET', value: "Ouvre un ticket avec des paramètres personnalisés", inline: true },
-                { name: '▶️ | START AG', value: "Vous permet de démarrer une Assemblée Générale", inline: true },
-                { name: '⏹️ | END AG', value: "Vous permet de mettre fin à une Assemblée Générale", inline: true },
+                { name: '🔺 | START / END AG', value: "Vous permet de démarrer ou d'arrêter une Assemblée Générale", inline: true },
+                { name: '👥 | ADD ASSO MEMBERS', value: "Vous permet d'ajouter des membres en tant que membre associatifs", inline: true },
             )
             const Row1 = createButtonActionRow([
                 createEmojiButton('buttonAnnonce', 'Faire une annonce', 'PRIMARY', '📢'),
@@ -44,8 +44,8 @@ module.exports = class DashBureauCommand extends BaseCommand {
             ])
             const Row2 = createButtonActionRow([
                 createEmojiButton('buttonCustomTicket', 'Créer un ticket', 'SECONDARY', '🎫'),
-                createEmojiButton('buttonStartAG', 'Démarrer l\'AG', 'SUCCESS', '▶️'),
-                createEmojiButton('buttonEndAG', 'Arrêter l\'AG', 'DANGER', '⏹️'),
+                createEmojiButton('buttonStartStopAg', 'Gérer les Assemblées Générales', 'DANGER', '🔺'),
+                createEmojiButton('buttonRegisterMembers', 'Ajouter des membres à l\'asso', 'SUCCESS', '👥'),
             ])
             message.channel.send({
                 embeds: [DashBoardBureau],

@@ -6,6 +6,7 @@ module.exports = class InteractionCreateEvent extends BaseEvent {
     }
 
     async run(client, interaction) {
+        if (interaction.user.bot) return
         if (!interaction.inGuild()) return
         if (interaction.isCommand()) {
             let command = client.interactions.get(interaction.commandName)
@@ -18,6 +19,8 @@ module.exports = class InteractionCreateEvent extends BaseEvent {
             if (buttonInteraction) {
                 buttonInteraction.run(client, interaction, buttonArgs)
             }
+        } else if (interaction.isSelectMenu()) {
+
         }
     }
 }

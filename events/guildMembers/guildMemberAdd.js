@@ -1,5 +1,6 @@
 const BaseEvent = require('../../utils/structures/BaseEvent')
 const mongoose = require('mongoose')
+const User = require('../../src/schemas/UserSchema')
 
 module.exports = class guildMemberAdd extends BaseEvent {
     constructor() {
@@ -8,7 +9,7 @@ module.exports = class guildMemberAdd extends BaseEvent {
 
     async run(client, guildMember) {
         if (guildMember.guild.id != '227470914114158592' || guildMember.user.bot === true) return
-        const existingUser = await mongoose.model('User').findOne({ discordId: guildMember.user.id, onServer: false });
+        const existingUser = await User.findOne({ discordId: guildMember.user.id, onServer: false });
 
         if (existingUser && existingUser.id) {
             existingUser.onServer = true;
@@ -17,7 +18,7 @@ module.exports = class guildMemberAdd extends BaseEvent {
             existingUser.avatarURL = guildMember.user.displayAvatarURL();
             await existingUser.save();
         } else {
-            mongoose.model('User').create({
+            User.create({
                 username: guildMember.user.username,
                 discordId: guildMember.user.id,
                 userTag: guildMember.user.tag,

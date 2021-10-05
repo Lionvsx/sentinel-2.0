@@ -203,34 +203,34 @@ module.exports = class TicketStaffButtonInteraction extends BaseInteraction {
 
                 const ticketEventConfirmation = await askForConfirmation(dmChannel, `Etes vous sur de vouloir ouvrir un ticket avec les paramètres suivants : \`\`\`NOM: ${eventTicketName}}\nDATE: ${eventTicketTime}\nWEBTV: ${eventWebTVBoolean ? 'OUI' : 'NON'}\nCOM: ${comBoolean ? 'OUI' : 'NON'}\nDA: ${daBoolean ? 'OUI' : 'NON'} \n\nUTILISATEURS ADDITIONNELS:\n${eventUsersAudience ? eventUsersAudience.map(member => member.user.tag).join('\n') : 'Aucun'} \`\`\``).catch(err => console.log(err))
                 if (!ticketEventConfirmation || ticketEventConfirmation === false) return
-                ticketLogger.setLogData(`NOM: ${ticketName}\nJEU: ${ticketGame}\nTEAM / JOUEURS: ${teamOrPlayers}\nLIENS: ${links}\nCAST${webTVBoolean ? 'OUI' : 'NON'}`)
+                ticketLogger.setLogData(`NOM: ${eventTicketName}}\nDATE: ${eventTicketTime}\nWEBTV: ${eventWebTVBoolean ? 'OUI' : 'NON'}\nCOM: ${comBoolean ? 'OUI' : 'NON'}\nDA: ${daBoolean ? 'OUI' : 'NON'}`)
 
-                const newEventTicket = await interaction.guild.channels.create(`🎫┃${eventTicketName}`, {
+                const newEventTicketChannel = await interaction.guild.channels.create(`🎪┃${eventTicketName}`, {
                     type: 'GUILD_TEXT',
                     position: 100,
                     permissionOverwrites: eventTicketPermissions,
                     parent: allChannels.find(channel => channel.name.includes('📨tickets📨') && channel.type === 'GUILD_CATEGORY')
                 })
-                await newEventTicket.send({
+                await newEventTicketChannel.send({
                     content: '@everyone',
                     embeds: [ticketEventEmbed]
                 })
-                const newEventTicket = await Ticket.create({
-                    ticketChannelId: newChannel.id,
-                    guildId: newChannel.guild.id,
+                const newEventDBTicket = await Ticket.create({
+                    ticketChannelId: newEventTicketChannel.id,
+                    guildId: newEventTicketChannel.guild.id,
                     authorId: interaction.user.id,
-                    name: ticketName
+                    name: eventTicketName
                 })
-                client.allTickets.set(newEventTicket.ticketChannelId, newEventTicket);
-                for (const channelId of accessChannelsAudience) {
+                client.allTickets.set(newEventDBTicket.ticketChannelId, newEventDBTicket);
+                for (const channelId of eventAccessChannelsAudience) {
                     let requestChannel = allChannels.get(channelId)
                     await requestChannel.send({
-                        embeds: [accessEmbed],
+                        embeds: [eventAccessEmbed],
                         components: [createButtonActionRow([createButton(`buttonAccessChannel|${newChannel.id}`, 'Accédez au ticket', 'SUCCESS'), createButton(`buttonKillAccessChannel`, "Fermez l'accès au ticket", 'DANGER')])]
                     })
                 }
 
-                ticketLogger.info(`<@!${interaction.user.id}> a crée un ticket de **communication** avec les paramètres suivants :`)
+                ticketLogger.info(`<@!${interaction.user.id}> a crée un ticket de **évènementiel** avec les paramètres suivants :`)
                 break;
             case '❌':
                 selectorReply(ticketSelectionInteraction, emoji, 'Commande annulée')

@@ -1,5 +1,6 @@
 const BaseCommand = require('../../utils/structures/BaseCommand')
-
+const { updateGuildMemberCache } = require('../../utils/functions/utilitaryFunctions')
+ 
 module.exports = class MoveAllCommand extends BaseCommand {
     constructor () {
         super('moveall', 'moderation', [], {
@@ -19,7 +20,7 @@ module.exports = class MoveAllCommand extends BaseCommand {
     async run (bot, message, args) {
         if (!args[1]) return message.channel.send(`**:x: | **Vous devez selectionner un channel !`)
         let guild = message.guild
-        let allMembers = guild.members.cache
+        let allMembers = await updateGuildMemberCache(guild);
         let allChannels = guild.channels.cache
 
         args.shift()

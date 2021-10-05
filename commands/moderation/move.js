@@ -1,4 +1,5 @@
 const BaseCommand = require('../../utils/structures/BaseCommand')
+const { updateGuildMemberCache } = require('../../utils/functions/utilitaryFunctions')
 
 module.exports = class MoveCommand extends BaseCommand {
     constructor () {
@@ -19,7 +20,7 @@ module.exports = class MoveCommand extends BaseCommand {
     async run (bot, message, args) {
         if (!args[1]) return message.channel.send(`**:x: | **Vous devez spécifier un utilisateur à déplacer !`)
         let guild = message.guild
-        let allMembers = guild.members.cache
+        let allMembers = await updateGuildMemberCache(guild);
 
         args.shift()
         let searchTerms = args.join(' ')

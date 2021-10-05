@@ -13,7 +13,8 @@ module.exports = {
     selectorReply,
     askForConfirmation,
     reactionEmbedMultipleSelector,
-    askYesOrNo
+    askYesOrNo,
+    menuInteraction
 }
 
 function userResponse(channel, displayMessage) {
@@ -59,6 +60,21 @@ function buttonInteraction(channel, message) {
     })
 }
 
+function menuInteraction(message) {
+    return new Promise((resolve, reject) => {
+        const filter = interaction => interaction.isSelectMenu() === true && interaction.user.bot === false && interaction.message.id === message.id;
+        message.awaitMessageComponent({ filter, time: 30000 })
+          .then(interaction => resolve(interaction))
+          .catch(error => {
+            message.edit({
+                embeds: [new MessageEmbed().setDescription(`**❌ Commande annulée : \`Timed Out\`**`).setColor('#c0392b')],
+                components: []
+            })
+              reject(`User Response Timed Out`)
+          });
+    })
+}
+
 function createButtonInteractionCollector(channel, message, idSubmit, idCancel) {
     return new Promise((resolve, reject) => {
         const filter = interaction => interaction.isButton() === true && interaction.user.bot === false && interaction.message.id === message.id;
@@ -80,7 +96,7 @@ async function reactionEmbedSelector(channel, emojiArray, embed) {
     })
     const interaction = await buttonInteraction(channel, sentMessage).catch(errorMessage => {
         sentMessage.edit({
-            embeds: [new MessageEmbed().setDescription(`**❌ Commande annulée**`).setColor('#c0392b')],
+            embeds: [new MessageEmbed().setDescription(`**❌ Commande annulée : \`Timed Out\`**`).setColor('#c0392b')],
             components: []
         })
         throw errorMessage
@@ -95,7 +111,7 @@ async function reactionEmbedMultipleSelector(channel, emojiArray, embed) {
     })
     const interactionCollector = await createButtonInteractionCollector(channel, sentMessage).catch(errorMessage => {
         sentMessage.edit({
-            embeds: [new MessageEmbed().setDescription(`**❌ Commande annulée**`).setColor('#c0392b')],
+            embeds: [new MessageEmbed().setDescription(`**❌ Commande annulée : \`Timed Out\`**`).setColor('#c0392b')],
             components: []
         })
         throw errorMessage
