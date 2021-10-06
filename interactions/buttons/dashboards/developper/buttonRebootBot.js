@@ -17,11 +17,6 @@ module.exports = class NukeServerButton extends BaseInteraction {
         })
 
         await client.destroy()
-        await client.login(process.env.DISCORD_BOT_TOKEN)
-
-        await interaction.editReply({
-            content: `${client.user.username} back online !`,
-            ephemeral: true
-        })
+        process.exit();
     }
 }

@@ -7,7 +7,7 @@ const mongoose = require('mongoose')
 const Ticket = require('../../../../src/schemas/TicketSchema')
 
 const DiscordLogger = require('../../../../utils/services/discordLoggerService')
-const ticketLogger = new DiscordLogger('tickets', '#ffeaa7')
+
 
 module.exports = class TicketTechniqueButtonInteraction extends BaseInteraction {
     constructor() {
@@ -18,7 +18,7 @@ module.exports = class TicketTechniqueButtonInteraction extends BaseInteraction 
     }
 
     async run(client, interaction, buttonArgs) {
- 
+        const ticketLogger = new DiscordLogger('tickets', '#ffeaa7')
     }
 }
 

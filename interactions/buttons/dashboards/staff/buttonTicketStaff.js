@@ -7,7 +7,7 @@ const mongoose = require('mongoose')
 const Ticket = require('../../../../src/schemas/TicketSchema')
 
 const DiscordLogger = require('../../../../utils/services/discordLoggerService')
-const ticketLogger = new DiscordLogger('tickets', '#ffeaa7')
+
 
 const StaffChannels = new Map([
     ['da', '741810218081583244'],
@@ -39,6 +39,8 @@ module.exports = class TicketStaffButtonInteraction extends BaseInteraction {
                 { name: '🎪', value: "Ticket Staff Event (Evenement Associatif)", inline: true },
                 { name: '❌', value: "Annulez la commande", inline: true },
             )
+
+        const ticketLogger = new DiscordLogger('tickets', '#ffeaa7')
         ticketLogger.setGuild(interaction.guild)
         ticketLogger.setLogMember(interaction.member)
 

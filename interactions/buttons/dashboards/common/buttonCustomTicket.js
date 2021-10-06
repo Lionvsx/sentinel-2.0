@@ -5,7 +5,6 @@ const { getUsersFromString } = require('../../../../utils/functions/utilitaryFun
 const Ticket = require('../../../../src/schemas/TicketSchema')
 
 const DiscordLogger = require('../../../../utils/services/discordLoggerService')
-const ticketLogger = new DiscordLogger('custom ticket', '#74b9ff')
 
 module.exports = class CustomTicketButtonInteraction extends BaseInteraction {
     constructor() {
@@ -28,6 +27,7 @@ module.exports = class CustomTicketButtonInteraction extends BaseInteraction {
         const usersToAddString = await userResponseContent(dmChannel, `Quels utilisateurs/roles souhaitez vous rajouter au ticket : \`(pseudos discord/roles séparés d'une virgule, tapez \"aucun\" si il n'y en a aucun)\``).catch(err => console.log(err))
         if (!usersToAddString) return;
 
+        const ticketLogger = new DiscordLogger('custom ticket', '#74b9ff')
         ticketLogger.setGuild(interaction.guild)
         ticketLogger.setLogMember(interaction.member)
 
