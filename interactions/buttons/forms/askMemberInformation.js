@@ -5,7 +5,7 @@ const { createMessageActionRow, createSelectionMenu, createButtonActionRow, crea
 const mongoose = require('mongoose');
 
 const DiscordLogger = require('../../../utils/services/discordLoggerService')
-const databaseLogger = new DiscordLogger('database', '#00b894')
+
 
 module.exports = class MemberInformationFormButton extends BaseInteraction {
     constructor() {
@@ -19,6 +19,7 @@ module.exports = class MemberInformationFormButton extends BaseInteraction {
         const dmChannel = interaction.channel
         const ldvGuild = client.guilds.cache.get('227470914114158592')
 
+        const databaseLogger = new DiscordLogger('database', '#00b894')
         databaseLogger.setGuild(ldvGuild)
         databaseLogger.setLogMember(await ldvGuild.members.fetch(interaction.user.id))
 

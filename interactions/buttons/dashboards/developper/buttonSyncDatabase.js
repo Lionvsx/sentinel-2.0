@@ -2,7 +2,7 @@ const BaseInteraction = require('../../../../utils/structures/BaseInteraction')
 const { MessageEmbed, Permissions } = require('discord.js')
 const { updateGuildMemberCache } = require('../../../../utils/functions/utilitaryFunctions')
 const DiscordLogger = require('../../../../utils/services/discordLoggerService')
-const envLogger = new DiscordLogger('environnement', '#00cec9')
+
 
 const mongoose = require('mongoose');
 
@@ -20,6 +20,7 @@ module.exports = class SyncDatabaseButton extends BaseInteraction {
             ephemeral: true
         })
 
+        const envLogger = new DiscordLogger('environnement', '#00cec9')
         envLogger.setGuild(interaction.guild)
         envLogger.setLogMember(interaction.member)
 

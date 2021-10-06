@@ -3,7 +3,6 @@ const { userResponse, userResponseContent, reactionEmbedSelector, selectorReply,
 const { getUsersFromString, updateGuildMemberCache } = require('../../../../utils/functions/utilitaryFunctions')
 const { MessageEmbed } = require('discord.js')
 const DiscordLogger = require('../../../../utils/services/discordLoggerService')
-const annonceLogger = new DiscordLogger('annonces', '#a29bfe')
 
 module.exports = class AnnonceButtonInteraction extends BaseInteraction {
     constructor() {
@@ -30,6 +29,8 @@ module.exports = class AnnonceButtonInteraction extends BaseInteraction {
             .setTimestamp()  
         const annoucementMessage = await userResponse(dmChannel, "Veuillez écrire ci dessous le message que vous souhaitez diffuser !").catch(err => console.log(err))
         if (!annoucementMessage) return
+        
+        const annonceLogger = new DiscordLogger('annonces', '#a29bfe')
         annonceLogger.setGuild(interaction.guild)
         annonceLogger.setLogMember(interaction.member)
 
