@@ -27,6 +27,7 @@ module.exports = class RegisterAssoMembersButtonInteraction extends BaseInteract
         const dmChannel = await interaction.user.createDM()
 
         const userAudienceString = await userResponseContent(dmChannel, "Quels utilisateurs veux tu ajouter en tant que membre de LDV Esport? \`(liste de pseudos, séparées d'une virgule)\`").catch(err => console.log(err))
+        if (!userAudienceString) return
         const usersAndErrors = await getUsersAndErrorsFromString(interaction.guild, userAudienceString.split(/\s*[,]\s*/))
         const userAudience = usersAndErrors[0];
         const userErrors = usersAndErrors[1];

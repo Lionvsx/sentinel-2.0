@@ -1,7 +1,8 @@
 const BaseInteraction = require('../../../../utils/structures/BaseInteraction')
-const { userResponseContent, reactionEmbedSelector, selectorReply, askForConfirmation } = require('../../../../utils/functions/awaitFunctions')
+const { userResponseContent, askForConfirmation } = require('../../../../utils/functions/awaitFunctions')
 const { MessageEmbed, Permissions } = require('discord.js')
 const { getUsersFromString } = require('../../../../utils/functions/utilitaryFunctions')
+const Ticket = require('../../../../src/schemas/TicketSchema')
 
 const DiscordLogger = require('../../../../utils/services/discordLoggerService')
 const ticketLogger = new DiscordLogger('custom ticket', '#74b9ff')
@@ -21,6 +22,7 @@ module.exports = class CustomTicketButtonInteraction extends BaseInteraction {
         })
 
         const dmChannel = await interaction.user.createDM()
+        const allChannels = interaction.guild.channels.cache
         const ticketName = await userResponseContent(dmChannel, "Veuillez donner un nom à votre ticket :").catch(err => console.log(err))
         if (!ticketName) return;
         const usersToAddString = await userResponseContent(dmChannel, `Quels utilisateurs/roles souhaitez vous rajouter au ticket : \`(pseudos discord/roles séparés d'une virgule, tapez \"aucun\" si il n'y en a aucun)\``).catch(err => console.log(err))
@@ -34,13 +36,13 @@ module.exports = class CustomTicketButtonInteraction extends BaseInteraction {
         let usersAudience = undefined
         if (usersToAddString != 'aucun') {
             usersAudience = await getUsersFromString(interaction.guild, usersToAddString.split(/\s*[,]\s*/))
-            if (usersToAdd.length === 0) return;
+            if (usersAudience.length === 0) return;
             for (const member of usersAudience) {
                 ticketPermissions.push({ id: member.user.id, allow: [Permissions.FLAGS.VIEW_CHANNEL]})
             }
         }
 
-        const confirmation = await askForConfirmation(dmChannel, `Etes vous sur de vouloir ouvrir un ticket custom avec les paramètres suivants : \`\`\`NOM: ${ticketName}\n\n${usersAudience ? usersAudience.map(member => member.user.tag).join('\n') : 'Aucun'} \`\`\``).catch(err => console.log(err))
+        const confirmation = await askForConfirmation(dmChannel, `Etes vous sur de vouloir ouvrir un ticket custom avec les paramètres suivants : \`\`\`NOM: ${ticketName}\n\nUTILISATEURS:\n${usersAudience ? usersAudience.map(member => member.user.tag).join('\n') : 'Aucun'} \`\`\``).catch(err => console.log(err))
         if (!confirmation) return
         ticketLogger.setLogData(`NOM: ${ticketName}\n\n${usersAudience ? usersAudience.map(member => member.user.tag).join('\n') : 'Aucun'}`)
 

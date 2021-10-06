@@ -46,10 +46,11 @@ module.exports = class TicketStaffButtonInteraction extends BaseInteraction {
         if (!ticketSelectionInteraction) return
         const emoji = ticketSelectionInteraction.customId
 
-        const ResponsableWebTV = mongoose.model('User').findOne({ roleResponsable: 'webtv' })
-        const ResponsableDA = mongoose.model('User').findOne({ roleResponsable: 'da' })
-        const ResponsableCOM = mongoose.model('User').findOne({ roleResponsable: 'com' })
-        const ResponsableEVENT = mongoose.model('User').findOne({ roleResponsable: 'event' })
+        const ResponsableWebTV = await mongoose.model('User').findOne({ roleResponsable: 'webtv' })
+        const ResponsableDA = await mongoose.model('User').findOne({ roleResponsable: 'da' })
+        const ResponsableCOM = await mongoose.model('User').findOne({ roleResponsable: 'com' })
+        const ResponsableEVENT = await mongoose.model('User').findOne({ roleResponsable: 'event' })
+        const ResponsablePARTENARIAT = await mongoose.model('User').findOne({ roleResponsable: 'partenariat' })
 
         const allChannels = interaction.guild.channels.cache
 

@@ -1,6 +1,4 @@
 const BaseEvent = require('../../utils/structures/BaseEvent');
-const { REST } = require('@discordjs/rest');
-const { Routes } = require('discord-api-types/v9');
 
 const Guild = require('../../src/schemas/GuildSchema')
 const User = require('../../src/schemas/UserSchema')
@@ -19,49 +17,17 @@ module.exports = class ReadyEvent extends BaseEvent {
         console.log(`Bot ${client.user.username} loaded and ready !`)
         showCommandLoad()
 
-        const rest = new REST({ version: '9' }).setToken(process.env.DISCORD_BOT_TOKEN);
         const commands = []
 
         for (const [name, interaction] of client.interactions) {
             if (interaction.type === 'slashCommand') commands.push(interaction.help.commandData.toJSON())
         }
-        
-    
-        console.log('Started refreshing application (/) commands.');
+
         for (const [key, value] of client.guilds.cache) {
             const guildConfig = await Guild.findOne({ guildId: key });
-            const guild = await client.guilds.cache.get(key)
-            await guild.members.fetch()
             if (guildConfig) {
                 client.config.set(key, guildConfig)
-                console.log(`Loaded data for guild : ${value.name}`)
-                if (guildConfig.slashCommands === true) {
-                    if (commands.length > 0) {
-                        // try {
-                        //     
-                
-                        //     await rest.put(
-                        //         Routes.applicationGuildCommands(client.user.id, key),
-                        //         { body: commands },
-                        //     );
-
-                        //     
-                
-                        //     
-                        // } catch (error) {
-                        //     console.error(error);
-                        // }
-
-                        try {
-                            client.application.commands.set(commands, guild.id)
-                            console.log(`Loaded ${commands.length} (/) commands for guild ${guild.name}`)
-                        } catch (err) {
-                            console.error(err)
-                        }
-                    } else guild.commands.set([])
-                    
-                } else guild.commands.set([])
-                
+                console.log(`Loaded config data for guild : ${value.name}`)
             } else {
                 Guild.create({
                     guildId: key,
@@ -71,7 +37,28 @@ module.exports = class ReadyEvent extends BaseEvent {
                     else console.error(`⚠️ Guild : ${value.name} wasn't saved in the database, created new entry ! ⚠️`)
                 }) 
             }
-            
+        }
+        
+    
+        console.log('Started refreshing application (/) commands.');
+        for (const [key, value] of client.guilds.cache) {
+            const guild = await client.guilds.cache.get(key)
+            const guildConfig = client.config.get(key)
+            await guild.members.fetch()
+            if (guildConfig) {
+                console.log(`Loaded members data for guild : ${value.name}`)
+                if (guildConfig.slashCommands === true) {
+                    if (commands.length > 0) {
+                        try {
+                            client.application.commands.set(commands, guild.id)
+                            console.log(`Loaded ${commands.length} (/) commands for guild ${guild.name}`)
+                        } catch (err) {
+                            console.error(err)
+                        }
+                    } else guild.commands.set([])
+                    
+                } else guild.commands.set([])
+            }
         }
         console.log('Successfully reloaded application (/) commands.');
         const Users = await User.find({ onServer: true })

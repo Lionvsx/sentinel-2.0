@@ -45,9 +45,11 @@ module.exports = class MessageCreateEvent extends BaseEvent {
                     command = subCommand;
                 }
             }
-            
+
+            if (command.help.home === true && message.guild.id != '227470914114158592') return message.channel.send(`**:x: | **Cette commande est réservée uniquement au serveur \`\`LDV Esport\`\` !`)
             const User = client.allUsers.get(message.author.id)
             if (!allMembers.get(message.author.id).permissions.has(command.help.userPermissions)) return message.channel.send(`**:x: | **Vous n'avez pas la permission pour executer cette commande !`)
+            if (!allMembers.get(client.user.id).permissions.has(command.help.clientPermissions)) return message.channel.send(`**:x: | **Je n'ai pas la permission pour executer cette commande !`)
             if (command.help.admin === true && User && User.isAdmin === false) return message.channel.send(`**:x: | **Seul les administrateurs peuvent exécuter cette commande !`)
             command.run(client, message, args);
         }

@@ -20,7 +20,7 @@ module.exports = class TicketAddCommand extends BaseCommand {
 
     async run(client, message, args) {
         const loading = client.emojis.cache.get('741276138319380583')
-        const existingDBTicket = await mongoose.model('Ticket').findOne({ linkedChannelId: message.channel.id, archive: false })
+        const existingDBTicket = await mongoose.model('Ticket').findOne({ ticketChannelId: message.channel.id, archive: false })
         if (existingDBTicket && existingDBTicket.id) {
             args.splice(0, 2)
             let memberToString = args.join(' ')

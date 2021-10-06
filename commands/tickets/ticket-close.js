@@ -1,6 +1,7 @@
 const BaseCommand = require('../../utils/structures/BaseCommand')
-const { MessageEmbed, Permissions } = require('discord.js');
-const mongoose = require('mongoose')
+const { MessageEmbed, Permissions, MessageAttachment } = require('discord.js');
+const mongoose = require('mongoose');
+const { createTicketTranscript } = require('../../utils/functions/createTicketTranscript');
 
 module.exports = class TicketCloseCommand extends BaseCommand {
     constructor() {
@@ -19,7 +20,7 @@ module.exports = class TicketCloseCommand extends BaseCommand {
     }
 
     async run(client, message, args) {
-        const existingDBTicket = await mongoose.model('Ticket').findOne({ linkedChannelId: message.channel.id, archive: false })
+        const existingDBTicket = await mongoose.model('Ticket').findOne({ ticketChannelId: message.channel.id, archive: false })
         if (existingDBTicket && existingDBTicket.id) {
             existingDBTicket.archive = true
             await existingDBTicket.save();
@@ -33,6 +34,32 @@ module.exports = class TicketCloseCommand extends BaseCommand {
             await sleep(5000);
             client.allTickets.delete(message.channel.id)
             message.channel.delete();
+
+            let ticketMember = await message.guild.members.fetch(existingDBTicket.userId)
+            if (!ticketMember) return;
+
+            const archiveChannel = message.guild.channels.get('632219616973815827')
+            let fileName = await createTicketTranscript(client, ticketMember.user.username.toLowerCase(), existingDBTicket.dmChannelId, message.guild.id)
+            let sendedMessage = await message.channel.send({ files: [
+                {
+                    attachment: `./files/transcripts/${fileName}`,
+                    name: fileName
+                }
+            ]})
+
+            let sendedAttachment = sendedMessage.attachments.first()
+
+            let embed = new MessageEmbed()
+                .setDescription(`**${ticketMember.user.tag}**`)
+                .addFields(
+                    { name: "Auteur du ticket", value: ticketMember.user.tag, inline: true },
+                    { name: "Channel du ticket", value: message.channel.name, inline: true },
+                    { name: "Lien du trans cript", value: `[Link](${sendedAttachment.url})`, inline: true },
+                )
+                .setColor('#f1c40f')
+            archiveChannel.send({
+                embeds: [embed]
+            })
         } else {
             message.channel.send(`**❌ | **Cette commande peut uniquement être utilisée dans un ticket !`)
         }

@@ -4,7 +4,8 @@
   "description": "",
   "main": "sentinel.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "pm2 start ./src/sentinel.js"
   },
   "repository": {
     "type": "git",
@@ -30,6 +31,7 @@
     "https": "^1.0.0",
     "jsdom": "^17.0.0",
     "mongoose": "^6.0.8",
-    "mongoose-sequence": "^5.3.1"
+    "mongoose-sequence": "^5.3.1",
+    "pm2": "^5.1.2"
   }
 }

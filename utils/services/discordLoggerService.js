@@ -18,7 +18,7 @@ class LoggerService {
 
             this.logData 
                 ? logEmbed.setDescription(`\`\`\`${myFormat()} | ${level.toUpperCase()} | ${this.category.toUpperCase()}\`\`\`\n${message}\n\`\`\`${this.logData}\`\`\``) 
-                : logEmbed.setDescription(`\`\`\`${myFormat()} | ${level.toUpperCase()} | ${this.category.toUpperCase()}\`\`\`\n${message}\n\`\`\`${this.logData}\`\`\``);
+                : logEmbed.setDescription(`\`\`\`${myFormat()} | ${level.toUpperCase()} | ${this.category.toUpperCase()}\`\`\`\n${message}`);
             this.logMember
                 ? logEmbed.setAuthor(this.logMember.user.tag, this.logMember.user.displayAvatarURL())
                 : null;

@@ -22,9 +22,12 @@ module.exports = class PingCommand extends BaseCommand {
         let msg = await message.channel.send(`**${loading} | **Pinging server ...`)
         let embed = new MessageEmbed()
             .setColor('#2ecc71')
-        msg.edit('', embed.addFields([
-            {name: 'Ping', value: `\`${msg.createdTimestamp - message.createdTimestamp} ms\``, inline: true},
-            {name: 'API Latency', value: `\`${Math.round(bot.ws.ping)} ms\``, inline: true}
-        ]))
+        msg.edit({
+            content: ' ',
+            embeds: [embed.addFields([
+                {name: 'Ping', value: `\`${msg.createdTimestamp - message.createdTimestamp} ms\``, inline: true},
+                {name: 'API Latency', value: `\`${Math.round(client.ws.ping)} ms\``, inline: true}
+            ])]
+        })
     }
 }
