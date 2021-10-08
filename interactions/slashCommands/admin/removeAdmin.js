@@ -37,7 +37,7 @@ module.exports = class PrefixInteraction extends BaseInteraction {
                     userDB.save();
                     interaction.reply(`**✅ | **\`\`${user}\`\` a bien été retiré des administrateurs du bot`)
                 } else {
-                    interaction.reply(`**❎ | **\`\`${user}\`\` n'est pas administrateur du bot`)
+                    interaction.reply(`**ℹ️ | **\`\`${user}\`\` n'est pas administrateur du bot`)
                 }
             } else {
                 interaction.reply(`**❌ | **INTERNAL SERVER ERROR : DB CORRUPTION`)

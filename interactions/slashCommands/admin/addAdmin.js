@@ -33,7 +33,7 @@ module.exports = class PrefixInteraction extends BaseInteraction {
             console.log(userDB, userId)
             if (userDB && userDB.id) {
                 if (userDB.isAdmin) {
-                    interaction.reply(`**❎ | **\`\`${user}\`\` est déjà administrateur du bot`)
+                    interaction.reply(`**ℹ️ | **\`\`${user}\`\` est déjà administrateur du bot`)
                 } else {
                     userDB.isAdmin = true;
                     userDB.save();
