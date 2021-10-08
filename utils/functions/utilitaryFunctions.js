@@ -80,8 +80,6 @@ const updateGuildMemberCache = async (guild) => {
     if (guildMembersCache.size != guild.memberCount) {
         envLogger.warning(`Le cache des utilisateurs du serveur \`${guild.name}\` était incomplet\nProcédure de remise en cache :`)
         await guild.members.fetch();
-    } else {
-        envLogger.info(`Demande de mise à jour du cache des utilisateurs effectué pour le serveur \`${guild.name}\`\nCache à jour :`)
     }
     return guild.members.cache
 }
