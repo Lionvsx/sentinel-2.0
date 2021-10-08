@@ -4,6 +4,8 @@ const { updateGuildMemberCache } = require('../../../../utils/functions/utilitar
 const { MessageEmbed, Permissions } = require('discord.js')
 const User = require('../../../../src/schemas/UserSchema')
 
+const DiscordLogger = require('../../../../utils/services/discordLoggerService')
+
 const {
     createButton,
     createButtonActionRow
@@ -22,6 +24,10 @@ module.exports = class RegisterAssoMembersButtonInteraction extends BaseInteract
             content: `Check tes messages privés !`,
             ephemeral: true
         })
+
+        const configLogger = new DiscordLogger('config', '#e17055')
+        configLogger.setLogMember(interaction.member)
+        configLogger.setGuild(interaction.guild)
 
 
         const dmChannel = await interaction.user.createDM()
@@ -49,10 +55,13 @@ module.exports = class RegisterAssoMembersButtonInteraction extends BaseInteract
             .addField(`✉ UTILISATEURS INJOIGNABLES EN DM`, `\`\`\`${registerResults.errors.length > 0 ? registerResults.errors.join(',\n') : 'Aucun'}\`\`\``, false)
             .addField(`❌ UTILISATEURS INTROUVABLES SUR LE SERVEUR`, `\`\`\`${userErrors.length > 0 ? userErrors.join(',\n') : 'Aucun'}\`\`\``, false)
             .setColor('#fdcb6e')
+
+        configLogger.setLogData(`ADDED USERS: \n${registerResults.success.length > 0 ? registerResults.success.join('\n'): 'Aucun'}\n\nCANT DM: \n${registerResults.errors.length > 0 ? registerResults.errors.join(',\n') : 'Aucun'}\n\nNOT ON SERVER: \n${userErrors.length > 0 ? userErrors.join(',\n') : 'Aucun'}`)
         
         dmChannel.send({
             embeds: [summaryEmbed]
         })
+        configLogger.info(`<@!${interaction.user.id}> a ajouté \`${registerResults.success.length}\` utilisateur(s) en tant que membre LDV Esport :`)
     }
 }
 
