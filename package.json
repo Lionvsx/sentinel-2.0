@@ -1,12 +1,12 @@
 {
   "name": "sentinel-2.0",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "",
   "main": "sentinel.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "pm2 start ./src/sentinel.js",
-    "release" : "standard-version"
+    "release": "standard-version"
   },
   "repository": {
     "type": "git",
