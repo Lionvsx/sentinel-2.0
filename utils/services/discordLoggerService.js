@@ -39,7 +39,7 @@ class LoggerService {
     setGuild(guild) {
         this.guild = guild;
         const guildConfig = guild.client.config.get(guild.id)
-        this.logChannel = guild.channels.cache.get(guildConfig.logChannelId)
+        this.logChannel = guildConfig.logChannelId ? guild.channels.cache.get(guildConfig.logChannelId) : undefined
     }
 
     async error(message) {
