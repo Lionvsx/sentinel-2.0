@@ -24,7 +24,7 @@ module.exports = class MemberInformationFormButton extends BaseInteraction {
         databaseLogger.setLogMember(await ldvGuild.members.fetch(interaction.user.id))
 
         const User = await mongoose.model('User').findOne({ discordId: interaction.user.id })
-        if (User && User.isMember) return interaction.update({embeds: [new MessageEmbed().setDescription(`✅ Vous êtes déja enregistrés en tant que membre ✅`).setColor('#00b894')], components: []})
+        if (User && User.firstName === true) return interaction.update({embeds: [new MessageEmbed().setDescription(`✅ Vous êtes déja enregistrés en tant que membre ✅`).setColor('#00b894')], components: []})
 
         const allRoles = ldvGuild.roles.cache 
 
