@@ -23,7 +23,10 @@ module.exports = class MemberInformationFormButton extends BaseInteraction {
         databaseLogger.setGuild(ldvGuild)
         databaseLogger.setLogMember(await ldvGuild.members.fetch(interaction.user.id))
 
-        const allRoles = ldvGuild.roles.cache
+        const User = await mongoose.model('User').findOne({ discordId: interaction.user.id })
+        if (User && User.isMember) return interaction.update({embeds: [new MessageEmbed().setDescription(`✅ Vous êtes déja enregistrés en tant que membre ✅`).setColor('#00b894')], components: []})
+
+        const allRoles = ldvGuild.roles.cache 
 
         let newInteraction = await interaction.update({
             embeds: [new MessageEmbed().setDescription(`🔽 Veuillez renseigner votre école ci dessous 🔽`).setColor('#00b894')],
@@ -61,7 +64,7 @@ module.exports = class MemberInformationFormButton extends BaseInteraction {
         const lastName = await userResponseContent(dmChannel, `🔽 Envoie moi ton nom de famille par message 🔽\n\`(exemple: ROUSSARD)\``).catch(err => console.log(err))
         if (!lastName) return restoreForm(dmChannel)
 
-        const User = await mongoose.model('User').findOne({ discordId: interaction.user.id })
+        
         if (User && User.id) {
             databaseLogger.setLogData(`PRENOM: ${firstName}\nNOM: ${lastName.toUpperCase()}\nECOLE: ${school.toUpperCase()}\nANNEE: ${year ? year.toUpperCase() : 'NON DEFINIE'}`)
             User.firstName = firstName,
