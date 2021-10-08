@@ -1,5 +1,5 @@
 const BaseEvent = require('../../utils/structures/BaseEvent');
-const Ticket = require('../../src/schemas/TicketSchema')
+const Ticket = require('../../src/schemas/TicketSchema');
 
 module.exports = class MessageCreateEvent extends BaseEvent {
     constructor() {

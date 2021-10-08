@@ -1,11 +1,12 @@
 {
   "name": "sentinel-2.0",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "",
   "main": "sentinel.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "pm2 start ./src/sentinel.js"
+    "start": "pm2 start ./src/sentinel.js",
+    "release": "standard-version"
   },
   "repository": {
     "type": "git",
@@ -32,6 +33,7 @@
     "jsdom": "^17.0.0",
     "mongoose": "^6.0.8",
     "mongoose-sequence": "^5.3.1",
-    "pm2": "^5.1.2"
+    "pm2": "^5.1.2",
+    "standard-version": "^9.3.1"
   }
 }

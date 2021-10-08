@@ -9,7 +9,7 @@ module.exports = class DashBureauCommand extends BaseCommand {
     constructor () {
         super('dashboardbureau', 'dashboard', [], {
             usage: "dashboardbureau",
-            description: "",
+            description: "Crée un dashboard pour le bureau",
             categoryDisplayName: `🧭 Dashboard`,
             userPermissions: ['ADMINISTRATOR'],
             clientPermissions: [],
