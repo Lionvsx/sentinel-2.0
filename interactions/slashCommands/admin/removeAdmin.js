@@ -29,8 +29,7 @@ module.exports = class PrefixInteraction extends BaseInteraction {
 
         if (guildMember) {
             const userId = guildMember.user.id;
-            const userDB = await mongoose.model('User').findOne({ discordId: userId });
-            console.log(userDB, userId)
+            const userDB = await mongoose.model('User').findOne({ discordId: userId, onServer: true });
             if (userDB && userDB.id) {
                 if (userDB.isAdmin) {
                     userDB.isAdmin = false;

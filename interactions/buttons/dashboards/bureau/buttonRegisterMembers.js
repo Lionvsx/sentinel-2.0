@@ -10,6 +10,7 @@ const {
     createButton,
     createButtonActionRow
 } = require('../../../../utils/functions/messageComponents');
+const { isMember } = require('../../../../utils/functions/dbFunctions')
 
 module.exports = class RegisterAssoMembersButtonInteraction extends BaseInteraction {
     constructor() {
@@ -74,6 +75,7 @@ function registerUsers(audience, tempMsg, loading) {
             const dmChannel = await member.createDM()
             
             const dBUser = await User.findOne({ discordId: member.user.id });
+            if (isMember(dBUser)) continue;
 
             const componentRow = createButtonActionRow([
                 createButton('askMemberInformation', 'Je suis prêt à remplir le formulaire', 'SUCCESS')
