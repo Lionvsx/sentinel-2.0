@@ -86,7 +86,7 @@ module.exports = class ReadyEvent extends BaseEvent {
         sentinelLogger.setGuild(ldvGuild)
         sentinelLogger.setLogMember(client)
         sentinelLogger.setLogData(logData.join('\n'))
-        sentinelLogger.info(`**BOT ${client.user.username} REBOOTED AND READY :**`)
+        sentinelLogger.info(`Bot <@!${client.user.id}> Ready :`)
 
         
 
