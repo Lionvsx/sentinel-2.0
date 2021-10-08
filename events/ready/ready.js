@@ -32,7 +32,8 @@ module.exports = class ReadyEvent extends BaseEvent {
             const guildConfig = await Guild.findOne({ guildId: key });
             if (guildConfig) {
                 client.config.set(key, guildConfig)
-                console.log(`Loaded config data for guild : ${value.name}`) && logData.push(`Loaded config data for guild : ${value.name}`)
+                console.log(`Loaded config data for guild : ${value.name}`)
+                logData.push(`Loaded config data for guild : ${value.name}`)
             } else {
                 Guild.create({
                     guildId: key,
@@ -52,7 +53,8 @@ module.exports = class ReadyEvent extends BaseEvent {
             const guildConfig = client.config.get(key)
             await guild.members.fetch()
             if (guildConfig) {
-                console.log(`Loaded members data for guild : ${value.name}`)
+                console.log(`Cached ${guild.members.cache.size} members data for guild : ${value.name}`)
+                logData.push(`Cached ${guild.members.cache.size} members data for guild : ${value.name}`)
                 if (guildConfig.slashCommands === true) {
                     if (commands.length > 0) {
                         try {
