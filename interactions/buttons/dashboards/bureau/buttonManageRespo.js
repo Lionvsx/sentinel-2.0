@@ -53,12 +53,12 @@ module.exports = class ManageRespoButtonInteraction extends BaseInteraction {
             const ResponsableESPORT = await mongoose.model('User').findOne({ roleResponsable: 'esport' })
             const ResponsablePARTENARIAT = await mongoose.model('User').findOne({ roleResponsable: 'partenariat' })
 
-            const ResponsableWebTVString = ResponsableWebTV?.id ? `Remplacer ${ResponsableWebTV.username} par ${stringInputUser} ?` : "Aucun responsable définir pour la Web TV"
-            const ResponsableDAString = ResponsableDA?.id ? `Remplacer ${ResponsableDA.username} par ${stringInputUser} ?` : "Aucun responsable définir pour la Direction Artistique"
-            const ResponsableCOMString = ResponsableCOM?.id ? `Remplacer ${ResponsableCOM.username} par ${stringInputUser} ?` : "Aucun responsable définir pour la Communication"
-            const ResponsableEVENTString = ResponsableEVENT?.id ? `Remplacer ${ResponsableEVENT.username} par ${stringInputUser} ?` : "Aucun responsable définir pour l'Event"
-            const ResponsableESPORTString = ResponsableESPORT?.id ? `Remplacer ${ResponsableESPORT.username} par ${stringInputUser} ?` : "Aucun responsable définir pour l'Esport"
-            const ResponsablePARTENARIATString = ResponsablePARTENARIAT?.id ? `Remplacer ${ResponsablePARTENARIAT.username} par ${stringInputUser} ?` : "Aucun responsable définir pour les Partenariats"
+            const ResponsableWebTVString = ResponsableWebTV?.id ? `Remplacer ${ResponsableWebTV.username} par ${stringInputUser} ?` : "Aucun responsable défini pour la Web TV"
+            const ResponsableDAString = ResponsableDA?.id ? `Remplacer ${ResponsableDA.username} par ${stringInputUser} ?` : "Aucun responsable défini pour la Direction Artistique"
+            const ResponsableCOMString = ResponsableCOM?.id ? `Remplacer ${ResponsableCOM.username} par ${stringInputUser} ?` : "Aucun responsable défini pour la Communication"
+            const ResponsableEVENTString = ResponsableEVENT?.id ? `Remplacer ${ResponsableEVENT.username} par ${stringInputUser} ?` : "Aucun responsable défini pour l'Event"
+            const ResponsableESPORTString = ResponsableESPORT?.id ? `Remplacer ${ResponsableESPORT.username} par ${stringInputUser} ?` : "Aucun responsable défini pour l'Esport"
+            const ResponsablePARTENARIATString = ResponsablePARTENARIAT?.id ? `Remplacer ${ResponsablePARTENARIAT.username} par ${stringInputUser} ?` : "Aucun responsable défini pour les Partenariats"
 
             const respoOptionsArray = [
                 createSelectionMenuOption('webtv', 'Web TV', ResponsableWebTVString, '🎥'),
