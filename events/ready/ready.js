@@ -22,8 +22,6 @@ module.exports = class ReadyEvent extends BaseEvent {
 
         const sentinelLogger = new DiscordLogger('sentinel', '#23e5ec')
         const ldvGuild = client.guilds.cache.get('227470914114158592')
-        sentinelLogger.setLogMember(client)
-        sentinelLogger.setGuild(ldvGuild)
         const logData = []
 
         for (const [name, interaction] of client.interactions) {
@@ -83,6 +81,8 @@ module.exports = class ReadyEvent extends BaseEvent {
         console.log(`Cached Users on guild ${ldvGuild.name}: ${client.allUsers.size}`)
         logData.push(`Cached Users on guild ${ldvGuild.name}: ${client.allUsers.size}`)
 
+        sentinelLogger.setGuild(ldvGuild)
+        sentinelLogger.setLogMember(client)
         sentinelLogger.setLogData(logData.join('\n'))
         sentinelLogger.info(`**BOT ${client.user.username} REBOOTED AND READY :**`)
 
