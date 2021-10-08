@@ -17,7 +17,7 @@ module.exports = class MoveAllCommand extends BaseCommand {
         });
     }
 
-    async run (bot, message, args) {
+    async run (client, message, args) {
         if (!args[1]) return message.channel.send(`**:x: | **Vous devez selectionner un channel !`)
         let guild = message.guild
         let allMembers = await updateGuildMemberCache(guild);

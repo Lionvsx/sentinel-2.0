@@ -20,8 +20,8 @@ module.exports = class AddRoleCommand extends BaseCommand {
         });
     }
 
-    async run (bot, message, args) {
-        const loading = bot.emojis.cache.get('741276138319380583')
+    async run (client, message, args) {
+        const loading = client.emojis.cache.get('741276138319380583')
         let guild = message.guild
         let allMembers = await updateGuildMemberCache(guild);
         let allRoles = guild.roles.cache

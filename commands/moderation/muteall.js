@@ -17,7 +17,7 @@ module.exports = class MoveAllCommand extends BaseCommand {
         });
     }
 
-    async run (bot, message, args) {
+    async run (client, message, args) {
         const guild = message.guild
         const allMembers = await updateGuildMemberCache(guild);
         const invocationChannel = allMembers.get(message.author.id).voice.channel

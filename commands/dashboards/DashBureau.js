@@ -21,7 +21,7 @@ module.exports = class DashBureauCommand extends BaseCommand {
         });
     }
 
-    async run (bot, message, args) {
+    async run (client, message, args) {
         const DashBoardBureau = new Discord.MessageEmbed()
             .setColor('#0099ff')
             .setTitle('DASHBOARD BUREAU')

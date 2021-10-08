@@ -21,7 +21,7 @@ module.exports = class DashStaffCommand extends BaseCommand {
         });
     }
 
-    async run (bot, message, args) {
+    async run (client, message, args) {
         const DashBoardStaff = new MessageEmbed()
             .setColor('#0099ff')
             .setTitle('DASHBOARD STAFF')

@@ -21,7 +21,7 @@ module.exports = class DashRespoCommand extends BaseCommand {
         });
     }
 
-    async run (bot, message, args) {
+    async run (client, message, args) {
         
         const DashBoardRespo = new Discord.MessageEmbed()
             .setColor('#0099ff')
