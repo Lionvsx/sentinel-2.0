@@ -26,6 +26,7 @@ module.exports = class RemoveRoleCommand extends BaseCommand {
         let allMembers = await updateGuildMemberCache(guild)
         let allRoles = guild.roles.cache
 
+        const moderationLogger = new DiscordLogger('moderation', '#fdcb6e')
         moderationLogger.setLogMember(message.member)
         moderationLogger.setGuild(message.guild)
 
