@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.2.0](https://github.com/Lionvsx/sentinel-2.0/compare/v1.1.0...v1.2.0) (2021-10-08)
+
+
+### Features
+
+* **logs:** add log support on addrole/removerole ([d2e5328](https://github.com/Lionvsx/sentinel-2.0/commit/d2e5328e6807a10c13c0f504484a2bd6841eb876))
+* **logs:** add log support over db config ([76573e4](https://github.com/Lionvsx/sentinel-2.0/commit/76573e4dbabee5ae6a1b8b5c7f68f26dc306570e))
+* **logs:** add log support over reboot ([63edc1f](https://github.com/Lionvsx/sentinel-2.0/commit/63edc1f9dd8f9d84465db9ba6beeaca163eaba7a))
+
+
+### Bug Fixes
+
+* remove log display on cache update ([a371c9b](https://github.com/Lionvsx/sentinel-2.0/commit/a371c9b308d73613a129916b1fec9c439c9fcccf))
+
 ## 1.1.0 (2021-10-08)
 
 

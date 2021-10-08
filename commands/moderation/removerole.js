@@ -2,6 +2,8 @@ const BaseCommand = require('../../utils/structures/BaseCommand');
 const { userResponse } = require('../../utils/functions/awaitFunctions');
 const { updateGuildMemberCache } = require('../../utils/functions/utilitaryFunctions')
 
+const DiscordLogger = require('../../utils/services/discordLoggerService')
+
 module.exports = class RemoveRoleCommand extends BaseCommand {
     constructor () {
         super('removerole', 'moderation', [], {
@@ -23,7 +25,9 @@ module.exports = class RemoveRoleCommand extends BaseCommand {
         let guild = message.guild
         let allMembers = await updateGuildMemberCache(guild)
         let allRoles = guild.roles.cache
-        const filter = m => m.author.bot === false
+
+        moderationLogger.setLogMember(message.member)
+        moderationLogger.setGuild(message.guild)
 
         if (args[2]) {
             let selectedMember = allMembers.find(m => m.user.tag.toLowerCase().includes(args[1].toLowerCase()))
@@ -33,6 +37,7 @@ module.exports = class RemoveRoleCommand extends BaseCommand {
                 let role = allRoles.find(r => r.name.toLowerCase().includes(stringRole.toLowerCase()))
                 selectedMember.roles.remove(role)
                 message.channel.send(`**:white_check_mark: | **Vous avez retiré le role \`${role.name}\` à \`${selectedMember.user.username}\``)
+                moderationLogger.info(`<@!${message.author.id}> a retiré le role \`${role.name}\` à \`${selectedMember.user.username}\``)
             } catch (error) {
                 console.log(error)
                 message.channel.send(`**:x: | **Veuillez renseigner des arguments valides \`(adduser <user> <role>)\``)
@@ -58,6 +63,7 @@ module.exports = class RemoveRoleCommand extends BaseCommand {
                         } else {
                             try {
                                 await member.roles.remove(role)
+                                moderationLogger.info(`<@!${message.author.id}> a retiré le role \`${role.name}\` à \`${member.user.username}\``)
                             } catch(err) {
                                 dmChannel.send(`**:x: | **Impossible de retirer le role \`${roleString}\` à \`${userString}\``)
                                 errorsCount = errorsCount+1

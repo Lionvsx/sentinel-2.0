@@ -6,6 +6,8 @@ const mongoose = require('mongoose')
 const { updateGuildMemberCache } = require('../../../../utils/functions/utilitaryFunctions')
 const { createButton, createMessageActionRow, createSelectionMenu, createSelectionMenuOption, createButtonActionRow } = require('../../../../utils/functions/messageComponents')
 
+const DiscordLogger = require('../../../../utils/services/discordLoggerService')
+
 module.exports = class ManageRespoButtonInteraction extends BaseInteraction {
     constructor() {
         super('buttonManageRespo', 'dashboards', 'button', {
@@ -24,6 +26,10 @@ module.exports = class ManageRespoButtonInteraction extends BaseInteraction {
         const dmChannel = await interaction.user.createDM()
         const allMembers = await updateGuildMemberCache(interaction.guild)
         const allRoles = interaction.guild.roles.cache
+
+        const configLogger = new DiscordLogger('config', '#e17055')
+        configLogger.setLogMember(interaction.member)
+        configLogger.setGuild(interaction.guild)
 
 
         let lengthDiv = 25
@@ -101,6 +107,7 @@ module.exports = class ManageRespoButtonInteraction extends BaseInteraction {
                     await existingRespo.save();
                     existingRespoGuildMember.roles.remove(rolesToRemove)
                     dmChannel.send(`**✅ | **\`\`${existingRespo.username}\`\` a bien été retiré du poste de responsable \`${stringInputRoleRespo.toUpperCase()}\` !`)
+                    configLogger.info(`<@!${interaction.user.id}> a retiré \`${existingRespo.username}\` du poste de responsable \`${stringInputRoleRespo.toUpperCase()}\``)
                 } catch (err) {
                     dmChannel.send(`**❌ | **INTERNAL SERVER ERROR : DB CORRUPTION`)
                 }
@@ -117,6 +124,7 @@ module.exports = class ManageRespoButtonInteraction extends BaseInteraction {
                     await guildMember.roles.add(rolesToAdd)
                     await registerMember(guildMember, User)
                     dmChannel.send(`**✅ | **\`\`${guildMember.user.username}\`\` a bien été ajouté en tant que responsable du pôle \`${stringInputRoleRespo.toUpperCase()}\` !`)
+                    configLogger.info(`<@!${interaction.user.id}> a ajouté \`${guildMember.user.username}\` en tant que responsable \`${stringInputRoleRespo.toUpperCase()}\``)
                 } else {
                     dmChannel.send(`**❌ | **INTERNAL SERVER ERROR : DB CORRUPTION`)
                 }
@@ -143,6 +151,7 @@ module.exports = class ManageRespoButtonInteraction extends BaseInteraction {
                     await existingRespo.save();
                     existingRespoGuildMember.roles.remove(rolesToRemove)
                     dmChannel.send(`**✅ | **\`\`${existingRespo.username}\`\` a bien été retiré du poste de responsable \`${roleRespo.toUpperCase()}\` !`)
+                    configLogger.info(`<@!${interaction.user.id}> a retiré \`${existingRespo.username}\` du poste de responsable \`${roleRespo.toUpperCase()}\``)
                 } catch (err) {
                     dmChannel.send(`**❌ | **INTERNAL SERVER ERROR : DB CORRUPTION`)
                 }
