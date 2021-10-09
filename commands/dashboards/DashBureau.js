@@ -44,7 +44,7 @@ module.exports = class DashBureauCommand extends BaseCommand {
             ])
             const Row2 = createButtonActionRow([
                 createEmojiButton('buttonCustomTicket', 'Créer un ticket', 'SECONDARY', '🎫'),
-                createEmojiButton('buttonStartStopAg', 'Gérer les Assemblées Générales', 'DANGER', '🔺'),
+                createEmojiButton('buttonStartStopAg', 'Gérer les Assemblées Générales', 'PRIMARY', '🔺'),
                 createEmojiButton('buttonRegisterMembers', 'Ajouter des membres à l\'asso', 'SUCCESS', '👥'),
             ])
             message.channel.send({

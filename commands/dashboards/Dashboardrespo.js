@@ -32,21 +32,21 @@ module.exports = class DashRespoCommand extends BaseCommand {
                 { name: '\u200B', value: '\u200B' },
                 { name: '📢 | ANNONCES', value: 'Ouvre une interface en MP afin de créer une annonce personnalisée', inline: true },
                 { name: '✅ | CREATE CHANNEL', value: "Vous permet de créer un salon personnalisé dans votre catégorie", inline: true },
-                { name: '❌ | DELETE CHANNEL', value: "Vous permet de supprimer un salon de votre catégorie", inline: true },
+                { name: '🗑️ | DELETE CHANNEL', value: "Vous permet de supprimer un salon de votre catégorie", inline: true },
                 { name: '\u200B', value: '\u200B' },
                 { name: '🎫 | OPEN CUSTOM TICKET', value: "Ouvre un ticket avec des paramètres personnalisés", inline: true },
-                { name: '➕ | ADD USER', value: "Ajoutez un utilisateur à votre pôle", inline: true },
-                { name: '➖ | REMOVE USER', value: "Retire un utilisateur de votre pôle", inline: true },
+                { name: '➕ | ADD USER', value: "Ajoutez des utilisateurs à votre pôle", inline: true },
+                { name: '➖ | REMOVE USER', value: "Retire des utilisateurs de votre pôle", inline: true },
             )
         const Row1 = createButtonActionRow([
             createEmojiButton('buttonAnnonce', 'Faire une annonce', 'PRIMARY', '📢'),
             createEmojiButton('buttonCreateChannel', 'Créer un salon', 'SUCCESS', '✅'),
-            createEmojiButton('buttonDeleteChannel', 'Supprimer un salon', 'DANGER', '❌')
+            createEmojiButton('buttonDeleteChannel', 'Supprimer un salon', 'DANGER', '🗑️')
         ])
         const Row2 = createButtonActionRow([
             createEmojiButton('buttonCustomTicket', 'Créer un ticket', 'SECONDARY', '🎫'),
-            createEmojiButton('buttonAddUser', 'Ajouter un user', 'SUCCESS', '➕'),
-            createEmojiButton('buttonRemoveUser', 'Retirer un user', 'DANGER', '➖'),
+            createEmojiButton('buttonAddUser', 'Ajouter des staffs', 'SUCCESS', '➕'),
+            createEmojiButton('buttonRemoveUser', 'Retirer des staffs', 'DANGER', '➖'),
         ])
         message.channel.send({
             embeds: [DashBoardRespo],
