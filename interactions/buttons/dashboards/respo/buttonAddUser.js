@@ -1,5 +1,5 @@
 const BaseInteraction = require('../../../../utils/structures/BaseInteraction')
-const { userResponseContent, reactionEmbedSelector, selectorReply, askForConfirmation } = require('../../../../utils/functions/awaitFunctions')
+const { userResponseContent, askForConfirmation } = require('../../../../utils/functions/awaitFunctions')
 const { MessageEmbed } = require('discord.js')
 const mongoose = require('mongoose')
 const { updateGuildMemberCache } = require("../../../../utils/functions/utilitaryFunctions")
@@ -44,8 +44,6 @@ module.exports = class AddUserButtonInteraction extends BaseInteraction {
 
         const userDB = await mongoose.model('User').findOne({ onServer: true, discordId: userRequest.id })
         
-        // console.log(userDB.roleResponsable)
-
         if (!userDB.roleResponsable) {
             interaction.reply({
                 content: `**❌ | **Vous n'êtes pas responsable dans la base de données !`,
@@ -68,8 +66,8 @@ module.exports = class AddUserButtonInteraction extends BaseInteraction {
 
         if (userAudience.length === 0) return dmChannel.send(`**❌ | **Aucun utilisateur trouvé !`)
 
-        const confirmation = await askForConfirmation(dmChannel, `Êtes vous sûr de vouloir ajouter les utilisateurs suivants dans **votre pôle** ?\n\nUSERS TROUVES:\n\`\`\`${userAudience.length > 0 ? userAudience.map(member => member.user.tag).join('\n'): 'Aucun'}\`\`\`\nUSERS INTROUVABLES:\n\`\`\`${userErrors.length > 0 ? userErrors.join('\n') : 'Aucun'}\`\`\``).catch(err => console.log(err))
-        if (!confirmation) return;
+        const confirmation = await askForConfirmation(dmChannel, `Êtes vous sûr de vouloir ajouter les utilisateurs suivants dans **votre pôle** ${userDB.roleResponsable} ?\n\nUSERS TROUVES:\n\`\`\`${userAudience.length > 0 ? userAudience.map(member => member.user.tag).join('\n'): 'Aucun'}\`\`\`\nUSERS INTROUVABLES:\n\`\`\`${userErrors.length > 0 ? userErrors.join('\n') : 'Aucun'}\`\`\``).catch(err => console.log(err))
+        if (!confirmation) return dmChannel.send(`**❌ | **Commande annulée !`)
 
         const loading = client.emojis.cache.get('741276138319380583')
 
@@ -79,7 +77,7 @@ module.exports = class AddUserButtonInteraction extends BaseInteraction {
 
         const summaryEmbed = new MessageEmbed()
             .setTitle('COMPTE RENDU')
-            .setDescription(`Compte rendu final de l'opération d'ajout de membres en tant que membres associatifs :\n*(Vous pouvez recopier les champs d'erreur pour les re-envoyer au bot lors d'une prochaine commande)*`)
+            .setDescription(`Compte rendu final de l'opération d'ajout de membres en tant que membres associatifs :\n*(Vous pouvez recopier les champs d'erreur pour les renvoyer au bot lors d'une prochaine commande)*`)
             .addField('✅ UTILISATEURS AJOUTES', `\`\`\`${staffResults.length > 0 ? staffResults.join('\n'): 'Aucun'}\`\`\``, false)
             .addField(`❌ UTILISATEURS INTROUVABLES SUR LE SERVEUR`, `\`\`\`${userErrors.length > 0 ? userErrors.join(',\n') : 'Aucun'}\`\`\``, false)
             .setColor('#fdcb6e')
