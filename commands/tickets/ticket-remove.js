@@ -1,6 +1,7 @@
 const BaseCommand = require('../../utils/structures/BaseCommand')
 const { Permissions } = require('discord.js');
 const mongoose = require('mongoose');
+const DiscordLogger = require('../../utils/services/discordLoggerService');
 
 module.exports = class TicketRemoveCommand extends BaseCommand {
     constructor() {
@@ -22,25 +23,30 @@ module.exports = class TicketRemoveCommand extends BaseCommand {
         const loading = client.emojis.cache.get('741276138319380583')
         const existingDBTicket = await mongoose.model('Ticket').findOne({ linkedChannelId: message.channel.id, archive: false })
         if (existingDBTicket && existingDBTicket.id) {
+            const ticketLogger = new DiscordLogger('tickets', '#ffeaa7')
+            ticketLogger.setGuild(message.guild)
+            ticketLogger.setLogMember(message.member)
+
             args.splice(0, 2)
             let memberToString = args.join(' ')
             let membersToRemoveArray = memberToString.split(', ')
             message.mentions.members ? message.mentions.members.each(member => membersToRemoveArray.push(member.user.tag)) : null
             let count = 0
             let errors = 0
-            let tempMsg = await message.channel.send(`**${loading} |** Ajout en cours ...`)
+            let tempMsg = await message.channel.send(`**${loading} |** Retrait en cours ...`)
             let removedMembersArray = []
             for (let i = 0; i < membersToRemoveArray.length; i++) {
                 let memberString = membersToRemoveArray[i];
                 let guildMember = message.guild.members.cache.find(m => m.user.tag.toLowerCase().includes(memberString.toLowerCase()));
                 try {
-                    let permissionsToRemove = message.channel.permissionOverwrites
-                    permissionsToRemove.delete(guildMember.user.id)
-                    message.channel.overwritePermissions(permissionsToRemove)
+                    await message.channel.permissionOverwrites.delete(guildMember.user.id)
                     removedMembersArray.push(guildMember.user.tag)
                     count++;
+                    ticketLogger.info(`<@!${message.author.id}> a retiré \`${guildMember.user.username}\` du ticket \`${existingDBTicket.name}\``)
                 } catch (err) {
                     console.error(err)
+                    ticketLogger.setLogData(err)
+                    ticketLogger.error(`<@!${message.author.id}> n'est pas arrivé à retirer \`${guildMember.user.username}\` du ticket \`${existingDBTicket.name}\``)
                     errors++;
                 }
             }

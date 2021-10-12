@@ -2,6 +2,8 @@ const BaseCommand = require('../../utils/structures/BaseCommand')
 const mongoose = require('mongoose');
 const { Permissions } = require('discord.js')
 
+const DiscordLogger = require('../../utils/services/discordLoggerService')
+
 module.exports = class TicketAddCommand extends BaseCommand {
     constructor() {
         super('ticket-add', 'tickets', [], {
@@ -22,6 +24,11 @@ module.exports = class TicketAddCommand extends BaseCommand {
         const loading = client.emojis.cache.get('741276138319380583')
         const existingDBTicket = await mongoose.model('Ticket').findOne({ ticketChannelId: message.channel.id, archive: false })
         if (existingDBTicket && existingDBTicket.id) {
+
+            const ticketLogger = new DiscordLogger('tickets', '#ffeaa7')
+            ticketLogger.setGuild(message.guild)
+            ticketLogger.setLogMember(message.member)
+
             args.splice(0, 2)
             let memberToString = args.join(' ')
             let memberToAddArray = memberToString.split(', ')
@@ -34,11 +41,14 @@ module.exports = class TicketAddCommand extends BaseCommand {
                 let memberString = memberToAddArray[i];
                 let guildMember = message.guild.members.cache.find(m => m.user.tag.toLowerCase().includes(memberString.toLowerCase()));
                 try {
-                    await message.channel.updateOverwrite(guildMember.user, { VIEW_CHANNEL: true })
+                    await message.channel.permissionOverwrites.create(guildMember.user, { VIEW_CHANNEL: true, SEND_MESSAGES: true })
                     addedMembersArray.push(guildMember.user.tag)
                     count++;
+                    ticketLogger.info(`<@!${message.author.id}> a ajouté \`${guildMember.user.username}\` au ticket \`${existingDBTicket.name}\``)
                 } catch (err) {
                     console.error(err)
+                    ticketLogger.setLogData(err)
+                    ticketLogger.error(`<@!${message.author.id}> n'est pas arrivé à ajouter \`${guildMember.user.username}\` au ticket \`${existingDBTicket.name}\``)
                     errors++;
                 }
             }

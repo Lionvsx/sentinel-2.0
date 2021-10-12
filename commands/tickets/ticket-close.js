@@ -2,6 +2,8 @@ const BaseCommand = require('../../utils/structures/BaseCommand')
 const { MessageEmbed, Permissions, MessageAttachment } = require('discord.js');
 const mongoose = require('mongoose');
 const { createTicketTranscript } = require('../../utils/functions/createTicketTranscript');
+const DiscordLogger = require('../../utils/services/discordLoggerService');
+const { updateGuildMemberCache } = require('../../utils/functions/utilitaryFunctions');
 
 module.exports = class TicketCloseCommand extends BaseCommand {
     constructor() {
@@ -22,6 +24,11 @@ module.exports = class TicketCloseCommand extends BaseCommand {
     async run(client, message, args) {
         const existingDBTicket = await mongoose.model('Ticket').findOne({ ticketChannelId: message.channel.id, archive: false })
         if (existingDBTicket && existingDBTicket.id) {
+
+            const ticketLogger = new DiscordLogger('tickets', '#ffeaa7')
+            ticketLogger.setGuild(message.guild)
+            ticketLogger.setLogMember(message.member)
+
             existingDBTicket.archive = true
             await existingDBTicket.save();
 
@@ -33,14 +40,17 @@ module.exports = class TicketCloseCommand extends BaseCommand {
             });
             await sleep(5000);
             client.allTickets.delete(message.channel.id)
+            ticketLogger.info(`Le ticket \`${existingDBTicket.name}\` a été supprimé par <@!${message.author.id}>`)
             message.channel.delete();
 
-            let ticketMember = await message.guild.members.fetch(existingDBTicket.userId)
+
+            const allMembers = await updateGuildMemberCache(message.guild)
+            let ticketMember = await allMembers.get(existingDBTicket.authorId)
             if (!ticketMember) return;
 
-            const archiveChannel = message.guild.channels.get('632219616973815827')
+            const archiveChannel = message.guild.channels.cache.get('632219616973815827')
             let fileName = await createTicketTranscript(client, ticketMember.user.username.toLowerCase(), existingDBTicket.dmChannelId, message.guild.id)
-            let sendedMessage = await message.channel.send({ files: [
+            let sendedMessage = await archiveChannel.send({ files: [
                 {
                     attachment: `./files/transcripts/${fileName}`,
                     name: fileName
@@ -53,7 +63,7 @@ module.exports = class TicketCloseCommand extends BaseCommand {
                 .setDescription(`**${ticketMember.user.tag}**`)
                 .addFields(
                     { name: "Auteur du ticket", value: ticketMember.user.tag, inline: true },
-                    { name: "Channel du ticket", value: message.channel.name, inline: true },
+                    { name: "Channel du ticket", value: existingDBTicket.name, inline: true },
                     { name: "Lien du trans cript", value: `[Link](${sendedAttachment.url})`, inline: true },
                 )
                 .setColor('#f1c40f')
