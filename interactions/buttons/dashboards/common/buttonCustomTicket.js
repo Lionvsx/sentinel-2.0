@@ -31,7 +31,7 @@ module.exports = class CustomTicketButtonInteraction extends BaseInteraction {
         ticketLogger.setGuild(interaction.guild)
         ticketLogger.setLogMember(interaction.member)
 
-        const ticketPermissions = [{ id: interaction.guild.roles.everyone.id, deny: [Permissions.FLAGS.VIEW_CHANNEL] }]
+        const ticketPermissions = [{ id: interaction.guild.roles.everyone.id, deny: [Permissions.FLAGS.VIEW_CHANNEL] }, { id: interaction.user.id, allow: [Permissions.FLAGS.VIEW_CHANNEL] }]
 
         let usersAudience = undefined
         if (usersToAddString != 'aucun') {
