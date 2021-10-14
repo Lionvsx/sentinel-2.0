@@ -2,7 +2,8 @@ const BaseCommand = require('../../utils/structures/BaseCommand')
 const mongoose = require('mongoose');
 const { Permissions } = require('discord.js')
 
-const DiscordLogger = require('../../utils/services/discordLoggerService')
+const DiscordLogger = require('../../utils/services/discordLoggerService');
+const { updateGuildMemberCache } = require('../../utils/functions/utilitaryFunctions');
 
 module.exports = class TicketAddCommand extends BaseCommand {
     constructor() {
@@ -29,6 +30,7 @@ module.exports = class TicketAddCommand extends BaseCommand {
             ticketLogger.setGuild(message.guild)
             ticketLogger.setLogMember(message.member)
 
+            const allMembers = await updateGuildMemberCache(message.guild);
             args.splice(0, 2)
             let memberToString = args.join(' ')
             let memberToAddArray = memberToString.split(', ')
@@ -39,7 +41,7 @@ module.exports = class TicketAddCommand extends BaseCommand {
             let addedMembersArray = []
             for (let i = 0; i < memberToAddArray.length; i++) {
                 let memberString = memberToAddArray[i];
-                let guildMember = message.guild.members.cache.find(m => m.user.tag.toLowerCase().includes(memberString.toLowerCase()));
+                let guildMember = allMembers.find(m => m.user.tag.toLowerCase().includes(memberString.toLowerCase()));
                 try {
                     await message.channel.permissionOverwrites.create(guildMember.user, { VIEW_CHANNEL: true, SEND_MESSAGES: true })
                     addedMembersArray.push(guildMember.user.tag)

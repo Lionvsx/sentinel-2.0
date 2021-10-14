@@ -2,6 +2,7 @@ const BaseCommand = require('../../utils/structures/BaseCommand')
 const { Permissions } = require('discord.js');
 const mongoose = require('mongoose');
 const DiscordLogger = require('../../utils/services/discordLoggerService');
+const { updateGuildMemberCache } = require('../../utils/functions/utilitaryFunctions');
 
 module.exports = class TicketRemoveCommand extends BaseCommand {
     constructor() {
@@ -27,6 +28,8 @@ module.exports = class TicketRemoveCommand extends BaseCommand {
             ticketLogger.setGuild(message.guild)
             ticketLogger.setLogMember(message.member)
 
+            const allMembers = await updateGuildMemberCache(message.guild);
+
             args.splice(0, 2)
             let memberToString = args.join(' ')
             let membersToRemoveArray = memberToString.split(', ')
@@ -37,7 +40,7 @@ module.exports = class TicketRemoveCommand extends BaseCommand {
             let removedMembersArray = []
             for (let i = 0; i < membersToRemoveArray.length; i++) {
                 let memberString = membersToRemoveArray[i];
-                let guildMember = message.guild.members.cache.find(m => m.user.tag.toLowerCase().includes(memberString.toLowerCase()));
+                let guildMember = allMembers.find(m => m.user.tag.toLowerCase().includes(memberString.toLowerCase()));
                 try {
                     await message.channel.permissionOverwrites.delete(guildMember.user.id)
                     removedMembersArray.push(guildMember.user.tag)
