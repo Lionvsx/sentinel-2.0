@@ -36,7 +36,7 @@ module.exports = class AddUserButtonInteraction extends BaseInteraction {
 
         if (!userRequest) {
             interaction.reply({
-                content: `**❌ | **INTERNAL SERVER ERROR : CLAIMANT CORRUPTION`,
+                content: `**❌ | **INTERNAL SERVER ERROR : DB CORRUPTION`,
                 ephemeral: true
             })
             return
