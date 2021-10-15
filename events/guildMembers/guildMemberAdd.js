@@ -17,14 +17,18 @@ module.exports = class guildMemberAdd extends BaseEvent {
             existingUser.userTag = guildMember.user.tag
             existingUser.avatarURL = guildMember.user.displayAvatarURL();
             await existingUser.save();
+
+            client.allUsers.set(existingUser.discordId, existingUser)
         } else {
-            User.create({
+            const newUser = await User.create({
                 username: guildMember.user.username,
                 discordId: guildMember.user.id,
                 userTag: guildMember.user.tag,
                 avatarURL: guildMember.user.displayAvatarURL(),
                 onServer: true
             })
+
+            client.allUsers.set(newUser.discordId, newUser)
         }
     }
 }

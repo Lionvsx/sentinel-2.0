@@ -16,6 +16,7 @@ module.exports = class guildMemberUpdate extends BaseEvent {
         if (User && User.id) {
             User.username = newGuildMember.user.username
             User.avatarURL = newGuildMember.user.displayAvatarURL()
+            User.userTag = newGuildMember.user.tag
             try {
                 await User.save();
             } catch (error) {
