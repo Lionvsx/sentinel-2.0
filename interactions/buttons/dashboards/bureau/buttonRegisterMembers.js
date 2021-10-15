@@ -75,7 +75,10 @@ function registerUsers(audience, tempMsg, loading) {
             const dmChannel = await member.createDM()
             
             const dBUser = await User.findOne({ discordId: member.user.id });
-            if (isMember(dBUser)) continue;
+            if (isMember(dBUser)) {
+                success.push(member.user.tag)
+                continue;
+            }
 
             const componentRow = createButtonActionRow([
                 createButton('askMemberInformation', 'Je suis prêt à remplir le formulaire', 'SUCCESS')
