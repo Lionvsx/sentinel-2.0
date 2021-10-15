@@ -106,4 +106,5 @@ dist
 # Un-necessary files
 files/transcripts/*
 
+#IntellijIdea files
 .idea
