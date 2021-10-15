@@ -41,7 +41,7 @@ module.exports = class AccessChannelButton extends BaseInteraction {
                 content: `**➡️ | **\`${interaction.user.username}\` a rejoint le ticket !`
             })
             interaction.reply({
-                content: `Accès authorisé au ticket ${accessChannel.name}`,
+                content: `Accès autorisé au ticket \`\`${accessChannel.name}\`\``,
                 ephemeral: true
             })
         } catch (err) {
