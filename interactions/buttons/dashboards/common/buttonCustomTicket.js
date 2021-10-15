@@ -20,6 +20,8 @@ module.exports = class CustomTicketButtonInteraction extends BaseInteraction {
             ephemeral: true
         })
 
+        const loading = client.emojis.cache.get('741276138319380583')
+
         const dmChannel = await interaction.user.createDM()
         const allChannels = interaction.guild.channels.cache
         const ticketName = await userResponseContent(dmChannel, "Veuillez donner un nom à votre ticket :").catch(err => console.log(err))
@@ -44,13 +46,15 @@ module.exports = class CustomTicketButtonInteraction extends BaseInteraction {
 
         const confirmation = await askForConfirmation(dmChannel, `Etes vous sur de vouloir ouvrir un ticket custom avec les paramètres suivants : \`\`\`NOM: ${ticketName}\n\nUTILISATEURS:\n${usersAudience ? usersAudience.map(member => member.user.tag).join('\n') : 'Aucun'} \`\`\``).catch(err => console.log(err))
         if (!confirmation) return
+
+        const tempMsg = await dmChannel.send(`**${loading} |** Création de votre ticket en cours`)
         ticketLogger.setLogData(`NOM: ${ticketName}\n\n${usersAudience ? usersAudience.map(member => member.user.tag).join('\n') : 'Aucun'}`)
 
         const ticketEmbed = new MessageEmbed()
             .setDescription(`🌐 Nouveau ticket personnalisé crée par \`${interaction.user.username}\``)
             .setColor('#74b9ff')
 
-        const newChannel = await interaction.guild.channels.create(`🎫┃${ticketName}`, {
+        const newChannel = await interaction.guild.channels.create(`🌐┃${ticketName}`, {
             type: 'GUILD_TEXT',
             position: 100,
             permissionOverwrites: ticketPermissions,
@@ -66,9 +70,10 @@ module.exports = class CustomTicketButtonInteraction extends BaseInteraction {
             authorId: interaction.user.id,
             name: ticketName
         })
-        client.allTickets.set(newTicket.ticketChannelId, newTicket);
+        await client.allTickets.set(newTicket.ticketChannelId, newTicket);
 
         ticketLogger.info(`<@!${interaction.user.id}> a crée un ticket de **custom** avec les paramètres suivants :`)
+        tempMsg.edit(`**:white_check_mark: | **Votre ticket a été crée avec succès!`)
         
     }
 }
