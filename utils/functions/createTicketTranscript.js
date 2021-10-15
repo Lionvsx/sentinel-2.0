@@ -7,9 +7,9 @@ const { JSDOM } = jsdom;
 const dom = new JSDOM();
 const document = dom.window.document;
 
-function createTicketTranscript(client, savingName, ticketDmChannelId, guildId) {
+function createTicketTranscript(client, savingName, ticketChannelId, guildId) {
     return new Promise(async (resolve, reject) => {
-        const TicketMessages = await mongoose.model('Ticket').findOne({ dmChannelId: ticketDmChannelId, archive: false }, 'messages -_id').exec();
+        const TicketMessages = await mongoose.model('Ticket').findOne({ ticketChannelId: ticketChannelId, archive: false }, 'messages -_id').exec();
         const guild = await client.guilds.cache.get(guildId)
     
         let templateData = await fs.readFile('./src/templates/template.html', 'utf8').catch(err => console.log(err));

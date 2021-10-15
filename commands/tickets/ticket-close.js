@@ -29,27 +29,19 @@ module.exports = class TicketCloseCommand extends BaseCommand {
             ticketLogger.setGuild(message.guild)
             ticketLogger.setLogMember(message.member)
 
-            existingDBTicket.archive = true
-            await existingDBTicket.save();
-
             let deleteEmbed = new MessageEmbed()
                 .setDescription("Suppression du ticket dans 5 secondes...")
                 .setColor('ff5733')
             message.channel.send({
                 embeds: [deleteEmbed]
             });
-            await sleep(5000);
-            client.allTickets.delete(message.channel.id)
-            ticketLogger.info(`Le ticket \`${existingDBTicket.name}\` a été supprimé par <@!${message.author.id}>`)
-            message.channel.delete();
-
 
             const allMembers = await updateGuildMemberCache(message.guild)
             let ticketMember = await allMembers.get(existingDBTicket.authorId)
             if (!ticketMember) return;
 
             const archiveChannel = message.guild.channels.cache.get('632219616973815827')
-            let fileName = await createTicketTranscript(client, ticketMember.user.username.toLowerCase(), existingDBTicket.dmChannelId, message.guild.id)
+            let fileName = await createTicketTranscript(client, ticketMember.user.username.toLowerCase(), existingDBTicket.ticketChannelId, message.guild.id)
             let sendedMessage = await archiveChannel.send({ files: [
                 {
                     attachment: `./files/transcripts/${fileName}`,
@@ -70,6 +62,13 @@ module.exports = class TicketCloseCommand extends BaseCommand {
             archiveChannel.send({
                 embeds: [embed]
             })
+
+            await sleep(5000);
+            existingDBTicket.archive = true
+            await existingDBTicket.save();
+            client.allTickets.delete(message.channel.id)
+            ticketLogger.info(`Le ticket \`${existingDBTicket.name}\` a été supprimé par <@!${message.author.id}>`)
+            message.channel.delete();
         } else {
             message.channel.send(`**❌ | **Cette commande peut uniquement être utilisée dans un ticket !`)
         }
