@@ -11,7 +11,7 @@ module.exports = class MessageCreateEvent extends BaseEvent {
         if (!message.guild) return
         if (!client.allTickets.get(message.channel.id)) return
 
-        const existingDBTicket = await Ticket.findOne({ dmChannelId: message.channel.id });
+        const existingDBTicket = await Ticket.findOne({ ticketChannelId: message.channel.id, archive: false });
         if (existingDBTicket) {
             Ticket.updateOne( { ticketChannelId: message.channel.id }, { $push: {messages: {
                 authorId: message.author.id,
