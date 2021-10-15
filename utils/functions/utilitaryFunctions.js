@@ -2,6 +2,7 @@ const emojiRegex = require('emoji-regex');
 const fs = require('fs-extra');
 const https = require('https');
 
+
 const DiscordLogger = require('../services/discordLoggerService')
 const envLogger = new DiscordLogger('environnement', '#00cec9')
 
@@ -108,6 +109,8 @@ const updateGuildCache = async (guild) => {
     await updateGuildChannelCache(fetchedGuild);
     return fetchedGuild
 }
+
+
 
 module.exports = {
     removeEmojis,

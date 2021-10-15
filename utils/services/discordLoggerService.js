@@ -1,7 +1,5 @@
-const { MessageEmbed } = require("discord.js")
-myFormat = () => {
-    return new Date(Date.now()).toUTCString();
-};
+const { MessageEmbed } = require("discord.js");
+const { getDateTime } = require('../functions/sentinelFunctions');
 
 class LoggerService {
     constructor(category, defaultColor) {
@@ -17,8 +15,8 @@ class LoggerService {
                 .setColor(color)
 
             this.logData 
-                ? logEmbed.setDescription(`\`\`\`${myFormat()} | ${level.toUpperCase()} | ${this.category.toUpperCase()}\`\`\`\n${message}\n\`\`\`${this.logData}\`\`\``) 
-                : logEmbed.setDescription(`\`\`\`${myFormat()} | ${level.toUpperCase()} | ${this.category.toUpperCase()}\`\`\`\n${message}`);
+                ? logEmbed.setDescription(`\`\`\`${getDateTime()} | ${level.toUpperCase()} | ${this.category.toUpperCase()}\`\`\`\n${message}\n\`\`\`${this.logData}\`\`\``) 
+                : logEmbed.setDescription(`\`\`\`${getDateTime()} | ${level.toUpperCase()} | ${this.category.toUpperCase()}\`\`\`\n${message}`);
             this.logMember
                 ? logEmbed.setAuthor(this.logMember.user.tag, this.logMember.user.displayAvatarURL())
                 : null;
