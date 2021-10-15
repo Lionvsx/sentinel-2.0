@@ -54,7 +54,7 @@ module.exports = class ConfigDashCommand extends BaseCommand {
         for (const user of allUsers) {
             await user.isMember ? isMember(user) ? memberRows.push(`${user.firstName} - ${user.lastName}`) : memberRows.push(`DATA INCOMPLETE`) : memberRows.push(`NOT MEMBER`)
             await user.isAdmin ? roleRows.push(`ADMIN`) : user.isBureau ? roleRows.push(`BUREAU`) : user.isResponsable ? roleRows.push(`RESPONSABLE`) : user.isMember ? roleRows.push(`MEMBER`) : roleRows.push(`USER`)
-            userRows.push(user.userTag)
+            userRows.push(user.username)
         }
         const userChunks = chunkArray(userRows, 50)
         const roleChunks = chunkArray(roleRows, 50)
