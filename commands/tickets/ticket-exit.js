@@ -37,6 +37,7 @@ module.exports = class TicketExitCommand extends BaseCommand {
                 })
                 message.author.createDM().then(dmChannel => dmChannel.send(`Vous avez quitté le ticket \`${message.channel.name}\``))
                 ticketLogger.info(`<@${message.author.id}> a quitté le ticket \`${message.channel.name}\``)
+                message.delete();
             } catch(err) {
                 console.log(err)
                 ticketLogger.error(`<@${message.author.id}> n'es pas arrivé à quitter le ticket \`${message.channel.name}\``)
