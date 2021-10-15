@@ -17,7 +17,7 @@ module.exports = class AccessCategoryButtonInteraction extends BaseInteraction {
         ticketLogger.setLogMember(interaction.member)
 
         const embed = new MessageEmbed()
-            .setDescription("Accès supprimé par le Responsable")
+            .setDescription(`Accès supprimé par \`\`${interaction.user.tag}\`\``)
             .setColor('#e74c3c')
 
         interaction.update({
