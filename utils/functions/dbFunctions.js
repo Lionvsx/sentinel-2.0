@@ -3,6 +3,6 @@ module.exports = {
 }
 
 function isMember(dBUser) {
-    if (dBUser.firstName && dBUser.lastName && dBUser.school && dBUser.schoolYear) return true;
+    if (dBUser.firstName && dBUser.lastName && dBUser.school) return true;
     return false;
 }
