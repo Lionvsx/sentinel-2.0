@@ -1,6 +1,6 @@
 const BaseInteraction = require('../../../../utils/structures/BaseInteraction')
 const { MessageEmbed, Permissions } = require('discord.js')
-const { updateGuildMemberCache } = require('../../../../utils/functions/utilitaryFunctions')
+const { updateGuildMemberCache, chunkArray } = require('../../../../utils/functions/utilitaryFunctions')
 const DiscordLogger = require('../../../../utils/services/discordLoggerService')
 
 
@@ -39,6 +39,21 @@ module.exports = class SyncDatabaseButton extends BaseInteraction {
             const existingDBUser = await mongoose.model('User').findOne({ discordId: member.user.id })
 
             if (existingDBUser && existingDBUser.id) {
+                if (existingDBUser.username != member.user.username) {
+                    existingDBUser.username = member.user.username
+                    await existingDBUser.save()
+                    messages.push(`**⚠ | **Username mis à jour pour :  \`${member.user.username}\``)
+                }
+                if (existingDBUser.userTag != member.user.tag) {
+                    existingDBUser.userTag = member.user.tag
+                    await existingDBUser.save()
+                    messages.push(`**⚠ | **Discord tag mis à jour pour :  \`${member.user.username}\``)
+                }
+                if (existingDBUser.avatarURL != member.user.displayAvatarURL()) {
+                    existingDBUser.avatarURL = member.user.displayAvatarURL()
+                    await existingDBUser.save()
+                    messages.push(`**⚠ | **Discord avatar mis à jour pour :  \`${member.user.username}\``)
+                }
             } else {
                 try {
                     await mongoose.model('User').create({
@@ -68,7 +83,8 @@ module.exports = class SyncDatabaseButton extends BaseInteraction {
             a = a.toLowerCase();
             b = b.toLowerCase();
             if (a.startsWith('**✅') && b.startsWith('**❌')) return -1
-            if (b.startsWith('**✅') && a.startsWith('**❌')) return 1
+            if (a.startsWith('**✅') && b.startsWith('**⚠')) return -1
+            if (a.startsWith('**⚠') && b.startsWith('**❌')) return -1
             return 0;
         }
     
@@ -77,10 +93,12 @@ module.exports = class SyncDatabaseButton extends BaseInteraction {
         
         if (messages.length > 0) {
             await msg.edit('**⚠ | **Erreurs trouvées :')
-            await dmChannel.send({
-                content: messages.join('\n'),
-                split: true
-            })
+            const messagesChunks = chunkArray(messages, 30)
+            for (const chunk of messagesChunks) {
+                await dmChannel.send({
+                    content: chunk.join('\n')
+                })
+            }
             envLogger.warning(`Database update : \`${messages.length}\` fixed !`)
         } else {
             await msg.edit(`**✅ | **Configuration correcte !`)
