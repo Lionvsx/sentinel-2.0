@@ -56,7 +56,7 @@ module.exports = class TicketCloseCommand extends BaseCommand {
                 .addFields(
                     { name: "Auteur du ticket", value: ticketMember.user.tag, inline: true },
                     { name: "Channel du ticket", value: existingDBTicket.name, inline: true },
-                    { name: "Lien du trans cript", value: `[Link](${sendedAttachment.url})`, inline: true },
+                    { name: "Lien du transcript", value: `[Link](${sendedAttachment.url})`, inline: true },
                 )
                 .setColor('#f1c40f')
             archiveChannel.send({
