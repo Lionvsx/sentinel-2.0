@@ -299,7 +299,7 @@ module.exports = class TicketStaffButtonInteraction extends BaseInteraction {
                 })
                 await newRequestTicketChannel.send({
                     content: '@everyone',
-                    embeds: []
+                    embeds: [new MessageEmbed().setDescription(`Ticket requête ouvert pour les pôles suivants: \n\`\`\`${selectedOptions.map(option => option.label).join('\n')}\`\`\``)]
                 })
                 const newRequestDBTicket = await Ticket.create({
                     ticketChannelId: newRequestTicketChannel.id,
