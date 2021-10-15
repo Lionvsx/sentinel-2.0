@@ -117,7 +117,8 @@ function registerUsers(audience, tempMsg, loading) {
             tempMsg.edit(`**✅ | **Ajout des utilisateurs terminé`)
             resolve({
                 success: success,
-                errors: errors
+                errors: errors,
+                presence: presence
             })
         }
     })
