@@ -1,5 +1,5 @@
 const { MessageEmbed } = require("discord.js");
-const { getDateTime } = require('../functions/sentinelFunctions');
+const { getDateTime } = require('../functions/systemFunctions');
 
 class LoggerService {
     constructor(category, defaultColor) {

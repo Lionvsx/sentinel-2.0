@@ -110,6 +110,15 @@ const updateGuildCache = async (guild) => {
     return fetchedGuild
 }
 
+function chunkArray(arr, chunkSize) {
+    const res = [];
+    for (let i = 0; i < arr.length; i += chunkSize) {
+        const chunk = arr.slice(i, i + chunkSize);
+        res.push(chunk);
+    }
+    return res;
+}
+
 
 
 module.exports = {
@@ -121,7 +130,8 @@ module.exports = {
     sleep,
     getUsersFromString,
     updateGuildCache,
-    updateGuildMemberCache
+    updateGuildMemberCache,
+    chunkArray
 }
 
 
