@@ -53,6 +53,7 @@ module.exports = class RegisterAssoMembersButtonInteraction extends BaseInteract
             .setTitle('COMPTE RENDU')
             .setDescription(`Compte rendu final de l'opération d'ajout de membres en tant que membres associatifs :\n*(Vous pouvez recopier les champs d'erreur pour les re-envoyer au bot lors d'une prochaine commande)*`)
             .addField('✅ UTILISATEURS AJOUTES', `\`\`\`${registerResults.success.length > 0 ? registerResults.success.join('\n'): 'Aucun'}\`\`\``, false)
+            .addField('ℹ UTILISATEURS DEJA ENREGISTRES', `\`\`\`${registerResults.presence.length > 0 ? registerResults.presence.join('\n'): 'Aucun'}\`\`\``, false)
             .addField(`✉ UTILISATEURS INJOIGNABLES EN DM`, `\`\`\`${registerResults.errors.length > 0 ? registerResults.errors.join(',\n') : 'Aucun'}\`\`\``, false)
             .addField(`❌ UTILISATEURS INTROUVABLES SUR LE SERVEUR`, `\`\`\`${userErrors.length > 0 ? userErrors.join(',\n') : 'Aucun'}\`\`\``, false)
             .setColor('#fdcb6e')
@@ -71,12 +72,13 @@ function registerUsers(audience, tempMsg, loading) {
     return new Promise(async (resolve) => {
         const success = []
         const errors = []
+        const presence = []
         for (const member of audience) {
             const dmChannel = await member.createDM()
             
             const dBUser = await User.findOne({ discordId: member.user.id });
             if (isMember(dBUser)) {
-                success.push(member.user.tag)
+                presence.push(member.user.tag)
                 continue;
             }
 
