@@ -34,6 +34,7 @@ module.exports = class TeamInfoCommand extends BaseCommand {
 
             const embed = new MessageEmbed()
                 .setTitle(existingTeam.name)
+                .setDescription(`\`\`\`\nJEU: ${existingTeam.game}\`\`\``)
                 .addFields(
                     { name: `\`\`Joueurs\`\``, value: `\`\`\`\n${ Players?.length > 0 ? Players.map(user => user.userTag).join('\n') : 'Aucun' }\`\`\``, inline: true },
                     { name: `\`\`Coachs\`\``, value: `\`\`\`\n${ coachs?.size > 0 ? coachs.map(m => m.user.tag).join('\n') : 'Aucun' }\`\`\``, inline: true },

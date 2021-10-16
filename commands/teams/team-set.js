@@ -45,7 +45,9 @@ module.exports = class TeamSetCommand extends BaseCommand {
         const allRoles = message.guild.roles.cache
         const allMembers = await updateGuildMemberCache(message.guild)
 
-        const linkedRole = allRoles.find(role => role.name.toLowerCase().includes(channelArgs[1].toLowerCase().trim()))
+        const linkedRolePermission = message.channel.permissionOverwrites.cache.find(perm => perm.type === 'role' && perm.id != '227470914114158592' && perm.id != '624715536693198888' && perm.id != '622108099569909762' && perm.id != '622108209175593020' && perm.id != '631885565091905540')
+        if (!linkedRolePermission) return message.channel.send(`**❌ | **Je n'arrive pas à détecter un rôle d'équipe ! \`\`(essayez de lancer la commande dans un channel différent)\`\``)
+        const linkedRole = allRoles.get(linkedRolePermission.id)
 
         const staffMembers = allMembers.filter(member => member.roles.cache.hasAll(linkedRole.id, '624715536693198888', '744234761282650213'))
         const players = allMembers.filter(member => member.roles.cache.hasAll(linkedRole.id, '744234761282650213') && !member.roles.cache.has('624715536693198888'))

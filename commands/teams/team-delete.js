@@ -25,7 +25,7 @@ module.exports = class TeamDeleteCommand extends BaseCommand {
 
         if (existingTeam && existingTeam._id) {
             const loading = client.emojis.cache.get('741276138319380583')
-            const confirmation = askForConfirmation(message.channel, `Etes vous sur de vouloir supprimer l'équipe \`${existingTeam.name}\` de la base de données ?`)
+            const confirmation = await askForConfirmation(message.channel, `Etes vous sur de vouloir supprimer l'équipe \`${existingTeam.name}\` de la base de données ?`).catch(err => console.log(err))
             if (!confirmation) return
             const tempMsg = await message.channel.send(`**${loading} | **Suppression de l'équipe en cours...`)
             await mongoose.model('Team').deleteOne({ _id: existingTeam._id })
