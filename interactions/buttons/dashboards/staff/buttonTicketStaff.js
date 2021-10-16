@@ -271,7 +271,7 @@ module.exports = class TicketStaffButtonInteraction extends BaseInteraction {
                 const selectedOptions = selectionMenuComponent.options.filter(option => selectionMenuInteraction.values.join('').includes(option.value))
 
                 selectionMenuInteraction.update({
-                    embeds: [new MessageEmbed().setDescription(`✅ Selectionné : \`${selectionMenuInteraction.values.length}\` option(s) ✅\n\`\`\`${selectedOptions.map(option => option.label).join('\n')}\`\`\``).setColor('#00b894')],
+                    embeds: [new MessageEmbed().setDescription(`✅ Selectionné : \`${selectionMenuInteraction.values.length}\` option(s) ✅\n\`\`\`\n${selectedOptions.map(option => option.label).join('\n')}\`\`\``).setColor('#00b894')],
                     components: [createMessageActionRow([selectionMenuComponent.setDisabled(true)])]
                 })
                 
