@@ -83,7 +83,7 @@ function registerUsers(audience, tempMsg, loading) {
                 .setDescription(`Bonjour \`\`${member.user.username}\`\` !\nSi tu reçois ce message, c'est que tes données de membre de l'association \`\`LDV Esport\`\` ne sont pas complètes !\nAfin de finaliser ton inscription en tant que membre de LDV Esport, nous aurons besoin que quelques informations sur toi.\nClique sur le bouton juste en dessous une fois que tu es prêt à remplir ce formulaire !`)
                 .setColor('#00b894')
             try {
-                dmChannel.send({
+                await dmChannel.send({
                     embeds: [embed],
                     components: [componentRow]
                 })
@@ -101,12 +101,12 @@ function registerUsers(audience, tempMsg, loading) {
                     })
                 }
                 success.push(member.user.tag)
-                tempMsg.edit(`**${loading} | **Ajout des utilisateurs en cours à la DB : \`${success.length + errors.length}/${audience.length}\``)
+                await tempMsg.edit(`**${loading} | **Ajout des utilisateurs en cours à la DB : \`${success.length + errors.length}/${audience.length}\``)
             } catch (err) {
                 errors.push(member.user.tag)
             }
         }
-        if (success.length + errors.length === audience.length) {
+        if (success.length + errors.length + presence.length === audience.length) {
             tempMsg.edit(`**✅ | **Ajout des utilisateurs terminé`)
             resolve({
                 success: success,
