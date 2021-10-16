@@ -15,7 +15,7 @@ class LoggerService {
                 .setColor(color)
 
             this.logData 
-                ? logEmbed.setDescription(`\`\`\`${getDateTime()} | ${level.toUpperCase()} | ${this.category.toUpperCase()}\`\`\`\n${message}\n\`\`\`${this.logData}\`\`\``) 
+                ? logEmbed.setDescription(`\`\`\`${getDateTime()} | ${level.toUpperCase()} | ${this.category.toUpperCase()}\`\`\`\n${message}\n\`\`\`\n${this.logData}\`\`\``) 
                 : logEmbed.setDescription(`\`\`\`${getDateTime()} | ${level.toUpperCase()} | ${this.category.toUpperCase()}\`\`\`\n${message}`);
             this.logMember
                 ? logEmbed.setAuthor(this.logMember.user.tag, this.logMember.user.displayAvatarURL())

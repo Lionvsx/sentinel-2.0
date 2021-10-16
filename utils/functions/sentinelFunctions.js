@@ -22,9 +22,11 @@ const updateUserDashboard = async (sortFunction, interaction) => {
     allUsers.sort(sortFunction)
 
     for (const user of allUsers) {
-        await user.isMember ? isMember(user) ? memberRows.push(`${user.firstName} - ${user.lastName}`) : memberRows.push(`DATA INCOMPLETE`) : memberRows.push(`NOT MEMBER`)
+        let fullName = `${user.firstName} ${user.lastName}`
+        if (fullName?.length > 20) fullName = `${user.firstName} ${user.lastName?.slice(0, 10.)}.`
+        await user.isMember ? isMember(user) ? memberRows.push(`${fullName}`) : memberRows.push(`DATA INCOMPLETE`) : memberRows.push(`NOT MEMBER`)
         await user.isAdmin ? roleRows.push(`ADMIN`) : user.isBureau ? roleRows.push(`BUREAU`) : user.isResponsable ? roleRows.push(`RESPONSABLE`) : user.isMember ? roleRows.push(`MEMBER`) : roleRows.push(`USER`)
-        userRows.push(user.userTag)
+        userRows.push(user.username)
     }
     const userChunks = chunkArray(userRows, 50)
     const roleChunks = chunkArray(roleRows, 50)

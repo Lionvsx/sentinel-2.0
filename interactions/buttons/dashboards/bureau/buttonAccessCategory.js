@@ -11,6 +11,10 @@ module.exports = class AccessCategoryButtonInteraction extends BaseInteraction {
     }
 
     async run(client, interaction, buttonArgs) {
+        interaction.reply({
+            content: `Check tes messages privés !`,
+            ephemeral: true
+        })
 
     }
 }

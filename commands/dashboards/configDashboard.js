@@ -37,12 +37,14 @@ module.exports = class ConfigDashCommand extends BaseCommand {
                 .setTitle("DASHBOARD DE CONFIGURATION")
                 .setDescription(`Vous permet de gérer tout les membres du serveur LDV Esport inscrits dans la DB\n\`\`\`LAST UPDATED ON : ${getDateTime()}\`\`\``)
         )
-        // Users in LDV DB
-        // AG Planifiées
+        // Users in LDV DB ✅
+        // AG Planifiées 
         // Tickets viewer + Archive
         // Server Users + Archive
 
-        //Buttons to sort data
+        //Buttons to sort data ✅
+
+        // Option to remove user from DB
 
         const allUsers = await mongoose.model('User').find({ onServer: true, isMember: true})
         const userRows = []
@@ -52,6 +54,8 @@ module.exports = class ConfigDashCommand extends BaseCommand {
         allUsers.sort(sortByRole)
 
         for (const user of allUsers) {
+            let fullName = `${user.firstName} ${user.lastName}`
+            if (fullName?.length > 20) fullName = `${user.firstName} ${user.lastName.slice(0, 10)}.`
             await user.isMember ? isMember(user) ? memberRows.push(`${user.firstName} - ${user.lastName}`) : memberRows.push(`DATA INCOMPLETE`) : memberRows.push(`NOT MEMBER`)
             await user.isAdmin ? roleRows.push(`ADMIN`) : user.isBureau ? roleRows.push(`BUREAU`) : user.isResponsable ? roleRows.push(`RESPONSABLE`) : user.isMember ? roleRows.push(`MEMBER`) : roleRows.push(`USER`)
             userRows.push(user.username)

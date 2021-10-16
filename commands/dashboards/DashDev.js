@@ -24,7 +24,7 @@ module.exports = class DashBureauCommand extends BaseCommand {
     async run (bot, message, args) {
         const DashBoardDev = new Discord.MessageEmbed()
             .setColor('#0099ff')
-            .setTitle('DASHBOARD BUREAU')
+            .setTitle('DASHBOARD ADMIN')
             .setThumbnail('https://cdn.discordapp.com/attachments/624619133799104522/742037500536684574/icon_dashboard.png')
             .setDescription("Panneau de controle pour les administrateurs serveur afin de gérer le bot et le discord \nToutes les fonctionnalités sont expliquées ci dessous:")
             .addFields(
