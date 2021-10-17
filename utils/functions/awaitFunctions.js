@@ -14,7 +14,8 @@ module.exports = {
     askForConfirmation,
     reactionEmbedMultipleSelector,
     askYesOrNo,
-    menuInteraction
+    menuInteraction,
+    menuInteractionNoTimeout
 }
 
 function userResponse(channel, displayMessage) {
@@ -70,6 +71,17 @@ function menuInteraction(message) {
                 embeds: [new MessageEmbed().setDescription(`**❌ Commande annulée : \`Timed Out\`**`).setColor('#c0392b')],
                 components: []
             })
+              reject(`User Response Timed Out`)
+          });
+    })
+}
+
+function menuInteractionNoTimeout(message) {
+    return new Promise((resolve, reject) => {
+        const filter = interaction => interaction.isSelectMenu() === true && interaction.user.bot === false && interaction.message.id === message.id;
+        message.awaitMessageComponent({ filter, time: 30000 })
+          .then(interaction => resolve(interaction))
+          .catch(error => {
               reject(`User Response Timed Out`)
           });
     })
