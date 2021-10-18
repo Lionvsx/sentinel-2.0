@@ -15,7 +15,7 @@ module.exports = class TeamDeleteCommand extends BaseCommand {
             examples: [],
             serverOnly: true,
             admin: true,
-            subCommands: true,
+            subCommands: false,
             home: true
         });
     }

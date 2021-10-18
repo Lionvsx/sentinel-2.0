@@ -15,7 +15,7 @@ module.exports = class TeamInfoCommand extends BaseCommand {
             examples: [],
             serverOnly: true,
             admin: false,
-            subCommands: true,
+            subCommands: false,
             home: true
         });
     }
