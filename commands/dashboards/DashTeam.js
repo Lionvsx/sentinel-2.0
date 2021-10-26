@@ -1,6 +1,8 @@
 const BaseCommand = require('../../utils/structures/BaseCommand');
 const Team = require('../../src/schemas/TeamSchema');
+const User = require('../../src/schemas/UserSchema');
 const Discord = require('discord.js'); 
+const { updateGuildMemberCache } = require('../../utils/functions/utilitaryFunctions');
 const {
     createButtonActionRow,
     createEmojiButton
@@ -26,6 +28,14 @@ module.exports = class DashRespoCommand extends BaseCommand {
         const existingTeam = await Team.findOne({ linkedCategoryId: message.channel.parentId })
 
         if (existingTeam && existingTeam._id) {
+            const allRoles = message.guild.roles.cache
+            const allMembers = await updateGuildMemberCache(message.guild)
+            const linkedRole = allRoles.get(existingTeam.linkedRoleId)
+
+            const Players = await User.find({ onServer: true, isMember: true, role: { $regex: existingTeam._id } })
+            const managers = allMembers.filter(member => member.roles.cache.hasAll(linkedRole.id, '622108209175593020', '744234761282650213'))
+            const coachs = allMembers.filter(member => member.roles.cache.hasAll(linkedRole.id, '622108099569909762', '744234761282650213'))
+
         
             const DashBoardTeam = new Discord.MessageEmbed()
                 .setColor('#0099ff')
@@ -33,6 +43,10 @@ module.exports = class DashRespoCommand extends BaseCommand {
                 .setThumbnail('https://cdn.discordapp.com/attachments/624619133799104522/742037500536684574/icon_dashboard.png')
                 .setDescription("Panneau de controle pour les managers afin de gérer son équipe. \nToutes les fonctionnalités sont expliquées ci-dessous:")
                 .addFields(
+                    { name: `\`\`JEU\`\``, value: `\`\`\`${existingTeam.emoji} | ${existingTeam.game}\`\`\``, inline: false },
+                    { name: `\`\`Joueurs\`\``, value: `\`\`\`\n${ Players?.length > 0 ? Players.map(user => user.userTag).join('\n') : 'Aucun' }\`\`\``, inline: true },
+                    { name: `\`\`Coachs\`\``, value: `\`\`\`\n${ coachs?.size > 0 ? coachs.map(m => m.user.tag).join('\n') : 'Aucun' }\`\`\``, inline: true },
+                    { name: `\`\`Managers\`\``, value: `\`\`\`\n${ managers?.size > 0 ? managers.map(m => m.user.tag).join('\n') : 'Aucun' }\`\`\``, inline: true },
                     { name: '\u200B', value: '\u200B' },
                     { name: '▶️ | START CALL', value: 'Démarrer l\'appel', inline: true },
                     { name: '⏹️ | END CALL', value: "Clôturer l'appel", inline: true },
