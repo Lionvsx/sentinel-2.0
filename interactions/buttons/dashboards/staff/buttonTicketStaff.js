@@ -29,10 +29,7 @@ module.exports = class TicketStaffButtonInteraction extends BaseInteraction {
     }
 
     async run(client, interaction, buttonArgs) {
-        interaction.reply({
-            content: `Check tes messages privés !`,
-            ephemeral: true
-        })
+        interaction.deferUpdate()
         const dmChannel = await interaction.user.createDM()
         const embedTicketSelection = new MessageEmbed()
             .setDescription(`Bonjour \`${interaction.user.username}\`\nQuel type de ticket voulez vous créer?`)
@@ -117,6 +114,7 @@ module.exports = class TicketStaffButtonInteraction extends BaseInteraction {
                     .setTitle(`🎫 NOUVEAU TICKET : \`${ticketName}\``)
                     .setDescription(`Nouveau ticket de \`${interaction.user.username}\`\nNom de l'event : \`${eventFullName}\`\nJeu associé : \`${ticketGame}\`\nDate : \`${eventTime}\``)
                     .setTimestamp()
+                    .setColor('#3498db')
 
 
                 //CONFIRMATION
@@ -185,7 +183,7 @@ module.exports = class TicketStaffButtonInteraction extends BaseInteraction {
                     }
                 }
 
-                ResponsableEVENT && ResponsableEVENT.discordId ? ticketPermissions.push({ id: ResponsableEVENT.discordId, allow: [Permissions.FLAGS.VIEW_CHANNEL] }) : null
+                ResponsableEVENT && ResponsableEVENT.discordId ? eventTicketPermissions.push({ id: ResponsableEVENT.discordId, allow: [Permissions.FLAGS.VIEW_CHANNEL] }) : null
 
                 if (eventWebTVBoolean) {
                     if (ResponsableWebTV && ResponsableWebTV.discordId) eventTicketPermissions.push({ id: ResponsableWebTV.discordId, allow: [Permissions.FLAGS.VIEW_CHANNEL] })
@@ -212,6 +210,7 @@ module.exports = class TicketStaffButtonInteraction extends BaseInteraction {
                     .setTitle(`🎪 NOUVEAU TICKET EVENEMENT : \`${eventTicketName}\``)
                     .setDescription(`Nouveau ticket de \`${interaction.user.username}\`\nNom de l'event : \`${eventTicketFullName}\`\nDate : \`${eventTicketTime}\``)
                     .setTimestamp()
+                    .setColor('#f39c12')
 
                 const ticketEventConfirmation = await askForConfirmation(dmChannel, `Etes vous sur de vouloir ouvrir un ticket avec les paramètres suivants : \`\`\`NOM: ${eventTicketName}}\nDATE: ${eventTicketTime}\nWEBTV: ${eventWebTVBoolean ? 'OUI' : 'NON'}\nCOM: ${comBoolean ? 'OUI' : 'NON'}\nDA: ${daBoolean ? 'OUI' : 'NON'} \n\nUTILISATEURS ADDITIONNELS:\n${eventUsersAudience ? eventUsersAudience.map(member => member.user.tag).join('\n') : 'Aucun'} \`\`\``).catch(err => console.log(err))
                 if (!ticketEventConfirmation || ticketEventConfirmation === false) return
@@ -291,6 +290,8 @@ module.exports = class TicketStaffButtonInteraction extends BaseInteraction {
                     .setTitle(`🔗 NOUVEAU TICKET : \`${ticketRequestName}\``)
                     .setDescription(`Nouveau ticket de \`${interaction.user.username}\`\nObject de la requête : \`\`\`${ticketRequestObject}\`\`\``)
                     .setTimestamp()
+                    .setColor('#9b59b6')
+                
                 const newRequestTicketChannel = await interaction.guild.channels.create(`🔗┃${ticketRequestName}`, {
                     type: 'GUILD_TEXT',
                     position: 100,
