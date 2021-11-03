@@ -29,20 +29,9 @@ module.exports = class AddUserButtonInteraction extends BaseInteraction {
         configLogger.setGuild(interaction.guild)
 
         const dmChannel = await interaction.user.createDM()
-        const allMembers = await updateGuildMemberCache(interaction.guild)
         const allRoles = interaction.guild.roles.cache
 
-        let userRequest = allMembers.find(m => m.user.tag.toLowerCase().includes(interaction.user.username.toLowerCase()));
-
-        if (!userRequest) {
-            interaction.reply({
-                content: `**❌ | **INTERNAL SERVER ERROR : DB CORRUPTION`,
-                ephemeral: true
-            })
-            return
-        }
-
-        const userDB = await mongoose.model('User').findOne({ onServer: true, discordId: userRequest.id })
+        const userDB = await mongoose.model('User').findOne({ onServer: true, discordId: interaction.user.id })
         
         if (!userDB.roleResponsable) {
             interaction.reply({
@@ -52,10 +41,7 @@ module.exports = class AddUserButtonInteraction extends BaseInteraction {
             return
         }
         
-        interaction.reply({
-            content: `Check tes messages privés !`,
-            ephemeral: true
-        })
+        interaction.deferUpdate()
 
         // REDONDANT AVEC ADD MEMBER, ON PEUT FAIRE UNE FONCTION UTILS
         const userAudienceString = await userResponseContent(dmChannel, `Quels utilisateurs veux tu ajouter à la catégorie ${userDB.roleResponsable}? \`(liste de pseudos, séparées d'une virgule)\``).catch(err => console.log(err))
@@ -77,7 +63,7 @@ module.exports = class AddUserButtonInteraction extends BaseInteraction {
 
         const summaryEmbed = new MessageEmbed()
             .setTitle('COMPTE RENDU')
-            .setDescription(`Compte rendu final de l'opération d'ajout de membres en tant que membres associatifs :\n*(Vous pouvez recopier les champs d'erreur pour les renvoyer au bot lors d'une prochaine commande)*`)
+            .setDescription(`Compte rendu final de l'opération d'ajout de membres en tant que membres de vôtre pôle :\n*(Vous pouvez recopier les champs d'erreur pour les renvoyer au bot lors d'une prochaine commande)*`)
             .addField('✅ UTILISATEURS AJOUTES', `\`\`\`${staffResults.length > 0 ? staffResults.join('\n'): 'Aucun'}\`\`\``, false)
             .addField(`❌ UTILISATEURS INTROUVABLES SUR LE SERVEUR`, `\`\`\`${userErrors.length > 0 ? userErrors.join(',\n') : 'Aucun'}\`\`\``, false)
             .setColor('#fdcb6e')
@@ -87,6 +73,7 @@ module.exports = class AddUserButtonInteraction extends BaseInteraction {
         dmChannel.send({
             embeds: [summaryEmbed]
         })
+        //CHANGE DB USER 
         configLogger.info(`<@!${interaction.user.id}> a ajouté \`${staffResults.length}\` utilisateur(s) dans la catégorie ${userDB.roleResponsable} :`)
     }
 }
