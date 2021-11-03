@@ -9,21 +9,32 @@ const envLogger = new DiscordLogger('environnement', '#00cec9')
 function removeEmojis (string) {
     var regex = emojiRegex();
   
-    return string.replace(regex, '');
+    return string?.replace(regex, '');
 }
 
 function getEmoji (string) {
     let stringWithoutEmoji = removeEmojis(string);
 
-    return string.replace(stringWithoutEmoji, '')
+    return string?.replace(stringWithoutEmoji, '')
 }
 
 function removeDivider (string) {
     var regex = /『|』|┃|┋|︙/g
 
-    return string.replace(regex, '');
+    return string?.replace(regex, '');
 }
 
+function getDivider (string) {
+    let stringWithoutDivider = removeDivider(string);
+
+    return string?.replace(stringWithoutDivider, '')
+}
+/**
+ * 
+ * @param {string} path 
+ * @param {string} url 
+ * @returns {void}
+ */
 const downloadFile = (path, url) => {
     return new Promise(async (resolve) => {
         const file = fs.createWriteStream(path)
@@ -36,7 +47,11 @@ const downloadFile = (path, url) => {
           });
     })
 }
-
+/**
+ * 
+ * @param {string} path 
+ * @returns {File} file data
+ */
 const readFile = (path) => {
     return new Promise(async (resolve, reject) => {
         fs.readFile(path, (err, data) => {
@@ -45,11 +60,20 @@ const readFile = (path) => {
         })
     })
 }
-
+/**
+ * 
+ * @param {number} ms time in milliseconds
+ * @returns {void}
+ */
 const sleep = (ms) => {
     return new Promise(resolve => setTimeout(resolve, ms))
 }
-
+/**
+ * 
+ * @param {object} guild discord guild object
+ * @param {string[]} searchArgs arguments array
+ * @returns {object[]} array of user objects
+ */
 const getUsersFromString = (guild, searchArgs) => {
     return new Promise(async (resolve) => {
         const userArray = []
@@ -70,7 +94,35 @@ const getUsersFromString = (guild, searchArgs) => {
         resolve(userArray)
     })
 }
+/**
+ * 
+ * @param {object} guild discord guild object
+ * @param {string[]} searchArgs arguments array
+ * @returns {object[]} array of user objects
+ */
+ const getUsersAndRolesFromString = (guild, searchArgs) => {
+    return new Promise(async (resolve) => {
+        const resultArray = []
+        await updateGuildMemberCache(guild)
+        for (const arg of searchArgs) {
+            const roleMatch = guild.roles.cache.find(role => role.name.toLowerCase().includes(arg.toLowerCase()))
+            const userMatch = guild.members.cache.find(m => m.user.tag.toLowerCase().includes(arg.toLowerCase()))
+            if (roleMatch) {
+                resultArray.push(roleMatch)
+            } else if (userMatch) {
+                resultArray.push(userMatch)
+            }
+        }
 
+        resolve(resultArray)
+    })
+}
+
+/**
+ * 
+ * @param {object} guild 
+ * @returns {object} guild members cache
+ */
 const updateGuildMemberCache = async (guild) => {
     const guildMembersCache = guild.members.cache
 
@@ -84,7 +136,11 @@ const updateGuildMemberCache = async (guild) => {
     }
     return guild.members.cache
 }
-
+/**
+ * 
+ * @param {object} guild 
+ * @returns {object} guild channels cache
+ */
 const updateGuildChannelCache = async (guild) => {
     const guildChannelsCache = guild.channels.cache
     const cachedChannelsBefore = guildChannelsCache ? guildChannelsCache.size : undefined
@@ -102,14 +158,23 @@ const updateGuildChannelCache = async (guild) => {
     }
     return guild.channels.cache
 }
-
+/**
+ * 
+ * @param {object} guild 
+ * @returns {object} fetched Guild
+ */
 const updateGuildCache = async (guild) => {
     const fetchedGuild = await guild.fetch();
     await updateGuildMemberCache(fetchedGuild);
     await updateGuildChannelCache(fetchedGuild);
     return fetchedGuild
 }
-
+/**
+ * 
+ * @param {*[]} arr 
+ * @param {Number} chunkSize 
+ * @returns 
+ */
 function chunkArray(arr, chunkSize) {
     const res = [];
     for (let i = 0; i < arr.length; i += chunkSize) {
@@ -118,7 +183,28 @@ function chunkArray(arr, chunkSize) {
     }
     return res;
 }
+/**
+ * 
+ * @param {*[]} array 
+ * @returns Array with duplicates
+ */
+function getDuplicates(array) {
+    return array.filter((value, index) => data.indexOf(value) != index) 
+}
 
+
+/**
+ * 
+ * @param {*[]} array1 
+ * @param {*[]} array2 
+ * @returns {*[]}
+ */
+const substractArrays = (array1, array2) => {
+    array1.filter((e) => {
+        let i = array2.indexOf(e)
+        return i == -1 ? true : (array2.splice(i, 1), false)
+    })
+}
 
 
 module.exports = {
@@ -131,7 +217,11 @@ module.exports = {
     getUsersFromString,
     updateGuildCache,
     updateGuildMemberCache,
-    chunkArray
+    chunkArray,
+    getDuplicates,
+    substractArrays,
+    getUsersAndRolesFromString,
+    getDivider
 }
 
 
