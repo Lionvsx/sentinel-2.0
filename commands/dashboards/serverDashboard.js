@@ -10,8 +10,8 @@ const mongoose = require('mongoose');
 
 module.exports = class DashDatabaseCommand extends BaseCommand {
     constructor () {
-        super('dashboarddb', 'dashboard', [], {
-            usage: "dashboarddb",
+        super('dashboardserver', 'dashboard', [], {
+            usage: "dashboardserver",
             description: "Crée un dashboard pour gérer le serveur",
             categoryDisplayName: `🧭 Dashboard`,
             userPermissions: ['ADMINISTRATOR'],
@@ -47,8 +47,6 @@ module.exports = class DashDatabaseCommand extends BaseCommand {
             createEmojiButton('broadcastMessage', 'Envoie un message d\'annonce à distance', 'DANGER', '✉')
         ])
         // Sentinel servers ✅
-        // Users in LDV DB
-        // AG Planifiées
         // Tickets viewer + Archive
         // Server Users + Archive
         message.channel.send({
