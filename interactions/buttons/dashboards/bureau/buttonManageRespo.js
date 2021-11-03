@@ -17,10 +17,7 @@ module.exports = class ManageRespoButtonInteraction extends BaseInteraction {
     }
 
     async run(client, interaction, buttonArgs) {
-        interaction.reply({
-            content: `Check tes messages privés !`,
-            ephemeral: true
-        })
+        interaction.deferUpdate()
 
         const Responsables = await mongoose.model('User').find({ onServer: true, isResponsable: true })
         const dmChannel = await interaction.user.createDM()
@@ -40,6 +37,7 @@ module.exports = class ManageRespoButtonInteraction extends BaseInteraction {
                 { name: '✅', value: "Ajouter un membre en tant que responsable", inline: true },
                 { name: '❌', value: "Retirer un membre du poste de responsable", inline: true },
             ])
+            .setColor('#e67e22')
         const manageSelection = await reactionEmbedSelector(dmChannel, ['✅', '❌'], selectionEmbed).catch(err  => console.log(err))
         if (!manageSelection) return;
 
@@ -140,23 +138,23 @@ module.exports = class ManageRespoButtonInteraction extends BaseInteraction {
 
             const existingRespo = await mongoose.model('User').findOne({ onServer: true, discordId: guildMember.user.id, isResponsable: true })
 
-            const roleRespo = existingRespo.roleResponsable
+            
 
             if (existingRespo) {
-                let existingRespoGuildMember = allMembers.get(existingRespo.discordId)
-                const rolesToRemove = allRoles.filter(role => (role.id === '624715133251223572' || role.id === '622120800333463555' || role.id === '743988023859085332') && existingRespoGuildMember.roles.cache.has(role.id))
+                const roleRespo = existingRespo.roleResponsable
+                const rolesToRemove = allRoles.filter(role => (role.id === '624715133251223572' || role.id === '622120800333463555' || role.id === '743988023859085332') && guildMember.roles.cache.has(role.id))
                 existingRespo.isResponsable = false
                 existingRespo.roleResponsable = undefined
                 try {
                     await existingRespo.save();
-                    existingRespoGuildMember.roles.remove(rolesToRemove)
+                    guildMember.roles.remove(rolesToRemove)
                     dmChannel.send(`**✅ | **\`\`${existingRespo.username}\`\` a bien été retiré du poste de responsable \`${roleRespo.toUpperCase()}\` !`)
                     configLogger.info(`<@!${interaction.user.id}> a retiré \`${existingRespo.username}\` du poste de responsable \`${roleRespo.toUpperCase()}\``)
                 } catch (err) {
                     dmChannel.send(`**❌ | **INTERNAL SERVER ERROR : DB CORRUPTION`)
                 }
                 
-            }
+            } else dmChannel.send(`**❌ | **Cet utilisateur n'est pas responsable !`)
 
         }
     }

@@ -21,10 +21,7 @@ module.exports = class RegisterAssoMembersButtonInteraction extends BaseInteract
     }
 
     async run(client, interaction, buttonArgs) {
-        interaction.reply({
-            content: `Check tes messages privés !`,
-            ephemeral: true
-        })
+        interaction.deferUpdate()
 
         const configLogger = new DiscordLogger('config', '#e17055')
         configLogger.setLogMember(interaction.member)
@@ -108,7 +105,7 @@ function registerUsers(audience, tempMsg, loading) {
                     })
                 }
                 success.push(member.user.tag)
-                await tempMsg.edit(`**${loading} | **Ajout des utilisateurs en cours à la DB : \`${success.length + errors.length}/${audience.length}\``)
+                await tempMsg.edit(`**${loading} | **Ajout des utilisateurs en cours à la DB : \`${success.length + errors.length + presence.length}/${audience.length}\``)
             } catch (err) {
                 errors.push(member.user.tag)
             }

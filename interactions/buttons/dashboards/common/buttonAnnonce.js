@@ -4,6 +4,7 @@ const { getUsersFromString, updateGuildMemberCache } = require('../../../../util
 const { MessageEmbed } = require('discord.js')
 const DiscordLogger = require('../../../../utils/services/discordLoggerService')
 
+
 module.exports = class AnnonceButtonInteraction extends BaseInteraction {
     constructor() {
         super('buttonAnnonce', 'dashboards', 'button', {
@@ -13,10 +14,7 @@ module.exports = class AnnonceButtonInteraction extends BaseInteraction {
     }
 
     async run(client, interaction, buttonArgs) {
-        interaction.reply({
-            content: `Check tes messages privés !`,
-            ephemeral: true
-        })
+        interaction.deferUpdate()
 
 
         const dmChannel = await interaction.user.createDM()
@@ -69,7 +67,7 @@ module.exports = class AnnonceButtonInteraction extends BaseInteraction {
                     
                     annonceLogger.setLogData(audience.map(member => member.user.tag).join('\n'))
                     if (!confirmation) return
-                    broadcastMessage(client, dmChannel, audience, {
+                    broadcastMessage(client, dmChannel, audience, annonceLogger, {
                         content: annoucementMessage.content,
                         embeds: [signatureEmbed],
                         files: annoucementMessage.attachments
@@ -113,7 +111,8 @@ module.exports = class AnnonceButtonInteraction extends BaseInteraction {
                             ['com', '742069661495066774'],
                             ['esport', '742069647679160411'],
                             ['event', '742083440450732043'],
-                            ['webtv', '741961820876570724']
+                            ['webtv', '741961820876570724'],
+                            ['partenariat', '894736312660275270']
                         ]
                         const selectedChannels = await userResponseContent(dmChannel, "Dans quels poles voulez vous envoyez votre message? \`(tous, da, webtv, esport, com, event, séparées d'une virgule !)\`").catch(err => console.log(err))
                         if (!selectedChannels) return
@@ -151,7 +150,7 @@ module.exports = class AnnonceButtonInteraction extends BaseInteraction {
     }
 }
 
-const broadcastMessage = (client, channel, audience, message) => {
+const broadcastMessage = (client, channel, audience, annonceLogger, message) => {
     return new Promise(async (resolve) => {
         const loading = client.emojis.cache.get('741276138319380583')
         const tempMsg = await channel.send(`**${loading} |** Début de l'envoi de votre message à \`${audience.length}\` utilisateurs`)

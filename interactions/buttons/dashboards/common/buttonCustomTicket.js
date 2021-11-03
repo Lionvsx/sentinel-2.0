@@ -15,10 +15,7 @@ module.exports = class CustomTicketButtonInteraction extends BaseInteraction {
     }
 
     async run(client, interaction, buttonArgs) {
-        interaction.reply({
-            content: `Check tes messages privés !`,
-            ephemeral: true
-        })
+        interaction.deferUpdate()
 
         const loading = client.emojis.cache.get('741276138319380583')
 

@@ -18,10 +18,7 @@ module.exports = class TicketBureauButton extends BaseInteraction {
     }
 
     async run(client, interaction, buttonArgs) {
-        interaction.reply({
-            content: `Check tes messages privés !`,
-            ephemeral: true
-        })
+        interaction.deferUpdate()
 
         const loading = client.emojis.cache.get('741276138319380583')
         
@@ -68,6 +65,7 @@ module.exports = class TicketBureauButton extends BaseInteraction {
             .setTitle(`💼 NOUVEAU TICKET : \`${newTicket.name}\``)
             .setDescription(`Nouveau ticket de \`${interaction.user.username}\`\nDescription du problème : \`\`\`${ticketContent}\`\`\``)
             .setTimestamp()
+            .setColor('#e74c3c')
 
         await bureauRequestChannel.send({
             embeds: [accessEmbed],

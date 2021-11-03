@@ -1,6 +1,5 @@
 const BaseInteraction = require('../../../../utils/structures/BaseInteraction')
 const { userResponse, reactionEmbedSelector, selectorReply, askForConfirmation, askYesOrNo, userResponseContent } = require('../../../../utils/functions/awaitFunctions')
-const { getUsersFromString } = require('../../../../utils/functions/utilitaryFunctions')
 const { createButtonActionRow, createButton } = require('../../../../utils/functions/messageComponents')
 const { MessageEmbed, Permissions } = require('discord.js')
 const mongoose = require('mongoose')
@@ -18,10 +17,7 @@ module.exports = class TicketTechniqueButtonInteraction extends BaseInteraction 
     }
 
     async run(client, interaction, buttonArgs) {
-        interaction.reply({
-            content: `Check tes messages privés !`,
-            ephemeral: true
-        })
+        interaction.deferUpdate()
 
         const loading = client.emojis.cache.get('741276138319380583')
 
@@ -68,13 +64,14 @@ module.exports = class TicketTechniqueButtonInteraction extends BaseInteraction 
             .setTitle(`🔧 NOUVEAU TICKET : \`${newTicket.name}\``)
             .setDescription(`Nouveau ticket de \`${interaction.user.username}\`\nDescription du problème : \`\`\`${ticketContent}\`\`\``)
             .setTimestamp()
+            .setColor('#e74c3c')
 
         await staffTechniqueRequestChannel.send({
             embeds: [accessEmbed],
             components: [createButtonActionRow([createButton(`buttonAccessChannel|${newChannel.id}`, 'Accédez au ticket', 'SUCCESS'), createButton(`buttonKillAccessChannel`, "Fermez l'accès au ticket", 'DANGER')])]
         })
         tempMsg.edit(`**:white_check_mark: | **Votre ticket a été crée avec succès!`)
-        ticketLogger.info(`<@!${interaction.user.id}> a crée un ticket d'assistance **bureau** avec le problème suivant :`)
+        ticketLogger.info(`<@!${interaction.user.id}> a crée un ticket d'assistance **staff technique** avec le problème suivant :`)
     }
 }
 
