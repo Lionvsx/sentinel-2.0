@@ -9,7 +9,7 @@ module.exports = class guildMemberUpdate extends BaseEvent {
     async run(client, oldGuildMember, newGuildMember) {
         if (oldGuildMember.guild.id != '227470914114158592') return;
         if (oldGuildMember.user.bot) return;
-        if (oldGuildMember.user.username === newGuildMember.user.username || oldGuildMember.user.displayAvatarURL() === newGuildMember.user.displayAvatarURL()) return;
+        if (oldGuildMember.user.username === newGuildMember.user.username && oldGuildMember.user.displayAvatarURL() === newGuildMember.user.displayAvatarURL() && oldGuildMember.user.tag === newGuildMember.user.tag) return;
 
         const User = await mongoose.model('User').findOne({ discordId: newGuildMember.user.id })
 
