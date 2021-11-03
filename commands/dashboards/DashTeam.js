@@ -58,13 +58,13 @@ module.exports = class DashRespoCommand extends BaseCommand {
                 )
             const Row1 = createButtonActionRow([
                 createEmojiButton(`buttonStartCall|${existingTeam._id}`, 'Démarrer l\'appel', 'SUCCESS', '▶️'),
-                createEmojiButton('buttonEndCall', 'Arrêter l\'appel', 'DANGER', '⏹️'),
+                createEmojiButton(`buttonEndCall|${existingTeam._id}`, 'Arrêter l\'appel', 'DANGER', '⏹️'),
                 createEmojiButton('buttonEditTeam', 'Modifier votre équipe', 'PRIMARY', '✏️')
             ])
             const Row2 = createButtonActionRow([
                 createEmojiButton('buttonAddPlayer', 'Ajouter un joueur', 'SUCCESS', '➕'),
                 createEmojiButton('buttonRemovePlayer', 'Retirer un joueur', 'DANGER', '➖'),
-                createEmojiButton('buttonUpdateTeamPerms', 'Mettre à jour les permissions', 'SECONDARY', '🔄'),
+                createEmojiButton('buttonUpdateTeam', 'Mettre à jour les permissions', 'SECONDARY', '🔄'),
             ])
             message.channel.send({
                 embeds: [DashBoardTeam],
