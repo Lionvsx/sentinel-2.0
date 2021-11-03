@@ -30,7 +30,8 @@ module.exports = class TicketRemoveCommand extends BaseCommand {
 
             const allMembers = await updateGuildMemberCache(message.guild);
 
-            args.splice(0, 2)
+            if (args[1] === 'remove') args.splice(0, 2)
+            else args.splice(0, 1)
             let memberToString = args.join(' ')
             let membersToRemoveArray = memberToString.split(', ')
             message.mentions.members ? message.mentions.members.each(member => membersToRemoveArray.push(member.user.tag)) : null
@@ -41,17 +42,18 @@ module.exports = class TicketRemoveCommand extends BaseCommand {
             for (let i = 0; i < membersToRemoveArray.length; i++) {
                 let memberString = membersToRemoveArray[i];
                 let guildMember = allMembers.find(m => m.user.tag.toLowerCase().includes(memberString.toLowerCase()));
-                try {
-                    await message.channel.permissionOverwrites.delete(guildMember.user.id)
-                    removedMembersArray.push(guildMember.user.tag)
-                    count++;
-                    ticketLogger.info(`<@!${message.author.id}> a retiré \`${guildMember.user.username}\` du ticket \`${existingDBTicket.name}\``)
-                } catch (err) {
-                    console.error(err)
-                    ticketLogger.setLogData(err)
-                    ticketLogger.error(`<@!${message.author.id}> n'est pas arrivé à retirer \`${guildMember.user.username}\` du ticket \`${existingDBTicket.name}\``)
-                    errors++;
-                }
+                message.channel.permissionOverwrites.delete(guildMember.user.id)
+                    .then(channel => {
+                        removedMembersArray.push(guildMember.user.tag)
+                        count++;
+                        ticketLogger.info(`<@!${message.author.id}> a retiré \`${guildMember.user.username}\` du ticket \`${existingDBTicket.name}\``)
+                    })
+                    .catch(err => {
+                        console.error(err)
+                        ticketLogger.setLogData(err)
+                        ticketLogger.error(`<@!${message.author.id}> n'est pas arrivé à retirer \`${guildMember.user.username}\` du ticket \`${existingDBTicket.name}\``)
+                        errors++;
+                    })
             }
             count === 0 ? tempMsg.edit(`**❌ | **Je ne suis pas arrivé à retirer le(s) utilisateur(s) du ticket !`) : errors > 1 ? tempMsg.edit(`**⚠ | **Je suis seulement arrivé à retirer le(s) utilisateur(s) suivant(s) du ticket : \`\`${removedMembersArray.join(', ')}\`\``) : tempMsg.edit(`**✅ | **J'ai retiré le(s) utilisateur(s) suivant(s) du ticket : \`\`${removedMembersArray.join(', ')}\`\``)
         } else {
