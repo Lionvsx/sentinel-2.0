@@ -4,7 +4,8 @@ const { MessageEmbed } = require('discord.js')
 const { createMessageActionRow, createSelectionMenu, createButtonActionRow, createButton, createSelectionMenuOption } = require('../../../utils/functions/messageComponents')
 const mongoose = require('mongoose');
 
-const DiscordLogger = require('../../../utils/services/discordLoggerService')
+const DiscordLogger = require('../../../utils/services/discordLoggerService');
+const { isMember } = require('../../../utils/functions/dbFunctions');
 
 
 module.exports = class MemberInformationFormButton extends BaseInteraction {
@@ -24,7 +25,7 @@ module.exports = class MemberInformationFormButton extends BaseInteraction {
         databaseLogger.setLogMember(await ldvGuild.members.fetch(interaction.user.id))
 
         const User = await mongoose.model('User').findOne({ discordId: interaction.user.id })
-        if (User && User.firstName === true) return interaction.update({embeds: [new MessageEmbed().setDescription(`✅ Vous êtes déja enregistrés en tant que membre ✅`).setColor('#00b894')], components: []})
+        if (isMember(User)) return interaction.update({embeds: [new MessageEmbed().setDescription(`✅ Vous êtes déja enregistrés en tant que membre ✅`).setColor('#00b894')], components: []})
 
         const allRoles = ldvGuild.roles.cache 
 
@@ -104,8 +105,4 @@ function restoreForm(dmChannel) {
         embeds: [embed],
         components: [componentRow]
     })
-}
-
-function setGuildRoles(guild, userId) {
-    
 }
