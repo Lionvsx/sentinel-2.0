@@ -15,10 +15,7 @@ module.exports = class SyncDatabaseButton extends BaseInteraction {
     }
 
     async run(client, interaction, buttonArgs) {
-        interaction.reply({
-            content: `Check tes messages privés !`,
-            ephemeral: true
-        })
+        interaction.deferUpdate()
 
         const envLogger = new DiscordLogger('environnement', '#00cec9')
         envLogger.setGuild(interaction.guild)
