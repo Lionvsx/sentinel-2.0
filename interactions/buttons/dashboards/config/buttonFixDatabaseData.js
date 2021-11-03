@@ -14,16 +14,13 @@ const {
 module.exports = class FixDBDataButton extends BaseInteraction {
     constructor() {
         super('buttonFixDatabaseData', 'dashboards', 'button', {
-            userPermissions: [Permissions.FLAGS.ADMINISTRATOR],
+            userPermissions: [Permissions.FLAGS.BAN_MEMBERS],
             clientPermissions: []
         })
     }
 
     async run(client, interaction, buttonArgs) {
-        interaction.reply({
-            content: `Check tes messages privés !`,
-            ephemeral: true
-        })
+        interaction.deferUpdate()
 
         const configLogger = new DiscordLogger('config', '#e17055')
         configLogger.setLogMember(interaction.member)
