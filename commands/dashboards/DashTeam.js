@@ -43,7 +43,7 @@ module.exports = class DashRespoCommand extends BaseCommand {
                     { name: '🔄 | UPDATE TEAM PERMS', value: "Met à jour les permissions de vos salons", inline: true },
                 )
             const Row1 = createButtonActionRow([
-                createEmojiButton('buttonStartCall', 'Démarrer l\'appel', 'SUCCESS', '▶️'),
+                createEmojiButton(`buttonStartCall|${existingTeam._id}`, 'Démarrer l\'appel', 'SUCCESS', '▶️'),
                 createEmojiButton('buttonEndCall', 'Arrêter l\'appel', 'DANGER', '⏹️'),
                 createEmojiButton('buttonEditTeam', 'Modifier votre équipe', 'PRIMARY', '✏️')
             ])
