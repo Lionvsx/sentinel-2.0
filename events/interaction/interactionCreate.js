@@ -23,7 +23,12 @@ module.exports = class InteractionCreateEvent extends BaseEvent {
                 buttonInteraction.run(client, interaction, buttonArgs)
             }
         } else if (interaction.isSelectMenu()) {
-
+            const selectMenuArgs = interaction.customId.split('|')
+            let selectMenu = client.interactions.get(selectMenuArgs[0])
+            if (selectMenu) {
+                if (!interaction.guild.members.cache.get(interaction.user.id).permissions.has(selectMenu.help.userPermissions)) return interaction.reply({ content: `**:x: | **Vous n'avez pas la permission pour executer cette commande !`, ephemeral: true })
+                selectMenu.run(client, interaction, selectMenuArgs)
+            }
         }
     }
 }

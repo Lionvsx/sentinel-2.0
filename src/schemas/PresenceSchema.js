@@ -1,10 +1,9 @@
-const mongoose = require(mongoose);
+const mongoose = require('mongoose');
 
 const UserSchema = new mongoose.Schema({
     discordId: {
         type: String,
         required: true,
-        unique: true
     },
     username: {
         type: String,
@@ -28,12 +27,15 @@ const PresenceSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
+    open: {
+        type: Boolean,
+        default: false
+    },
     date: String,
     type: String,
-    description: String,
+    name: String,
     audience: [UserSchema],
-    memberCheck: [UserSchema],
-    memberNotChecked: [UserSchema]
+    memberCheck: [UserSchema]
 })
 
 module.exports = mongoose.model('Presence', PresenceSchema);
