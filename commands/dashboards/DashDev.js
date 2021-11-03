@@ -34,21 +34,20 @@ module.exports = class DashBureauCommand extends BaseCommand {
                 { name: '☢ | NUKE MEMBERS', value: "Rétablit les rôles de tout les utilisateurs aux rôles strictement essentiels et re-sync la base de données en conséquence", inline: true },
                 { name: '\u200B', value: '\u200B' },
                 { name: '👥 | MANAGE TEAMS', value: 'Vous permet d\'ajouter, de supprimer et de gérer les différentes équipes du serveur', inline: true },
-                { name: ' | CHANGE BOT MESSAGE', value: 'Vous permet d\'ajouter, de supprimer et de gérer les différentes équipes du serveur', inline: true },
+                { name: '💬 | CHANGE BOT MESSAGE', value: 'Vous permet d\'ajouter, de supprimer et de gérer les différentes équipes du serveur', inline: true },
             )
             const Row1 = createButtonActionRow([
                 createEmojiButton('buttonSyncDatabase', 'Synchroniser la base de données', 'PRIMARY', '📟'),
                 createEmojiButton('buttonRebootBot', 'Redémarrer le bot', 'SUCCESS', '🔄'),
                 createEmojiButton('buttonNukeServer', 'Reset tout les utilisateurs', 'DANGER', '☢')
             ])
-            // const Row2 = createButtonActionRow([
-            //     createEmojiButton('buttonCustomTicket', 'Créer un ticket', 'SECONDARY', '🎫'),
-            //     createEmojiButton('buttonStartStopAg', 'Gérer les Assemblées Générales', 'DANGER', '🔺'),
-            //     createEmojiButton('buttonRegisterMembers', 'Ajouter des membres à l\'asso', 'SUCCESS', '👥'),
-            // ])
+            const Row2 = createButtonActionRow([
+                createEmojiButton('buttonManageTeams', 'Gérer les équipes du serveur', 'PRIMARY', '👥'),
+                createEmojiButton('buttonChangeBotStatus', 'Changer le message d\'humeur du bot', 'SECONDARY', '💬'),
+            ])
             message.channel.send({
                 embeds: [DashBoardDev],
-                components: [Row1]
+                components: [Row1, Row2]
             })
 
         message.delete()
