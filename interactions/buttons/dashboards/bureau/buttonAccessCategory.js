@@ -1,9 +1,9 @@
 const BaseInteraction = require('../../../../utils/structures/BaseInteraction')
-const { userResponseContent, reactionEmbedSelector, menuInteraction, menuInteractionNoTimeout, selectorReply, buttonInteraction } = require('../../../../utils/functions/awaitFunctions')
+const { userResponseContent, reactionEmbedSelector, selectorReply } = require('../../../../utils/functions/awaitFunctions')
 const { MessageEmbed, MessageActionRow, MessageSelectMenu } = require('discord.js')
 
 const mongoose = require('mongoose')
-const { updateGuildMemberCache, getEmoji } = require('../../../../utils/functions/utilitaryFunctions')
+const { updateGuildMemberCache, getEmoji, getDuplicates } = require('../../../../utils/functions/utilitaryFunctions')
 const { createButton, createMessageActionRow, createSelectionMenu, createSelectionMenuOption, createButtonActionRow, createEmojiButton } = require('../../../../utils/functions/messageComponents')
 
 const DiscordLogger = require('../../../../utils/services/discordLoggerService')
@@ -17,57 +17,129 @@ module.exports = class AccessCategoryButtonInteraction extends BaseInteraction {
     }
 
     async run(client, interaction, buttonArgs) {
-        interaction.reply({
-            content: `Check tes messages privés !`,
-            ephemeral: true
-        })
+        interaction.deferUpdate()
 
-        const Responsables = await mongoose.model('User').find({ onServer: true, isResponsable: true })
+
+        const loading = client.emojis.cache.get('741276138319380583')
+
         const dmChannel = await interaction.user.createDM()
         const allChannels = interaction.guild.channels.cache
         const categoryChannels = allChannels.filter(channel => channel.type === 'GUILD_CATEGORY')
-        const allMembers = await updateGuildMemberCache(interaction.guild)
-        const allRoles = interaction.guild.roles.cache
 
         const configLogger = new DiscordLogger('config', '#e17055')
         configLogger.setLogMember(interaction.member)
         configLogger.setGuild(interaction.guild)
 
+
+        let index = 0
         const categoriesMap = fillSelectMap(categoryChannels);
-        let selectMenu = createMessageActionRow([createSelectionMenu('catMenu', 'Page 1', categoriesMap[0], 1, 25)])
-        const rowBtns = createButtonActionRow([createEmojiButton('prev', 'Page précédente', 'SECONDARY', '⬅️'), createEmojiButton('valid', 'Valider', 'SUCCESS', '✅'), createEmojiButton('next', 'Page suivante', 'SECONDARY', '➡️')])
+
+        const selectMenu = createMessageActionRow([createSelectionMenu(`catMenu`, 'Page 1', categoriesMap[index], 1, categoriesMap[index].length)])
+        const buttonRow = createButtonActionRow([createEmojiButton(`previous`, 'Page précédente', 'SECONDARY', '⬅️'), createEmojiButton(`valid`, 'Valider', 'SUCCESS', '✅'), createEmojiButton(`next`, 'Page suivante', 'SECONDARY', '➡️')])
+
+        let arrayOfCategoryIds = []
+        
         let embedSelected = new MessageEmbed()
             .setColor('#247ba0')
             .setTitle('Catégories sélectionnées')
-            .setDescription(`Aucun\n\n🔽 Veuillez sélectionner une catégorie ci-dessous 🔽`)
+            .setDescription(`\`\`\`\nAucune\`\`\`\n\n🔽 Veuillez sélectionner une catégorie ci-dessous 🔽`)
 
-        let newInteraction = await dmChannel.send({
+        let message = await dmChannel.send({
             embeds: [embedSelected],
-            components: [selectMenu, rowBtns]
+            components: [selectMenu, buttonRow]
+        })
+        const filter = (interaction) => interaction.message.id === message.id
+
+        const collector = dmChannel.createMessageComponentCollector({ filter, idle: 30000 })
+
+        collector.on('collect', interaction => {
+            if (interaction.isButton()) {
+                if (interaction.customId === 'previous') updateSelectionMenu(interaction, arrayOfCategoryIds, index = index-1, categoriesMap, allChannels)
+                else if (interaction.customId === 'next') updateSelectionMenu(interaction, arrayOfCategoryIds, index = index-1, categoriesMap, allChannels)
+                else if (interaction.customId === 'valid') {
+                    collector.stop()
+                    interaction.update({
+                        components: []
+                    })
+                }
+            } else if (interaction.isSelectMenu() && interaction.customId === 'catMenu') {
+                let toRemove = arrayOfCategoryIds.filter(n => interaction.values.includes(n))
+                arrayOfCategoryIds = arrayOfCategoryIds.concat(interaction.values)
+                arrayOfCategoryIds = arrayOfCategoryIds.filter(n => !toRemove.includes(n))
+                updateSelectionMenu(interaction, arrayOfCategoryIds, index, categoriesMap, allChannels)
+            }
         })
 
-        let index = 0
+        collector.on('end', async (collected, reason) => {
+            if (reason === 'idle') {
+                return message.edit({
+                    embeds: [new MessageEmbed().setDescription(`**❌ Commande annulée : \`Timed Out\`**`).setColor('#c0392b')],
+                    components: []
+                })
+            }
+            const selectedCategories = allChannels.filter(channel => channel.type === 'GUILD_CATEGORY' && arrayOfCategoryIds.includes(channel.id))
+            const tempMsg = await dmChannel.send(`**${loading} | **Ajout des accès aux catégories en cours...`)
 
-        menuInteractionNoTimeout(newInteraction)
-            .then(val => {
-                updateInteraction(index, interaction, val.values)
-            })
-            .catch(err => console.log(err))
-            
-        buttonInteraction(dmChannel, newInteraction)
-            .then(val => {
-                updateInteraction(index, interaction, [])
-            })
-            .catch(err => console.log(err))
-
-
+            for (const [categoryId, category] of selectedCategories) {
+                const childrenChannels = allChannels.filter(channel => channel.parentId === categoryId)
+                configLogger.info(`<@!${interaction.user.id}> a accédé à la catégorie \`${category.name}\``)
+                category.permissionOverwrites.create(interaction.user, {
+                    VIEW_CHANNEL: true,
+                    SEND_MESSAGES: true,
+                    CONNECT: true,
+                })
+                for (const [channelId, channel] of childrenChannels) {
+                    channel.permissionOverwrites.create(interaction.user, {
+                        VIEW_CHANNEL: true,
+                        SEND_MESSAGES: true,
+                        CONNECT: true,
+                    })
+                }
+            }
+            tempMsg.edit(`**✅ | **Accès accordé  à ${selectedCategories?.size} catégories`)
+        }) 
     }
+}
+
+/**
+ * 
+ * @param {object} interaction 
+ * @param {string[]} arrayOfCategoryIds 
+ * @param {number} index 
+ * @param {object[]} categoriesMap 
+ * @param {object} allChannels 
+ */
+function updateSelectionMenu(interaction, arrayOfCategoryIds, index, categoriesMap, allChannels) {
+
+    
+    index = ((index%categoriesMap.length) + categoriesMap.length)%categoriesMap.length
+
+    const selectMenu = createMessageActionRow([createSelectionMenu(`catMenu`, `Page ${index + 1}`, categoriesMap[index], 1, categoriesMap[index].length)])
+    const buttonRow = createButtonActionRow([createEmojiButton(`previous`, 'Page précédente', 'SECONDARY', '⬅️'), createEmojiButton(`valid`, 'Valider', 'SUCCESS', '✅'), createEmojiButton(`next`, 'Page suivante', 'SECONDARY', '➡️')])
+    
+
+    const selectedCategories = allChannels.filter(channel => channel.type === 'GUILD_CATEGORY' && arrayOfCategoryIds.includes(channel.id))
+
+    let embedSelected = new MessageEmbed()
+    .setColor('#247ba0')
+    .setTitle('Catégories sélectionnées')
+    .setDescription(`\`\`\`\n${selectedCategories?.size > 0 ? selectedCategories.map(chan => chan.name).join('\n'): 'Aucune'}\`\`\`\n\n🔽 Veuillez sélectionner une catégorie ci-dessous 🔽`)
+
+    interaction.update({
+        embeds: [embedSelected],
+        components: [selectMenu, buttonRow]
+    })
 }
 
 function fetchName(str) {
     return str.replace(/[^a-zA-Z éèêàù]+/g, '').trim();
 }
 
+/**
+ * 
+ * @param {String} str 
+ * @returns {Void} 
+ */
 function fetchEmoji(str) {
     let i = 0
     let char = str.charAt(i)
@@ -78,13 +150,17 @@ function fetchEmoji(str) {
     const emoji = `${char + str.charAt(i+1)}`
     return String.fromCodePoint(emoji.codePointAt(0));
 }
-
+/**
+ * 
+ * @param {String} categoryChannels 
+ * @returns {void}
+ */
 function fillSelectMap(categoryChannels) {
     let i = 0
     let tmpArr = []
     let map = []
 
-    categoryChannels.forEach((cat, index) => {
+    for (const [key, cat] of categoryChannels) {
         if (i === 25) {
             i = 0
             map.push(tmpArr)
@@ -92,32 +168,10 @@ function fillSelectMap(categoryChannels) {
         }
         tmpArr.push(createSelectionMenuOption(cat.id, fetchName(cat.name), undefined, fetchEmoji(cat.name)))
         i++
-    })
+    }
     map.push(tmpArr)
     return map
 }
 
-function updateInteraction(index, interaction, options) {
 
 
-
-    interaction.update({
-        embeds: [
-            new MessageEmbed()
-            .setColor('#247ba0')
-            .setTitle('Catégories sélectionnées')
-            .setDescription(`${options?.size > 0 ? options.join('\n') : 'Aucun'}\n\n🔽 Veuillez sélectionner une catégorie ci-dessous 🔽`)
-        ]
-    })
-    menuInteractionNoTimeout(newInteraction)
-        .then(val => {
-            updateInteraction(interaction)
-        })
-        .catch(err => console.log(err))
-        
-    buttonInteraction(dmChannel, newInteraction)
-        .then(val => {
-            updateInteraction(interaction)
-        })
-        .catch(err => console.log(err))
-}
