@@ -1,8 +1,8 @@
 const BaseInteraction = require('../../../../utils/structures/BaseInteraction')
 
-module.exports = class ButtonStartCall extends BaseInteraction {
+module.exports = class buttonEndCall extends BaseInteraction {
     constructor() {
-        super('buttonStartCall', 'dashboards', 'button', {
+        super('buttonEndCall', 'dashboards', 'button', {
             userPermissions: [],
             clientPermissions: []
         })
@@ -10,7 +10,7 @@ module.exports = class ButtonStartCall extends BaseInteraction {
 
     async run(client, interaction, buttonArgs) {
         interaction.reply({
-            content: `L'appel est ouvert !`,
+            content: `L'appel est fermé !`,
             ephemeral: true
         })
         

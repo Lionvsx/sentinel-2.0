@@ -52,19 +52,19 @@ module.exports = class DashRespoCommand extends BaseCommand {
                     { name: '⏹️ | END CALL', value: "Clôturer l'appel", inline: true },
                     { name: '✏️ | EDIT TEAM', value: "Vous permet de changer le nom ou l'emoji de l'équipe", inline: true },
                     { name: '\u200B', value: '\u200B' },
-                    { name: '➕ | ADD PLAYER', value: "Ajouter un joueur à votre équipe", inline: true },
-                    { name: '➖ | REMOVE PLAYER', value: "Retirer un joueur de votre équipe", inline: true },
+                    { name: '⚙️ | MANAGE PLAYER', value: "Ajouter ou retirer un joueur de votre équipe", inline: true },
+                    { name: '📩 | INVITE PLAYER', value: "Inviter un joueur **extérieur** à votre équipe", inline: true },
                     { name: '🔄 | UPDATE TEAM PERMS', value: "Met à jour les permissions de vos salons", inline: true },
                 )
             const Row1 = createButtonActionRow([
                 createEmojiButton(`buttonStartCall|${existingTeam._id}`, 'Démarrer l\'appel', 'SUCCESS', '▶️'),
                 createEmojiButton(`buttonEndCall|${existingTeam._id}`, 'Arrêter l\'appel', 'DANGER', '⏹️'),
-                createEmojiButton('buttonEditTeam', 'Modifier votre équipe', 'PRIMARY', '✏️')
+                createEmojiButton(`buttonEditTeam|${existingTeam._id}`, 'Modifier votre équipe', 'PRIMARY', '✏️')
             ])
             const Row2 = createButtonActionRow([
-                createEmojiButton('buttonAddPlayer', 'Ajouter un joueur', 'SUCCESS', '➕'),
-                createEmojiButton('buttonRemovePlayer', 'Retirer un joueur', 'DANGER', '➖'),
-                createEmojiButton('buttonUpdateTeam', 'Mettre à jour les permissions', 'SECONDARY', '🔄'),
+                createEmojiButton(`buttonManagePlayer|${existingTeam._id}`, 'Gérer un joueur', 'SECONDARY', '⚙️'),
+                createEmojiButton(`buttonInvitePlayer|${existingTeam._id}`, 'Inviter un joueur', 'SECONDARY', '📩'),
+                createEmojiButton(`buttonUpdateTeam|${existingTeam._id}`, 'Mettre à jour les permissions', 'SECONDARY', '🔄'),
             ])
             message.channel.send({
                 embeds: [DashBoardTeam],
