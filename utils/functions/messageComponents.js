@@ -55,6 +55,15 @@ function createMessageActionRow(componentsArray) {
     return actionRow
 }
 
+/**
+ * 
+ * @param {String} menuId 
+ * @param {String} placeholderText 
+ * @param {Object[]} menuOptionArray 
+ * @param {Number} minSelections 
+ * @param {Number} maxSelections 
+ * @returns {MessageSelectMenu}
+ */
 function createSelectionMenu(menuId, placeholderText, menuOptionArray, minSelections, maxSelections) {
     return new MessageSelectMenu()
         .setCustomId(menuId)
