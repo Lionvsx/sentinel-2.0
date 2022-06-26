@@ -32,11 +32,11 @@ module.exports = class AccessChannelButton extends BaseInteraction {
         }
 
         try {
-            accessChannel.permissionOverwrites.create(interaction.user, {
+            await accessChannel.permissionOverwrites.create(interaction.user, {
                 SEND_MESSAGES: true,
                 VIEW_CHANNEL: true
             })
-            ticketLogger.info(`<@!${interaction.user.id}> a accédé au ticket \`${accessChannel.name}\``)
+            await ticketLogger.info(`<@!${interaction.user.id}> a accédé au ticket \`${accessChannel.name}\``)
             accessChannel.send({
                 content: `**➡️ | **\`${interaction.user.username}\` a rejoint le ticket !`
             })
@@ -46,7 +46,7 @@ module.exports = class AccessChannelButton extends BaseInteraction {
             })
         } catch (err) {
             console.log(err)
-            ticketLogger.error(`<@!${interaction.user.id}> n'a pas pu accéder au ticket avec l'id \`${buttonArgs[1]}\``)
+            await ticketLogger.error(`<@!${interaction.user.id}> n'a pas pu accéder au ticket avec l'id \`${buttonArgs[1]}\``)
         }
     }
 }
