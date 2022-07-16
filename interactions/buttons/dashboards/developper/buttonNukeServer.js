@@ -36,7 +36,7 @@ module.exports = class NukeServerButton extends BaseInteraction {
 
             let roles = member.roles
 
-            let rolesToRemove = roles.cache.filter(role => role.rawPosition < allRoles.get('742810872044322918').rawPosition && role.rawPosition > allRoles.get('624713487112732673').rawPosition || role.rawPosition < allRoles.get('676798588034220052').rawPosition && role.rawPosition > allRoles.get('677220059575222282').rawPosition)
+            let rolesToRemove = roles.cache.filter(role => role.rawPosition < allRoles.get('742810872044322918').rawPosition && role.rawPosition > allRoles.get('624713487112732673').rawPosition || role.rawPosition < allRoles.get('676798588034220052').rawPosition && role.rawPosition > allRoles.get('676799349841330186').rawPosition)
 
             const User = await mongoose.model('User').findOne({ discordId: member.user.id })
 
