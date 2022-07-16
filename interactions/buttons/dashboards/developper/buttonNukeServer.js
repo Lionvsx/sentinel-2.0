@@ -39,9 +39,7 @@ module.exports = class NukeServerButton extends BaseInteraction {
 
             count++;
 
-            if (User && User.id) {
-                if (!User.isMember || !User.isResponsable) break;
-
+            if (User && User.id && (User.isMember || User.isResponsable)) {
                 User.isMember = false
                 User.isResponsable = false
                 User.role = undefined
