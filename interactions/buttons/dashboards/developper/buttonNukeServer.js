@@ -40,6 +40,8 @@ module.exports = class NukeServerButton extends BaseInteraction {
             count++;
 
             if (User && User.id) {
+                if (!User.isMember || !User.isResponsable) break;
+
                 User.isMember = false
                 User.isResponsable = false
                 User.role = undefined
@@ -49,7 +51,12 @@ module.exports = class NukeServerButton extends BaseInteraction {
             }
 
             if (rolesToRemove.size > 0) {
-                await member.roles.remove(rolesToRemove)
+                try {
+                    await member.roles.remove(rolesToRemove)
+                } catch (error) {
+                    console.log(error)
+                    continue;
+                }
                 console.log(`${member.user.username} => ${rolesToRemove.size} roles removed !`)
             }
 
