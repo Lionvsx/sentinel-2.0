@@ -21,6 +21,7 @@ module.exports = class NukeServerButton extends BaseInteraction {
 
         const allMembers = await updateGuildMemberCache(interaction.guild)
         const allRoles = interaction.guild.roles.cache
+        const memberToNuke = allMembers.filter(m => m.bannable && !m.user.bot)
 
         const confirmation = await askForConfirmation(dmChannel, `Vous voulez vraiment reset tout les rôles des membres du serveur ${interaction.guild.name} ?`).catch(err => console.log(err))
         if (!confirmation) return;
@@ -29,11 +30,7 @@ module.exports = class NukeServerButton extends BaseInteraction {
         let msg = await dmChannel.send(`**${loading} | **Nuking members...`)
         let count = 0
 
-        for (const [id, member] of allMembers.entries()) {
-            if (member.bot) continue
-            if (member.roles.cache.has('624705251966189588') || member.roles.cache.has('744660910861320242')) continue
-    
-
+        for (const [id, member] of memberToNuke.entries()) {
             let roles = member.roles
 
             let rolesToRemove = roles.cache.filter(role => role.rawPosition < allRoles.get('742810872044322918').rawPosition && role.rawPosition > allRoles.get('624713487112732673').rawPosition || role.rawPosition < allRoles.get('676798588034220052').rawPosition && role.rawPosition > allRoles.get('676799349841330186').rawPosition)
@@ -56,7 +53,7 @@ module.exports = class NukeServerButton extends BaseInteraction {
                 console.log(`${member.user.username} => ${rolesToRemove.size} roles removed !`)
             }
 
-            await msg.edit(`**${loading} | **Members nuked count : \`${count}/${allMembers.size}\``)
+            await msg.edit(`**${loading} | **Members nuked count : \`${count}/${memberToNuke.size}\``)
             
         }
 
