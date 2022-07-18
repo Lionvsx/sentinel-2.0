@@ -24,7 +24,7 @@ module.exports = class NukeChannelCommand extends BaseCommand {
         message.channel.send(`**${loading} |** Nuke du channel dans 5 secondes`)
         await sleep(5000)
 
-        if (message.channel.type != 'GUILD_TEXT') return message.channel.send(`**:x: |** Ce channel ne peut pas être nuke !`)
+        if (message.channel.type !== 'GUILD_TEXT') return message.channel.send(`**:x: |** Ce channel ne peut pas être nuke !`)
 
         let channelOptions = {
             type: 'GUILD_TEXT',
