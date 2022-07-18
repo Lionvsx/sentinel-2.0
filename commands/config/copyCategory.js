@@ -40,7 +40,7 @@ module.exports = class CopyCategoryCommand extends BaseCommand {
                 position: channel.position
             })
         })
-        client.clipboard.set(message.user.id, clipboard)
+        client.clipboard.set(message.author.id, clipboard)
         message.channel.send(`**:white_check_mark: | **Categorie \`\`${categoryChan.name}\`\` copiée, utilisez \`\`/pastecategory\`\` pour la coller`)
     }
 }

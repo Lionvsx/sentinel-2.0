@@ -20,7 +20,7 @@ module.exports = class CopyCategoryCommand extends BaseCommand {
     async run (client, message, args) {
         const guild = message.guild
 
-        let savedCategory = client.clipboard.get(message.user.id)
+        let savedCategory = client.clipboard.get(message.author.id)
 
         if (savedCategory.category.guildID === guild.id) {
             guild.channels.create(savedCategory.category.name, {
