@@ -1,5 +1,5 @@
 const BaseCommand = require('../../utils/structures/BaseCommand')
-const {Permissions} = require("discord.js/typings");
+const {Permissions} = require("discord.js");
 
 module.exports = class CopyCategoryCommand extends BaseCommand {
     constructor () {
