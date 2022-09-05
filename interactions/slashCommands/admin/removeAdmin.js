@@ -34,6 +34,7 @@ module.exports = class PrefixInteraction extends BaseInteraction {
                 if (userDB.isAdmin) {
                     userDB.isAdmin = false;
                     userDB.save();
+                    client.allUsers.set(userDB.discordId, userDB);
                     interaction.reply(`**✅ | **\`\`${user}\`\` a bien été retiré des administrateurs du bot`)
                 } else {
                     interaction.reply(`**ℹ️ | **\`\`${user}\`\` n'est pas administrateur du bot`)

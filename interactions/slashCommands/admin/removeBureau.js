@@ -42,6 +42,7 @@ module.exports = class PrefixInteraction extends BaseInteraction {
                     userDB.isBureau = false;
                     userDB.save();
                     await guildMember.roles.remove(rolesToRemove)
+                    client.allUsers.set(userDB.discordId, userDB);
                     interaction.reply(`**✅ | **\`\`${user}\`\` a bien été retiré du Bureau !`)
                 } else {
                     interaction.reply(`**ℹ️ | **\`\`${user}\`\` n'est pas dans le Bureau`)
