@@ -1,6 +1,6 @@
 const BaseInteraction = require('../../../../utils/structures/BaseInteraction')
 const { askForConfirmation } = require('../../../../utils/functions/awaitFunctions')
-const { Permissions } = require('discord.js')
+const { Permissions, MessageEmbed } = require('discord.js')
 const { updateGuildMemberCache } = require('../../../../utils/functions/utilitaryFunctions')
 const mongoose = require('mongoose');
 
@@ -13,7 +13,7 @@ module.exports = class NukeServerButton extends BaseInteraction {
     }
 
     async run(client, interaction, buttonArgs) {
-        interaction.deferUpdate()
+        await interaction.deferUpdate()
 
         const loading = client.emojis.cache.get('741276138319380583')
 
@@ -46,6 +46,8 @@ module.exports = class NukeServerButton extends BaseInteraction {
                 User.roleResponsable = undefined
                 await User.save();
                 console.log(`${member.user.username} => DB Config Nuked!`)
+            } else {
+                console.log(`${member.user.username} => Config OK!`)
             }
 
             if (rolesToRemove.size > 0) {
@@ -57,11 +59,37 @@ module.exports = class NukeServerButton extends BaseInteraction {
                 }
                 console.log(`${member.user.username} => ${rolesToRemove.size} roles removed !`)
             }
+            let percentage = Math.floor(count / memberToNuke.size * 100)
+            let barProgress = Math.floor(percentage / 5)
 
-            await msg.edit(`**${loading} | **Members nuked count : \`${count}/${memberToNuke.size}\``)
-            
+            if (percentage % 5 === 0) {
+                let bar = renderProgressBar(barProgress, 20)
+                let embed = new MessageEmbed()
+                    .setDescription(`**${loading} | **Nuking members...\n\`\`\`${bar} ${percentage}% | ${count}/${memberToNuke.size}\`\`\``)
+                    .setColor('#c92b42')
+                await msg.edit({
+                    embeds: [embed],
+                    content: ` `
+                })
+            }
         }
-
-        await msg.edit(`**✅ | **Members nuked !`)
+        await msg.delete()
+        let embed = new MessageEmbed()
+            .setColor('GREEN')
+            .setDescription(`**✅ | **Members nuked !`)
+        await dmChannel.send({
+            embeds: [embed]
+        })
     }
+}
+
+function renderProgressBar(progress, size) {
+    let bar = "";
+    for (let i = 0; i < progress; i++) {
+        bar += "█"
+    }
+    for (let i = 0; i < size - progress; i++) {
+        bar += "▁"
+    }
+    return bar;
 }
