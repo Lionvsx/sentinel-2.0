@@ -25,7 +25,7 @@ module.exports = class PrefixInteraction extends BaseInteraction {
     async run(client, interaction) {
         const guild = interaction.guild
         const allMembers = await updateGuildMemberCache(guild)
-        const user = interaction.options.get('user').user.username
+        const user = interaction.options.get('user').user.tag
         const allRoles = guild.roles.cache
 
         let guildMember = allMembers.find(m => m.user.tag.toLowerCase().includes(user.toLowerCase()));
@@ -44,6 +44,7 @@ module.exports = class PrefixInteraction extends BaseInteraction {
                     userDB.isBureau = true;
                     userDB.save();
                     await guildMember.roles.add(rolesToAdd)
+                    client.allUsers.set(userDB.discordId, userDB);
                     interaction.reply(`**✅ | **\`\`${user}\`\` a bien été ajouté dans le Bureau !`)
                 }
             } else {
