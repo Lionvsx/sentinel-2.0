@@ -22,7 +22,7 @@ module.exports = class DeleteAllAloneCommand extends BaseCommand {
         let tempMsg = await message.channel.send(`**${loading} |** Suppression de tous les channels sans catégorie`)
         await allChannels.each(channel => {
             if (!channel.parent) {
-                if (channel.type !== 'category') {
+                if (channel.type !== 'GUILD_CATEGORY') {
                     channel.delete()
                 }
             }

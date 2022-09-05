@@ -21,7 +21,7 @@ module.exports = class DeleteAllCommand extends BaseCommand {
         let selectedChannel = client.channels.cache.filter(c => c.id === args[1])
 
 
-        if (selectedChannel.get(args[1]).type === 'category') {
+        if (selectedChannel.get(args[1]).type === "GUILD_CATEGORY") {
             let childChannels = selectedChannel.get(args[1]).children
             let tempMsg = await message.channel.send(`**${loading} |** Suppression de tous les channels dans la catégorie \`${selectedChannel.name}\``)
             await childChannels.each(channel => {
@@ -30,8 +30,6 @@ module.exports = class DeleteAllCommand extends BaseCommand {
             await tempMsg.edit(`**:white_check_mark: |** Opération terminée`)
             await sleep(1000)
             selectedChannel.delete();
-        } else {
-            message.channel.send("Nique ta race")
         }
     }
 }
