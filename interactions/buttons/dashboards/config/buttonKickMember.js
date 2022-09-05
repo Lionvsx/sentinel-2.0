@@ -22,7 +22,7 @@ module.exports = class KickMember extends BaseInteraction {
 
     async run(client, interaction, buttonArgs) {
         const dmChannel = await interaction.user.createDM()
-        interaction.deferUpdate()
+        await interaction.deferUpdate()
 
 
         const userAudienceString = await userResponseContent(dmChannel, "Quels utilisateurs voulez supprimer de la DB des membres de LDV Esport? \`(liste de pseudos, séparées d'une virgule)\`").catch(err => console.log(err))
@@ -44,7 +44,7 @@ module.exports = class KickMember extends BaseInteraction {
 
         const tempMsg = await dmChannel.send(`**${loading} | **Début de la procédure ...`)
 
-        const kickResults = await kickMembers(userAudience, tempMsg, loading, interaction.guild.roles.cache)
+        const kickResults = await kickMembers(client, userAudience, tempMsg, loading, interaction.guild.roles.cache)
 
         const summaryEmbed = new MessageEmbed()
             .setTitle('COMPTE RENDU')
@@ -79,7 +79,7 @@ const getUsersAndErrorsFromString = (guild, searchArgs) => {
     })
 }
 
-function kickMembers(audience, tempMsg, loading, allRoles) {
+function kickMembers(client, audience, tempMsg, loading, allRoles) {
     return new Promise(async (resolve) => {
         const success = []
         const errors = []
@@ -88,7 +88,7 @@ function kickMembers(audience, tempMsg, loading, allRoles) {
             const dmChannel = await member.createDM()
             
             const dBUser = await User.findOne({ discordId: member.user.id });
-            if (isMember(dBUser)) {
+            if (dBUser.isMember) {
                 const embed = new MessageEmbed()
                     .setTitle(`**MISE A JOUR DE VOTRE STATUT**`)
                     .setDescription(`Votre statut en tant que membre de LDV Esport a été modifié : vous avez été retiré de la base de données des membres de LDV Esport\nSi vous pensez que cela est une erreur, merci d'ouvrir un ticket par le biais du bouton ci dessous`)
@@ -109,6 +109,7 @@ function kickMembers(audience, tempMsg, loading, allRoles) {
                     dBUser.role = undefined
                     dBUser.roleResponsable = undefined
                     await dBUser.save();
+                    client.allUsers.delete(member.user.id)
                     console.log(`${member.user.username} => DB Config Nuked!`)
 
         
