@@ -15,7 +15,7 @@ module.exports = class SyncDatabaseButton extends BaseInteraction {
     }
 
     async run(client, interaction, buttonArgs) {
-        interaction.deferUpdate()
+        await interaction.deferUpdate()
 
         const envLogger = new DiscordLogger('environnement', '#00cec9')
         envLogger.setGuild(interaction.guild)
