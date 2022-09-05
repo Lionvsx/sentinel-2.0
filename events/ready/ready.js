@@ -16,7 +16,7 @@ module.exports = class ReadyEvent extends BaseEvent {
     async run(client) {
         client.user.setPresence('Test')
         console.log(`Bot ${client.user.username} loaded and ready !`)
-        showCommandLoad()
+        await showCommandLoad()
 
         const commands = []
 
