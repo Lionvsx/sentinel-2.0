@@ -44,6 +44,8 @@ module.exports = class NukeServerButton extends BaseInteraction {
                 User.isResponsable = false
                 User.role = undefined
                 User.roleResponsable = undefined
+                User.school = undefined
+                User.schoolYear = undefined
                 await User.save();
                 console.log(`${member.user.username} => DB Config Nuked!`)
             } else {
