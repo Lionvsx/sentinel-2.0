@@ -84,7 +84,7 @@ function registerUsers(audience, tempMsg, loading) {
             ])
             const embed = new MessageEmbed()
                 .setTitle(`**BIENVENUE CHEZ LDV ESPORT**`)
-                .setDescription(`Afin de finaliser ton inscription en tant que membre de LDV Esport, nous aurons besoin que quelques informations sur toi.\nClique sur le bouton juste en dessous une fois que tu es prêt à remplir ce formulaire !`)
+                .setDescription(`Afin de finaliser ton inscription en tant que membre de LDV Esport, nous aurions besoin de quelques informations sur toi.\nClique sur le bouton juste en dessous une fois que tu es prêt à remplir ce formulaire !`)
                 .setColor('#00b894')
             try {
                 await dmChannel.send({

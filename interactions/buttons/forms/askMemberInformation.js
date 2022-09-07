@@ -25,9 +25,8 @@ module.exports = class MemberInformationFormButton extends BaseInteraction {
         databaseLogger.setLogMember(await ldvGuild.members.fetch(interaction.user.id))
 
         const User = await mongoose.model('User').findOne({ discordId: interaction.user.id })
-        if (isMember(User)) return interaction.update({embeds: [new MessageEmbed().setDescription(`✅ Vous êtes déja enregistrés en tant que membre ✅`).setColor('#00b894')], components: []})
 
-        const allRoles = ldvGuild.roles.cache 
+        const allRoles = ldvGuild.roles.cache
 
         let newInteraction = await interaction.update({
             embeds: [new MessageEmbed().setDescription(`🔽 Veuillez renseigner votre école ci dessous 🔽`).setColor('#00b894')],
@@ -35,14 +34,14 @@ module.exports = class MemberInformationFormButton extends BaseInteraction {
                 createSelectionMenu('schoolMenu', 'Veuillez selectionner une école', [createSelectionMenuOption('esilv', 'ESILV', undefined, '753798801457807442'), createSelectionMenuOption('iim', 'IIM', undefined, '753798801763991650'), createSelectionMenuOption('emlv', 'EMLV', undefined, '753798801919180913'), createSelectionMenuOption('externe', 'EXTERNE', undefined, '👤')], 1, 1)
             ])]
         })
-        
+
         const schoolMenu = await menuInteraction(interaction.message).catch(err => console.log(err))
         if (!schoolMenu) return restoreForm(dmChannel)
 
         const school = schoolMenu.values[0].toUpperCase();
         let year = undefined
 
-        if (school != 'EXTERNE') {
+        if (school !== 'EXTERNE') {
             newInteraction = await schoolMenu.update({
                 embeds: [new MessageEmbed().setDescription(`🔽 Veuillez renseigner votre année ci dessous 🔽\n\`\`\`ECOLE : ${school}\`\`\``).setColor('#00b894')],
                 components: [createMessageActionRow([
@@ -65,7 +64,7 @@ module.exports = class MemberInformationFormButton extends BaseInteraction {
         const lastName = await userResponseContent(dmChannel, `🔽 Envoie moi ton nom de famille par message 🔽\n\`(exemple: ROUSSARD)\``).catch(err => console.log(err))
         if (!lastName) return restoreForm(dmChannel)
 
-        
+
         if (User && User.id) {
             databaseLogger.setLogData(`PRENOM: ${firstName}\nNOM: ${lastName.toUpperCase()}\nECOLE: ${school.toUpperCase()}\nANNEE: ${year ? year.toUpperCase() : 'NON DEFINIE'}`)
             User.firstName = firstName,
@@ -99,7 +98,7 @@ function restoreForm(dmChannel) {
     ])
     const embed = new MessageEmbed()
         .setTitle(`**BIENVENUE CHEZ LDV ESPORT**`)
-        .setDescription(`Afin de finaliser ton inscription en tant que membre de LDV Esport, nous aurons besoin que quelques informations sur toi.\nClique sur le bouton juste en dessous une fois que tu es prêt à remplir ce formulaire !`)
+        .setDescription(`Afin de finaliser ton inscription en tant que membre de LDV Esport, nous aurions besoin de quelques informations sur toi.\nClique sur le bouton juste en dessous une fois que tu es prêt à remplir ce formulaire !`)
         .setColor('#00b894')
     dmChannel.send({
         embeds: [embed],
