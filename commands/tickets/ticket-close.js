@@ -39,8 +39,11 @@ module.exports = class TicketCloseCommand extends BaseCommand {
             const allMembers = await updateGuildMemberCache(message.guild)
             let ticketMember = await allMembers.get(existingDBTicket.authorId)
 
+            let ticketUsername = ticketMember ? ticketMember.user.username.toLowerCase() : "DeletedUser"
+            let tickerUserTag = ticketMember ? ticketMember.user.tag : "DeletedUser#0000"
+
             const archiveChannel = message.guild.channels.cache.get('632219616973815827')
-            let fileName = await createTicketTranscript(client, ticketMember.user.username.toLowerCase() ?? "Deleted User", existingDBTicket.ticketChannelId, message.guild.id)
+            let fileName = await createTicketTranscript(client, ticketUsername, existingDBTicket.ticketChannelId, message.guild.id)
             let sendedMessage = await archiveChannel.send({ files: [
                 {
                     attachment: `./files/transcripts/${fileName}`,
@@ -51,9 +54,9 @@ module.exports = class TicketCloseCommand extends BaseCommand {
             let sendedAttachment = sendedMessage.attachments.first()
 
             let embed = new MessageEmbed()
-                .setDescription(`**${ticketMember.user.tag ?? "Deleted User"}**`)
+                .setDescription(`**${tickerUserTag}**`)
                 .addFields(
-                    { name: "Auteur du ticket", value: ticketMember.user.tag ?? "Deleted User", inline: true },
+                    { name: "Auteur du ticket", value: tickerUserTag, inline: true },
                     { name: "Channel du ticket", value: existingDBTicket.name, inline: true },
                     { name: "Lien du transcript", value: `[Link](${sendedAttachment.url})`, inline: true },
                 )
