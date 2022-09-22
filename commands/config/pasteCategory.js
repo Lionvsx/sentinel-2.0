@@ -24,7 +24,7 @@ module.exports = class CopyCategoryCommand extends BaseCommand {
 
         if (savedCategory.category.guildID === guild.id) {
             guild.channels.create(savedCategory.category.name, {
-                type: 'category',
+                type: 'GUILD_CATEGORY',
                 position: 1,
                 permissionOverwrites: savedCategory.category.permissions,
             }).then(categoryChannel => {
@@ -39,7 +39,7 @@ module.exports = class CopyCategoryCommand extends BaseCommand {
             })
         } else {
             guild.channels.create(savedCategory.category.name, {
-                type: 'category',
+                type: 'GUILD_CATEGORY',
                 position: 1,
                 permissionOverwrites: [
                     {
