@@ -20,7 +20,7 @@ module.exports = class FixDBDataButton extends BaseInteraction {
     }
 
     async run(client, interaction, buttonArgs) {
-        interaction.deferUpdate()
+        await interaction.deferUpdate()
 
         const configLogger = new DiscordLogger('config', '#e17055')
         configLogger.setLogMember(interaction.member)

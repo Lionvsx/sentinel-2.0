@@ -21,7 +21,7 @@ module.exports = class RegisterAssoMembersButtonInteraction extends BaseInteract
     }
 
     async run(client, interaction, buttonArgs) {
-        interaction.deferUpdate()
+        await interaction.deferUpdate()
 
         const configLogger = new DiscordLogger('config', '#e17055')
         configLogger.setLogMember(interaction.member)
@@ -57,10 +57,10 @@ module.exports = class RegisterAssoMembersButtonInteraction extends BaseInteract
 
         configLogger.setLogData(`ADDED USERS: \n${registerResults.success.length > 0 ? registerResults.success.join('\n'): 'Aucun'}\n\nCANT DM: \n${registerResults.errors.length > 0 ? registerResults.errors.join(',\n') : 'Aucun'}\n\nNOT ON SERVER: \n${userErrors.length > 0 ? userErrors.join(',\n') : 'Aucun'}`)
         
-        dmChannel.send({
+        await dmChannel.send({
             embeds: [summaryEmbed]
         })
-        configLogger.info(`<@!${interaction.user.id}> a ajouté \`${registerResults.success.length}\` utilisateur(s) en tant que membre LDV Esport :`)
+        await configLogger.info(`<@!${interaction.user.id}> a ajouté \`${registerResults.success.length}\` utilisateur(s) en tant que membre LDV Esport :`)
     }
 }
 
