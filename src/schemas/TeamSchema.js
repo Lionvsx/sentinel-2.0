@@ -11,6 +11,11 @@ const TeamSchema = new mongoose.Schema({
         required: true,
         unique: true
     },
+    linkedNotionPageId: {
+        type: String,
+        required: true,
+        unique: true
+    },
     emoji: String,
     name: String,
     game: String

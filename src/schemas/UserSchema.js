@@ -30,6 +30,10 @@ const UserSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
+    isOnNotion: {
+        type: Boolean,
+        default: false
+    },
     isResponsable: {
         type: Boolean,
         default: false
@@ -43,7 +47,8 @@ const UserSchema = new mongoose.Schema({
     lastName: String,
     school: String,
     schoolYear: Number,
-    role: String,
+    roles: [String],
+    linkedNotionPageId: String,
 });
 
 module.exports = mongoose.model('User', UserSchema);
