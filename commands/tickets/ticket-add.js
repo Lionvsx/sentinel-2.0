@@ -43,7 +43,11 @@ module.exports = class TicketAddCommand extends BaseCommand {
             for (let i = 0; i < memberToAddArray.length; i++) {
                 let memberString = memberToAddArray[i];
                 let guildMember = allMembers.find(m => m.user.tag.toLowerCase().includes(memberString.toLowerCase()));
-                message.channel.permissionOverwrites.create(guildMember.user, { VIEW_CHANNEL: true, SEND_MESSAGES: true })
+                if (!guildMember) {
+                    errors++;
+                    continue;
+                }
+                await message.channel.permissionOverwrites.create(guildMember.user, { VIEW_CHANNEL: true, SEND_MESSAGES: true })
                     .then(channel => {
                         addedMembersArray.push(guildMember.user.tag)
                         count++;
@@ -55,7 +59,7 @@ module.exports = class TicketAddCommand extends BaseCommand {
                         ticketLogger.error(`<@!${message.author.id}> n'est pas arrivé à ajouter \`${guildMember.user.username}\` au ticket \`${existingDBTicket.name}\``)
                         errors++;
                     })
-            } 
+            }
             count === 0 ? tempMsg.edit(`**❌ | **Je ne suis pas arrivé à ajouter le(s) utilisateur(s) au ticket !`) : errors > 1 ? tempMsg.edit(`**⚠ | **Je suis seulement arrivé à ajouter le(s) utilisateur(s) suivant(s) au ticket : \`\`${addedMembersArray.join(', ')}\`\``) : tempMsg.edit(`**✅ | **J'ai ajouté le(s) utilisateur(s) suivant(s) au ticket : \`\`${addedMembersArray.join(', ')}\`\``)
         } else {
             message.channel.send(`**❌ | **Cette commande peut uniquement être utilisée dans un ticket !`)

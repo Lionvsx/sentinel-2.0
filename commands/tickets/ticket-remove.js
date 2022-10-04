@@ -42,7 +42,11 @@ module.exports = class TicketRemoveCommand extends BaseCommand {
             for (let i = 0; i < membersToRemoveArray.length; i++) {
                 let memberString = membersToRemoveArray[i];
                 let guildMember = allMembers.find(m => m.user.tag.toLowerCase().includes(memberString.toLowerCase()));
-                message.channel.permissionOverwrites.delete(guildMember.user.id)
+                if (!guildMember) {
+                    errors++
+                    continue
+                }
+                await message.channel.permissionOverwrites.delete(guildMember.user.id)
                     .then(channel => {
                         removedMembersArray.push(guildMember.user.tag)
                         count++;
