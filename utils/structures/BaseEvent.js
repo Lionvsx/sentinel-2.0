@@ -1,4 +1,4 @@
-const Logger = require("../services/logger");
+const Logger = require("../services/Logger");
 
 module.exports = class BaseEvent {
     constructor(name) {
