@@ -12,7 +12,7 @@ module.exports = class TeamSetCommand extends BaseCommand {
         super('team-set', 'teams', [], {
             usage: 'team-set',
             description: 'Initialise une équipe',
-            categoryDisplayName: `👥 Teams`,
+            categoryDisplayName: `<:users:1137390672194850887> Teams`,
             userPermissions: [Permissions.FLAGS.ADMINISTRATOR],
             clientPermissions: [],
             examples: [],
@@ -26,7 +26,7 @@ module.exports = class TeamSetCommand extends BaseCommand {
     async run(client, message, args) {
 
         const existingTeam = await Team.findOne({ linkedCategoryId: message.channel.parentId })
-        if (existingTeam && existingTeam._id) return message.channel.send(`**❌ | **Ce channel héberge déja une équipe : \`${existingTeam.name}\`, utilisez \`team delete\` pour la supprimer !`)
+        if (existingTeam && existingTeam._id) return message.channel.send(`**<:x_:1137419292946727042> | **Ce channel héberge déja une équipe : \`${existingTeam.name}\`, utilisez \`team delete\` pour la supprimer !`)
 
         const categoryChannel = message.channel.parent
 
@@ -36,7 +36,7 @@ module.exports = class TeamSetCommand extends BaseCommand {
 
         const loading = client.emojis.cache.get('741276138319380583')
 
-        if (!teamEmoji || getEmoji(channelArgs[1])) return message.channel.send(`**❌ | **Je n'arrive pas à détecter une catégorie d'équipe ! \`\`(le format de la catégorie doit être <emoji> | <nom d'équipe>)\`\``)
+        if (!teamEmoji || getEmoji(channelArgs[1])) return message.channel.send(`**<:x_:1137419292946727042> | **Je n'arrive pas à détecter une catégorie d'équipe ! \`\`(le format de la catégorie doit être <emoji> | <nom d'équipe>)\`\``)
 
         const teamLogger = new DiscordLogger('teams', '#0984e3')
         teamLogger.setGuild(message.guild)
@@ -46,14 +46,14 @@ module.exports = class TeamSetCommand extends BaseCommand {
         const allMembers = await updateGuildMemberCache(message.guild)
 
         const linkedRolePermission = message.channel.permissionOverwrites.cache.find(perm => perm.type === 'role' && perm.id != '227470914114158592' && perm.id != '624715536693198888' && perm.id != '622108099569909762' && perm.id != '622108209175593020' && perm.id != '631885565091905540')
-        if (!linkedRolePermission) return message.channel.send(`**❌ | **Je n'arrive pas à détecter un rôle d'équipe ! \`\`(essayez de lancer la commande dans un channel différent)\`\``)
+        if (!linkedRolePermission) return message.channel.send(`**<:x_:1137419292946727042> | **Je n'arrive pas à détecter un rôle d'équipe ! \`\`(essayez de lancer la commande dans un channel différent)\`\``)
         const linkedRole = allRoles.get(linkedRolePermission.id)
 
         const staffMembers = allMembers.filter(member => member.roles.cache.hasAll(linkedRole.id, '624715536693198888', '744234761282650213'))
         const players = allMembers.filter(member => member.roles.cache.hasAll(linkedRole.id, '744234761282650213') && !member.roles.cache.has('624715536693198888'))
 
         
-        const confirmation = await askForConfirmation(message.channel, `✅ Informations d'équipe détectées :\nVoulez vous initialiser une équipe avec ces informations ?\n\`\`\`\nNOM D'EQUIPE: ${channelArgs[1].toUpperCase().trim()}\nEMOJI: ${teamEmoji}\nROLE: @${linkedRole.name}\nCATEGORIE: #${categoryChannel.name}\n\nSTAFFS:\n${staffMembers?.size > 0 ? staffMembers.map(m => m.user.tag).join('\n') : 'Aucun'}\n\nJOUEURS:\n${players.size > 0 ? players.map(m => m.user.tag).join('\n') : 'Aucun'} \`\`\``).catch(err => console.log(err))
+        const confirmation = await askForConfirmation(message.channel, `<:check:1137390614296678421> Informations d'équipe détectées :\nVoulez vous initialiser une équipe avec ces informations ?\n\`\`\`\nNOM D'EQUIPE: ${channelArgs[1].toUpperCase().trim()}\nEMOJI: ${teamEmoji}\nROLE: @${linkedRole.name}\nCATEGORIE: #${categoryChannel.name}\n\nSTAFFS:\n${staffMembers?.size > 0 ? staffMembers.map(m => m.user.tag).join('\n') : 'Aucun'}\n\nJOUEURS:\n${players.size > 0 ? players.map(m => m.user.tag).join('\n') : 'Aucun'} \`\`\``).catch(err => console.log(err))
         if (!confirmation) return;
 
         const teamGame = await userResponseContent(message.channel, `Veuillez spécifier le jeu de cette équipe :`).catch(err => console.log(err))
@@ -94,9 +94,9 @@ module.exports = class TeamSetCommand extends BaseCommand {
         }
         const embed = new MessageEmbed()
             .setDescription(`Informations : \n\`\`\`\nNOM D'EQUIPE: ${channelArgs[1].toUpperCase().trim()}\nEMOJI: ${teamEmoji}\nROLE: @${linkedRole.name}\nCATEGORIE: #${categoryChannel.name}\n\nSTAFFS:\n${staffMembers?.size > 0 ? staffMembers.map(m => m.user.tag).join('\n') : 'Aucun'}\n\nJOUEURS:\n${players.size > 0 ? players.map(m => m.user.tag).join('\n') : 'Aucun'}\`\`\``)
-            .setColor('#2ecc71')
+            .setColor('2b2d31')
         tempMsg.edit({
-            content: `**✅ | **L'équipe a été crée avec succès`,
+            content: `**<:check:1137390614296678421> | **L'équipe a été crée avec succès`,
             embeds: [embed]
         })
         

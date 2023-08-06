@@ -3,6 +3,8 @@ const { askForConfirmation } = require('../../../../utils/functions/awaitFunctio
 const { Permissions, MessageEmbed } = require('discord.js')
 const { updateGuildMemberCache } = require('../../../../utils/functions/utilitaryFunctions')
 const mongoose = require('mongoose');
+const {deletePage} = require("../../../../utils/functions/notionFunctions");
+const DiscordLogger = require('../../../../utils/services/discordLoggerService')
 
 module.exports = class NukeServerButton extends BaseInteraction {
     constructor() {
@@ -19,9 +21,13 @@ module.exports = class NukeServerButton extends BaseInteraction {
 
         const dmChannel = await interaction.user.createDM()
 
+        const envLogger = new DiscordLogger('environnement', '#00cec9')
+        envLogger.setGuild(interaction.guild)
+        envLogger.setLogMember(interaction.member)
+
         const allMembers = await updateGuildMemberCache(interaction.guild)
         const allRoles = interaction.guild.roles.cache
-        const memberToNuke = allMembers.filter(m => m.bannable && !m.user.bot)
+        const memberToNuke = allMembers.filter(m => m.bannable && !m.user.bot && !m.roles.cache.has("676812746519609344"))
 
         const confirmation = await askForConfirmation(dmChannel, `Vous voulez vraiment reset tout les rôles des membres du serveur ${interaction.guild.name} ?`).catch(err => console.log(err))
         if (!confirmation) return;
@@ -33,7 +39,7 @@ module.exports = class NukeServerButton extends BaseInteraction {
         for (const [id, member] of memberToNuke.entries()) {
             let roles = member.roles
 
-            let rolesToRemove = roles.cache.filter(role => role.rawPosition < allRoles.get('742810872044322918').rawPosition && role.rawPosition > allRoles.get('624713487112732673').rawPosition || role.rawPosition < allRoles.get('676798588034220052').rawPosition && role.rawPosition > allRoles.get('676799349841330186').rawPosition)
+            let rolesToRemove = roles.cache.filter(role => role.rawPosition < allRoles.get('742810872044322918').rawPosition && role.rawPosition > allRoles.get('624713487112732673').rawPosition || role.rawPosition < allRoles.get('676798588034220052').rawPosition && role.rawPosition > allRoles.get('642769397525774336').rawPosition)
 
             const User = await mongoose.model('User').findOne({ discordId: member.user.id })
 
@@ -42,14 +48,22 @@ module.exports = class NukeServerButton extends BaseInteraction {
             if (User && User.id && (User.isMember || User.isResponsable)) {
                 User.isMember = false
                 User.isResponsable = false
-                User.role = undefined
+                User.isBureau = false
                 User.roleResponsable = undefined
                 User.school = undefined
                 User.schoolYear = undefined
+                User.roles = undefined
+
+                if (User.isOnNotion && User.linkedNotionPageId) {
+                    await deletePage(User.linkedNotionPageId)
+                    User.isOnNotion = false
+                    User.linkedNotionPageId = undefined
+                    this.log("Notion config nuked for " + member.user.username)
+                }
                 await User.save();
-                console.log(`${member.user.username} => DB Config Nuked!`)
+                this.log(`${member.user.username} => DB Config Nuked!`)
             } else {
-                console.log(`${member.user.username} => Config OK!`)
+                this.log(`${member.user.username} => Config OK!`)
             }
 
             if (rolesToRemove.size > 0) {
@@ -59,7 +73,7 @@ module.exports = class NukeServerButton extends BaseInteraction {
                     console.log(error)
                     continue;
                 }
-                console.log(`${member.user.username} => ${rolesToRemove.size} roles removed !`)
+                this.log(`${member.user.username} => ${rolesToRemove.size} roles removed !`)
             }
             let percentage = Math.floor(count / memberToNuke.size * 100)
             let barProgress = Math.floor(percentage / 5)
@@ -68,7 +82,7 @@ module.exports = class NukeServerButton extends BaseInteraction {
                 let bar = renderProgressBar(barProgress, 20)
                 let embed = new MessageEmbed()
                     .setDescription(`**${loading} | **Nuking members...\n\`\`\`${bar} ${percentage}% | ${count}/${memberToNuke.size}\`\`\``)
-                    .setColor('#c92b42')
+                    .setColor('2b2d31')
                 await msg.edit({
                     embeds: [embed],
                     content: ` `
@@ -77,11 +91,13 @@ module.exports = class NukeServerButton extends BaseInteraction {
         }
         await msg.delete()
         let embed = new MessageEmbed()
-            .setColor('GREEN')
-            .setDescription(`**✅ | **Members nuked !`)
+            .setColor('2b2d31')
+            .setDescription(`**<:check:1137390614296678421> | **Members nuked !`)
         await dmChannel.send({
             embeds: [embed]
         })
+
+        await envLogger.info(`**${interaction.member.user.username}** a nuke le serveur !`)
     }
 }
 

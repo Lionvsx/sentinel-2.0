@@ -10,7 +10,7 @@ module.exports = class TicketAddCommand extends BaseCommand {
         super('ticket-add', 'tickets', [], {
             usage: 'ticket add <user(s)>',
             description: `Ajoute un ou des utilisateur(s) à ce ticket`,
-            categoryDisplayName: `🎫 Tickets`,
+            categoryDisplayName: `<:messagesquare:1137390645972049970> Tickets`,
             userPermissions: [Permissions.FLAGS.MANAGE_ROLES],
             clientPermissions: [Permissions.FLAGS.MANAGE_CHANNELS],
             examples: ["ticket add Lionvsx, Ominga|Ajoute Lionvsx et Ominga au ticket !"],
@@ -60,9 +60,9 @@ module.exports = class TicketAddCommand extends BaseCommand {
                         errors++;
                     })
             }
-            count === 0 ? tempMsg.edit(`**❌ | **Je ne suis pas arrivé à ajouter le(s) utilisateur(s) au ticket !`) : errors > 1 ? tempMsg.edit(`**⚠ | **Je suis seulement arrivé à ajouter le(s) utilisateur(s) suivant(s) au ticket : \`\`${addedMembersArray.join(', ')}\`\``) : tempMsg.edit(`**✅ | **J'ai ajouté le(s) utilisateur(s) suivant(s) au ticket : \`\`${addedMembersArray.join(', ')}\`\``)
+            count === 0 ? tempMsg.edit(`**<:x_:1137419292946727042> | **Je ne suis pas arrivé à ajouter le(s) utilisateur(s) au ticket !`) : errors > 1 ? tempMsg.edit(`**<:alerttriangleyellow:1137390607069888593> | **Je suis seulement arrivé à ajouter le(s) utilisateur(s) suivant(s) au ticket : \`\`${addedMembersArray.join(', ')}\`\``) : tempMsg.edit(`**<:check:1137390614296678421> | **J'ai ajouté le(s) utilisateur(s) suivant(s) au ticket : \`\`${addedMembersArray.join(', ')}\`\``)
         } else {
-            message.channel.send(`**❌ | **Cette commande peut uniquement être utilisée dans un ticket !`)
+            message.channel.send(`**<:x_:1137419292946727042> | **Cette commande peut uniquement être utilisée dans un ticket !`)
         }
     }
 }

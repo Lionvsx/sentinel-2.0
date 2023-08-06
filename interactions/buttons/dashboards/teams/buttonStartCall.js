@@ -14,6 +14,5 @@ module.exports = class ButtonStartCall extends BaseInteraction {
             content: `L'appel a été ouvert !`,
             ephemeral: true
         })
-        
     }
 }

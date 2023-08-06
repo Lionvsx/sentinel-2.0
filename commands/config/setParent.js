@@ -5,13 +5,14 @@ module.exports = class SetParent extends BaseCommand {
         super('setparent', 'config', [], {
             usage: "setparent <category id>",
             description: "Definit la catégorie d'un channel",
-            categoryDisplayName: `⚙️ Config`,
+            categoryDisplayName: `<:settings:1137410884432564404> Config`,
             userPermissions: [],
             clientPermissions: [],
             examples: [],
-            hide: false,
+            serverOnly: true,
             admin: true,
-            home: false
+            home: false,
+            subCommands: false
         });
     }
 

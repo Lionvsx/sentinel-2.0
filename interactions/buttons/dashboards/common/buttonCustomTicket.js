@@ -48,10 +48,10 @@ module.exports = class CustomTicketButtonInteraction extends BaseInteraction {
         ticketLogger.setLogData(`NOM: ${ticketName}\n\n${usersAudience ? usersAudience.map(member => member.user.tag).join('\n') : 'Aucun'}`)
 
         const ticketEmbed = new MessageEmbed()
-            .setDescription(`🌐 Nouveau ticket personnalisé crée par \`${interaction.user.username}\``)
-            .setColor('#74b9ff')
+            .setDescription(`<:globe:1137421999879229533> Nouveau ticket personnalisé crée par \`${interaction.user.username}\``)
+            .setColor('2b2d31')
 
-        const newChannel = await interaction.guild.channels.create(`🌐┃${ticketName}`, {
+        const newChannel = await interaction.guild.channels.create(`<:globe:1137421999879229533>┃${ticketName}`, {
             type: 'GUILD_TEXT',
             position: 100,
             permissionOverwrites: ticketPermissions,
@@ -70,7 +70,7 @@ module.exports = class CustomTicketButtonInteraction extends BaseInteraction {
         await client.allTickets.set(newTicket.ticketChannelId, newTicket);
 
         ticketLogger.info(`<@!${interaction.user.id}> a crée un ticket de **custom** avec les paramètres suivants :`)
-        tempMsg.edit(`**:white_check_mark: | **Votre ticket a été crée avec succès!`)
+        tempMsg.edit(`**<:check:1137390614296678421> | **Votre ticket a été crée avec succès!`)
         
     }
 }

@@ -6,7 +6,7 @@ module.exports = class MoveAllCommand extends BaseCommand {
         super('muteall', 'moderation', [], {
             usage: "mutall",
             description: "Mute tout les autres utilisateurs de ton channel",
-            categoryDisplayName: `🛡️ Moderation`,
+            categoryDisplayName: `<:shield:1137411685716611143> Moderation`,
             userPermissions: ['KICK_MEMBERS'],
             clientPermissions: [],
             examples: ['muteall|Mute tout les utilisateurs du channel vocal auquel tu es connecté excepté toi même'],
@@ -30,6 +30,6 @@ module.exports = class MoveAllCommand extends BaseCommand {
                 console.log(error)
             }
         })
-        message.channel.send(`**:white_check_mark: | **\`${toMute.size}\` membre(s) mute(s) avec succès !`)
+        message.channel.send(`**<:check:1137390614296678421> | **\`${toMute.size}\` membre(s) mute(s) avec succès !`)
     }
 }

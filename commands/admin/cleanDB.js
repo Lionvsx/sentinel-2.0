@@ -9,7 +9,7 @@ module.exports = class TestCommand extends BaseCommand {
         super('cleandb', 'admin', [], {
             usage: "cleandb",
             description: "Delete all school and year entries for the user",
-            categoryDisplayName: `🔺 Admin`,
+            categoryDisplayName: `<:triangle:1137394274816753695> Admin`,
             userPermissions: [Permissions.FLAGS.ADMINISTRATOR],
             clientPermissions: [],
             examples: [],
@@ -24,25 +24,28 @@ module.exports = class TestCommand extends BaseCommand {
         const allDBUsers = await mongoose.model('User').find();
         const loading = client.emojis.cache.get('741276138319380583')
 
-        const confirmation = await askForConfirmation(dmChannel, `Vous voulez vraiment reset toutes les données d'école et d'année en base de données ?`).catch(err => console.log(err))
+        const confirmation = await askForConfirmation(message.channel, `Vous voulez vraiment reset toutes les données d'école et d'année en base de données ?`).catch(err => console.log(err))
         if (!confirmation) return;
 
-        let msg = await dmChannel.send(`**${loading} | **Nuking DB...`)
+        let msg = await message.channel.send(`**${loading} | **Nuking DB...`)
         let count = 0
         for (const user of allDBUsers) {
-            user.school = null;
-            user.year = null;
-            user.save();
+            user.school = undefined;
+            user.schoolYear = undefined;
+            user.roles = undefined;
+            await user.save();
             count++;
 
-            let percentage = Math.floor(count / allDBUsers.size * 100)
+            this.log(`DB Config Nuked for ${user.username}!`)
+
+            let percentage = Math.floor((count / allDBUsers.size) * 100)
             let barProgress = Math.floor(percentage / 5)
 
             if (percentage % 5 === 0) {
                 let bar = renderProgressBar(barProgress, 20)
                 let embed = new MessageEmbed()
                     .setDescription(`**${loading} | **Nuking DB...\n\`\`\`${bar} ${percentage}% | ${count}/${allDBUsers.size}\`\`\``)
-                    .setColor('#c92b42')
+                    .setColor('#2b2d31')
                 await msg.edit({
                     embeds: [embed],
                     content: ` `

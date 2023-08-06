@@ -6,13 +6,14 @@ module.exports = class SetEmojiParent extends BaseCommand {
         super('setemoji', 'config', [], {
             usage: "setemoji <emoji>",
             description: "Change l'emoji d'un salon, ou le définit s'il n'existe pas",
-            categoryDisplayName: `⚙️ Config`,
+            categoryDisplayName: `<:settings:1137410884432564404> Config`,
             userPermissions: [Permissions.FLAGS.ADMINISTRATOR],
             clientPermissions: [],
             examples: [],
-            hide: false,
+            serverOnly: true,
             admin: true,
-            home: false
+            home: false,
+            subCommands: false
         });
     }
 

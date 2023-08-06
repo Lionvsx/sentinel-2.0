@@ -9,7 +9,7 @@ module.exports = class TeamInfoCommand extends BaseCommand {
         super('team-info', 'teams', [], {
             usage: 'team-info',
             description: 'Affiche les informations d\'une équipe',
-            categoryDisplayName: `👥 Teams`,
+            categoryDisplayName: `<:users:1137390672194850887> Teams`,
             userPermissions: [],
             clientPermissions: [],
             examples: [],
@@ -33,17 +33,17 @@ module.exports = class TeamInfoCommand extends BaseCommand {
             const coachs = allMembers.filter(member => member.roles.cache.hasAll(linkedRole.id, '622108099569909762', '744234761282650213'))
 
             const embed = new MessageEmbed()
-                .setTitle(existingTeam.name)
+                .setTitle("` " + existingTeam.name + " `")
                 .setDescription(`\`\`\`\nJEU: ${existingTeam.game}\`\`\``)
                 .addFields(
                     { name: `\`\`Joueurs\`\``, value: `\`\`\`\n${ Players?.length > 0 ? Players.map(user => user.userTag).join('\n') : 'Aucun' }\`\`\``, inline: true },
                     { name: `\`\`Coachs\`\``, value: `\`\`\`\n${ coachs?.size > 0 ? coachs.map(m => m.user.tag).join('\n') : 'Aucun' }\`\`\``, inline: true },
                     { name: `\`\`Managers\`\``, value: `\`\`\`\n${ managers?.size > 0 ? managers.map(m => m.user.tag).join('\n') : 'Aucun' }\`\`\``, inline: true },
                 )
-                .setColor('#e67e22')
+                .setColor('2b2d31')
             message.channel.send({
                 embeds: [embed]
             })
-        } else message.channel.send(`**❌ | **Ce channel n'heberge aucune équipe !`)
+        } else message.channel.send(`**<:x_:1137419292946727042> | **Ce channel n'heberge aucune équipe !`)
     }
 }

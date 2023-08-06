@@ -15,7 +15,7 @@ const {MessageEmbed} = require("discord.js");
 const envLogger = new DiscordLogger('environnement', '#00cec9')
 
 function removeEmojis (string) {
-    var regex = emojiRegex();
+    var regex =emojiRegex();
   
     return string?.replace(regex, '');
 }
@@ -260,15 +260,15 @@ function updateSelectionMenu(interaction, arrayOfCategoryIds, index, categoriesM
     index = ((index%categoriesMap.length) + categoriesMap.length)%categoriesMap.length
 
     const selectMenu = createMessageActionRow([createSelectionMenu(`catMenu`, `Page ${index + 1}`, categoriesMap[index], 1, categoriesMap[index].length)])
-    const buttonRow = createButtonActionRow([createEmojiButton(`previous`, 'Page précédente', 'SECONDARY', '⬅️'), createEmojiButton(`valid`, 'Valider', 'SUCCESS', '✅'), createEmojiButton(`next`, 'Page suivante', 'SECONDARY', '➡️')])
+    const buttonRow = createButtonActionRow([createEmojiButton(`previous`, 'Page précédente', 'SECONDARY', '<:arrowleftcircle:1137421111378837585>'), createEmojiButton(`valid`, 'Valider', 'SUCCESS', '<:check:1137390614296678421>'), createEmojiButton(`next`, 'Page suivante', 'SECONDARY', '<:arrowrightcircle:1137421115766083726>')])
 
 
     const selectedCategories = allChannels.filter(channel => channel.type === 'GUILD_CATEGORY' && arrayOfCategoryIds.includes(channel.id))
 
     let embedSelected = new MessageEmbed()
-        .setColor('#247ba0')
+        .setColor('2b2d31')
         .setTitle('Catégories sélectionnées')
-        .setDescription(`\`\`\`\n${selectedCategories?.size > 0 ? selectedCategories.map(chan => chan.name).join('\n'): 'Aucune'}\`\`\`\n\n🔽 Veuillez sélectionner une catégorie ci-dessous 🔽`)
+        .setDescription(`\`\`\`\n${selectedCategories?.size > 0 ? selectedCategories.map(chan => chan.name).join('\n'): 'Aucune'}\`\`\`\n\n<:arrowdown:1137420436016214058> Veuillez sélectionner une catégorie ci-dessous <:arrowdown:1137420436016214058>`)
 
     interaction.update({
         embeds: [embedSelected],
@@ -279,21 +279,21 @@ function updateSelectionMenu(interaction, arrayOfCategoryIds, index, categoriesM
 
 /**
  *
- * @param {String} categoryChannels
+ * @param {String} channels
  * @returns {void}
  */
-function fillSelectMap(categoryChannels) {
+function fillSelectMap(channels) {
     let i = 0
     let tmpArr = []
     let map = []
 
-    for (const [key, cat] of categoryChannels) {
+    for (const [key, chan] of channels) {
         if (i === 25) {
             i = 0
             map.push(tmpArr)
             tmpArr = []
         }
-        tmpArr.push(createSelectionMenuOption(cat.id, fetchName(cat.name), undefined, fetchEmoji(cat.name)))
+        tmpArr.push(createSelectionMenuOption(chan.id, fetchName(chan.name), undefined, fetchEmoji(chan.name)))
         i++
     }
     map.push(tmpArr)
@@ -321,6 +321,4 @@ module.exports = {
     fetchName,
     fillSelectMap,
     updateSelectionMenu
-}
-
-
+};

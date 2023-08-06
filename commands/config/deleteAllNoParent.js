@@ -5,13 +5,14 @@ module.exports = class DeleteAllAloneCommand extends BaseCommand {
         super('deleteallalone', 'config', [], {
             usage: "deleteallalone",
             description: "Supprime tout les channels sans catégorie",
-            categoryDisplayName: `⚙️ Config`,
+            categoryDisplayName: `<:settings:1137410884432564404> Config`,
             userPermissions: [],
             clientPermissions: [],
             examples: [],
-            hide: false,
+            serverOnly: true,
             admin: true,
-            home: false
+            home: false,
+            subCommands: false
         });
     }
 
@@ -27,7 +28,7 @@ module.exports = class DeleteAllAloneCommand extends BaseCommand {
                 }
             }
         })
-        await tempMsg.edit(`**:white_check_mark: |** Opération terminée`)
+        await tempMsg.edit(`**<:check:1137390614296678421> |** Opération terminée`)
     }
 }
 

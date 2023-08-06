@@ -4,7 +4,7 @@ const { updateGuildMemberCache } = require('../../../utils/functions/utilitaryFu
 const { isMember } = require('../../../utils/functions/dbFunctions');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { MessageEmbed, Permissions } = require('discord.js');
-const { createButtonActionRow, createButton } = require('../../../utils/functions/messageComponents')
+const { createButtonActionRow, createButton, createEmojiButton } = require('../../../utils/functions/messageComponents')
 
 module.exports = class PrefixInteraction extends BaseInteraction {
     constructor() {
@@ -36,7 +36,7 @@ module.exports = class PrefixInteraction extends BaseInteraction {
             const rolesToAdd = allRoles.filter(role => (role.id === '624715133251223572' || role.id === '493708975313911838' || role.id === '743988023859085332') && !guildMember.roles.cache.has(role.id))
             if (userDB && userDB.id) {
                 if (userDB.isBureau) {
-                    interaction.reply(`**ℹ️ | **\`\`${user}\`\` est déjà dans le Bureau`)
+                    interaction.reply(`**<:info:1137425479914242178> | **\`\`${user}\`\` est déjà dans le Bureau`)
                 } else {
                     if (!isMember(userDB)) {
                         await registerMember(guildMember, userDB)
@@ -45,13 +45,13 @@ module.exports = class PrefixInteraction extends BaseInteraction {
                     userDB.save();
                     await guildMember.roles.add(rolesToAdd)
                     client.allUsers.set(userDB.discordId, userDB);
-                    interaction.reply(`**✅ | **\`\`${user}\`\` a bien été ajouté dans le Bureau !`)
+                    interaction.reply(`**<:check:1137390614296678421> | **\`\`${user}\`\` a bien été ajouté dans le Bureau !`)
                 }
             } else {
-                interaction.reply(`**❌ | **INTERNAL SERVER ERROR : DB CORRUPTION`)
+                interaction.reply(`**<:x_:1137419292946727042> | **INTERNAL SERVER ERROR : DB CORRUPTION`)
             }
         } else {
-            interaction.reply(`**❌ | **L'utilisateur ${user} est introuvable !`)
+            interaction.reply(`**<:x_:1137419292946727042> | **L'utilisateur ${user} est introuvable !`)
         }
 
     }
@@ -61,12 +61,12 @@ async function registerMember(member, dBUser) {
     const dmChannel = await member.createDM()
 
     const componentRow = createButtonActionRow([
-        createButton('askMemberInformation', 'Je suis prêt à remplir le formulaire', 'SUCCESS')
+        createEmojiButton('askMemberInformation', 'Je suis prêt à remplir le formulaire', 'SECONDARY', '<:checksquare:1137390612543459398>')
     ])
     const embed = new MessageEmbed()
         .setTitle(`**BIENVENUE CHEZ LDV ESPORT**`)
         .setDescription(`Afin de finaliser ton inscription en tant que membre de LDV Esport, nous aurons besoin que quelques informations sur toi.\nClique sur le bouton juste en dessous une fois que tu es prêt à remplir ce formulaire !`)
-        .setColor('#00b894')
+        .setColor('2b2d31')
     try {
         dmChannel.send({
             embeds: [embed],

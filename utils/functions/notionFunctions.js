@@ -107,6 +107,10 @@ async function deletePage(pageId) {
     });
 }
 
+async function getNotionPageById(pageId) {
+    return await notion.pages.retrieve({ page_id: pageId })
+}
+
 async function queryDatabase(databaseId) {
     const database = await notion.databases.query({ database_id: databaseId })
     return database.results
@@ -235,5 +239,6 @@ module.exports = {
     getNotionPage,
     queryDatabaseFilter,
     deletePage,
-    selectionUserSwitch
+    selectionUserSwitch,
+    getNotionPageById
 }

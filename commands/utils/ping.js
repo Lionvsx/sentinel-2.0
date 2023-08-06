@@ -6,7 +6,7 @@ module.exports = class PingCommand extends BaseCommand {
         super('ping', 'utilities', [], {
             usage: "ping",
             description: "Ping le bot",
-            categoryDisplayName: `🔧 Utilities`,
+            categoryDisplayName: `<:tool:1137412707629412453> Utilities`,
             userPermissions: [],
             clientPermissions: [],
             examples: [],
@@ -21,7 +21,7 @@ module.exports = class PingCommand extends BaseCommand {
         const loading = client.emojis.cache.get('741276138319380583')
         let msg = await message.channel.send(`**${loading} | **Pinging server ...`)
         let embed = new MessageEmbed()
-            .setColor('#2ecc71')
+            .setColor('#2b2d31')
         msg.edit({
             content: ' ',
             embeds: [embed.addFields([

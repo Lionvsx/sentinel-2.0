@@ -7,7 +7,7 @@ module.exports = class NukeChannelCommand extends BaseCommand {
         super('nuke', 'config', [], {
             usage: "nuke",
             description: "Nuke le channel textuel dans lequel vous lancez la commande",
-            categoryDisplayName: `⚙️ Config`,
+            categoryDisplayName: `<:settings:1137410884432564404> Config`,
             userPermissions: [Permissions.FLAGS.ADMINISTRATOR],
             clientPermissions: [],
             examples: [],
@@ -24,7 +24,7 @@ module.exports = class NukeChannelCommand extends BaseCommand {
         message.channel.send(`**${loading} |** Nuke du channel dans 5 secondes`)
         await sleep(5000)
 
-        if (message.channel.type !== 'GUILD_TEXT') return message.channel.send(`**:x: |** Ce channel ne peut pas être nuke !`)
+        if (message.channel.type !== 'GUILD_TEXT') return message.channel.send(`**<:x_:1137419292946727042> |** Ce channel ne peut pas être nuke !`)
 
         let channelOptions = {
             type: 'GUILD_TEXT',
@@ -42,7 +42,7 @@ module.exports = class NukeChannelCommand extends BaseCommand {
 
         message.guild.channels.create(channelName, channelOptions).then(newChannel => {
             newChannel.setPosition(channelOptions.position)
-            newChannel.send(`**:white_check_mark: |** Channel nuked!`)
+            newChannel.send(`**<:check:1137390614296678421> |** Channel nuked!`)
         })
     }
 }

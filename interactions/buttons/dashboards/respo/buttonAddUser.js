@@ -35,7 +35,7 @@ module.exports = class AddUserButtonInteraction extends BaseInteraction {
         
         if (!userDB.roleResponsable) {
             interaction.reply({
-                content: `**❌ | **Vous n'êtes pas responsable dans la base de données !`,
+                content: `**<:x_:1137419292946727042> | **Vous n'êtes pas responsable dans la base de données !`,
                 ephemeral: true
             })
             return
@@ -50,10 +50,10 @@ module.exports = class AddUserButtonInteraction extends BaseInteraction {
         const userAudience = usersAndErrors[0];
         const userErrors = usersAndErrors[1];
 
-        if (userAudience.length === 0) return dmChannel.send(`**❌ | **Aucun utilisateur trouvé !`)
+        if (userAudience.length === 0) return dmChannel.send(`**<:x_:1137419292946727042> | **Aucun utilisateur trouvé !`)
 
         const confirmation = await askForConfirmation(dmChannel, `Êtes vous sûr de vouloir ajouter les utilisateurs suivants dans **votre pôle** ${userDB.roleResponsable} ?\n\nUSERS TROUVES:\n\`\`\`${userAudience.length > 0 ? userAudience.map(member => member.user.tag).join('\n'): 'Aucun'}\`\`\`\nUSERS INTROUVABLES:\n\`\`\`${userErrors.length > 0 ? userErrors.join('\n') : 'Aucun'}\`\`\``).catch(err => console.log(err))
-        if (!confirmation) return dmChannel.send(`**❌ | **Commande annulée !`)
+        if (!confirmation) return dmChannel.send(`**<:x_:1137419292946727042> | **Commande annulée !`)
 
         const loading = client.emojis.cache.get('741276138319380583')
 
@@ -64,9 +64,9 @@ module.exports = class AddUserButtonInteraction extends BaseInteraction {
         const summaryEmbed = new MessageEmbed()
             .setTitle('COMPTE RENDU')
             .setDescription(`Compte rendu final de l'opération d'ajout de membres en tant que membres de vôtre pôle :\n*(Vous pouvez recopier les champs d'erreur pour les renvoyer au bot lors d'une prochaine commande)*`)
-            .addField('✅ UTILISATEURS AJOUTES', `\`\`\`${staffResults.length > 0 ? staffResults.join('\n'): 'Aucun'}\`\`\``, false)
-            .addField(`❌ UTILISATEURS INTROUVABLES SUR LE SERVEUR`, `\`\`\`${userErrors.length > 0 ? userErrors.join(',\n') : 'Aucun'}\`\`\``, false)
-            .setColor('#fdcb6e')
+            .addField('<:check:1137390614296678421> UTILISATEURS AJOUTES', `\`\`\`${staffResults.length > 0 ? staffResults.join('\n'): 'Aucun'}\`\`\``, false)
+            .addField(`<:x_:1137419292946727042> UTILISATEURS INTROUVABLES SUR LE SERVEUR`, `\`\`\`${userErrors.length > 0 ? userErrors.join(',\n') : 'Aucun'}\`\`\``, false)
+            .setColor('2b2d31')
 
         configLogger.setLogData(`ADDED USERS TO ${userDB.roleResponsable.toUpperCase()}: \n${staffResults.length > 0 ? staffResults.join('\n'): 'Aucun'}\n\nNOT ON SERVER: \n${userErrors.length > 0 ? userErrors.join(',\n') : 'Aucun'}`)
 
@@ -110,7 +110,7 @@ function staffUsers(audience, tempMsg, loading, category, allRoles) {
             await tempMsg.edit(`**${loading} | **Ajout des utilisateurs en cours à la DB : \`${success.length}/${audience.length}\``)
         }
         if (success.length === audience.length) {
-            await tempMsg.edit(`**✅ | **Ajout des utilisateurs terminé`)
+            await tempMsg.edit(`**<:check:1137390614296678421> | **Ajout des utilisateurs terminé`)
             resolve(success)
         }
     })

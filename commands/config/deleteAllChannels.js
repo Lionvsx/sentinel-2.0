@@ -6,13 +6,14 @@ module.exports = class DeleteAllCommand extends BaseCommand {
         super('deleteall', 'config', [], {
             usage: "deleteall <id>",
             description: "Supprime une catégorie + tout les channels de cette catégorie",
-            categoryDisplayName: `⚙️ Config`,
+            categoryDisplayName: `<:settings:1137410884432564404> Config`,
             userPermissions: [],
             clientPermissions: [],
             examples: [],
-            hide: false,
+            serverOnly: true,
             admin: true,
-            home: false
+            home: false,
+            subCommands: false
         });
     }
 
@@ -27,7 +28,7 @@ module.exports = class DeleteAllCommand extends BaseCommand {
             await childChannels.each(channel => {
                 channel.delete()
             })
-            await tempMsg.edit(`**:white_check_mark: |** Opération terminée`)
+            await tempMsg.edit(`**<:check:1137390614296678421> |** Opération terminée`)
             await sleep(1000)
             selectedChannel.delete();
         }

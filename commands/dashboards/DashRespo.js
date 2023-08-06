@@ -10,7 +10,7 @@ module.exports = class DashRespoCommand extends BaseCommand {
         super('dashboardrespo', 'dashboard', [], {
             usage: "dashboardrespo",
             description: "Crée un dashboard pour les responsables",
-            categoryDisplayName: `🧭 Dashboard`,
+            categoryDisplayName: `<:compass:1137390624090374228> Dashboard`,
             userPermissions: ['ADMINISTRATOR'],
             clientPermissions: [],
             examples: [],
@@ -24,29 +24,27 @@ module.exports = class DashRespoCommand extends BaseCommand {
     async run (client, message, args) {
         
         const DashBoardRespo = new Discord.MessageEmbed()
-            .setColor('#0099ff')
-            .setTitle('DASHBOARD RESPONSABLES')
-            .setThumbnail('https://cdn.discordapp.com/attachments/624619133799104522/742037500536684574/icon_dashboard.png')
+            .setColor('#2b2d31')
+            .setTitle('<:zap:1137424324144410736> `` DASHBOARD RESPONSABLES ``')
+            .setThumbnail('https://cdn.discordapp.com/attachments/624720345919651866/1137401889269493791/compass-3.png')
             .setDescription("Panneau de controle pour les responsables afin d'intéragir avec le discord \nToutes les fonctionnalités sont expliquées ci dessous:")
             .addFields(
-                { name: '\u200B', value: '\u200B' },
-                { name: '📢 | ANNONCES', value: 'Ouvre une interface en MP afin de créer une annonce personnalisée', inline: true },
-                { name: '✅ | CREATE CHANNEL', value: "Vous permet de créer un salon personnalisé dans votre catégorie", inline: true },
-                { name: '🗑️ | DELETE CHANNEL', value: "Vous permet de supprimer un salon de votre catégorie", inline: true },
-                { name: '\u200B', value: '\u200B' },
-                { name: '🎫 | OPEN CUSTOM TICKET', value: "Ouvre un ticket avec des paramètres personnalisés", inline: true },
-                { name: '➕ | ADD USER', value: "Ajoutez des utilisateurs à votre pôle", inline: true },
-                { name: '➖ | REMOVE USER', value: "Retire des utilisateurs de votre pôle", inline: true },
+                { name: '<:send:1137390655019171960> | ` ANNONCES `', value: 'Envoie un message sur plusieurs canaux', inline: false },
+                { name: '<:pluscircle:1137390650690650172> | ` CREATE CHANNEL `', value: "Vous permet de créer un salon personnalisé dans votre catégorie", inline: false },
+                { name: '<:minuscircle:1137390648262135951> | ` DELETE CHANNEL `', value: "Vous permet de supprimer un salon de votre catégorie", inline: false },
+                { name: '<:messagesquare:1137390645972049970> | ` OPEN CUSTOM TICKET `', value: "Ouvre un ticket avec des paramètres personnalisés", inline: false },
+                { name: '<:userplus:1137394694972788837> | ` ADD USER `', value: "Ajoutez des utilisateurs à votre pôle", inline: false },
+                { name: '<:userminus:1137394849025359992> | `REMOVE USER `', value: "Retire des utilisateurs de votre pôle", inline: false },
             )
         const Row1 = createButtonActionRow([
-            createEmojiButton('buttonAnnonce', 'Faire une annonce', 'PRIMARY', '📢'),
-            createEmojiButton('buttonCreateChannel', 'Créer un salon', 'SUCCESS', '✅'),
-            createEmojiButton('buttonDeleteChannel', 'Supprimer un salon', 'DANGER', '🗑️')
+            createEmojiButton('buttonAnnonce', '', 'SECONDARY', '<:send:1137390655019171960>'),
+            createEmojiButton('buttonCreateChannel', '', 'SECONDARY', '<:pluscircle:1137390650690650172>'),
+            createEmojiButton('buttonDeleteChannel', '', 'SECONDARY', '<:minuscircle:1137390648262135951>')
         ])
         const Row2 = createButtonActionRow([
-            createEmojiButton('buttonCustomTicket', 'Créer un ticket', 'SECONDARY', '🎫'),
-            createEmojiButton('buttonAddUser', 'Ajouter des staffs', 'SUCCESS', '➕'),
-            createEmojiButton('buttonRemoveUser', 'Retirer des staffs', 'DANGER', '➖'),
+            createEmojiButton('buttonCustomTicket', '', 'SECONDARY', '<:messagesquare:1137390645972049970>'),
+            createEmojiButton('buttonAddUser', '', 'SECONDARY', '<:userplus:1137394694972788837>'),
+            createEmojiButton('buttonRemoveUser', '', 'SECONDARY', '<:userminus:1137394849025359992>'),
         ])
         message.channel.send({
             embeds: [DashBoardRespo],

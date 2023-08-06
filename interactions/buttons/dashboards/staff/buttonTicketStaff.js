@@ -1,7 +1,7 @@
 const BaseInteraction = require('../../../../utils/structures/BaseInteraction')
-const { userResponse, reactionEmbedSelector, selectorReply, askForConfirmation, askYesOrNo, userResponseContent, menuInteraction } = require('../../../../utils/functions/awaitFunctions')
+const { reactionEmbedSelector, selectorReply, askForConfirmation, askYesOrNo, userResponseContent, menuInteraction } = require('../../../../utils/functions/awaitFunctions')
 const { getUsersFromString } = require('../../../../utils/functions/utilitaryFunctions')
-const { createButtonActionRow, createButton, createSelectionMenu, createSelectionMenuOption, createMessageActionRow } = require('../../../../utils/functions/messageComponents')
+const { createButtonActionRow, createEmojiButton, createSelectionMenu, createSelectionMenuOption, createMessageActionRow } = require('../../../../utils/functions/messageComponents')
 const { MessageEmbed, Permissions } = require('discord.js')
 const mongoose = require('mongoose')
 const Ticket = require('../../../../src/schemas/TicketSchema')
@@ -34,11 +34,12 @@ module.exports = class TicketStaffButtonInteraction extends BaseInteraction {
         const embedTicketSelection = new MessageEmbed()
             .setDescription(`Bonjour \`${interaction.user.username}\`\nQuel type de ticket voulez vous créer?`)
             .addFields(
-                { name: '💬', value: "Ticket Communication (Tournoi, Esport)", inline: true },
-                { name: '🎪', value: "Ticket Staff Event (Evenement Associatif)", inline: true },
-                { name: '🔗', value: "Ticket Pôles (Uniquement à certains pôles)", inline: true },
-                { name: '❌', value: "Annulez la commande", inline: true },
+                { name: '<:messagecircle:1137423168080973874> ` Ticket Communication `', value: "Pour communiquer sur un evenement", inline: false },
+                { name: '<:speaker:1137428526178517033> ` Ticket Event `', value: "Pour organiser un event associatif", inline: false },
+                { name: '<:link:1137424150764474388> ` Ticket Pôles `', value: "Selectionnez les pôles inclus dans le ticket", inline: false },
+                { name: '<:x_:1137419292946727042> ` Cancel `', value: "Annulez la commande", inline: false },
             )
+            .setColor('#2b2d31')
 
         const ticketLogger = new DiscordLogger('tickets', '#ffeaa7')
         ticketLogger.setGuild(interaction.guild)
@@ -46,7 +47,7 @@ module.exports = class TicketStaffButtonInteraction extends BaseInteraction {
 
         const loading = client.emojis.cache.get('741276138319380583')
 
-        const ticketSelectionInteraction = await reactionEmbedSelector(dmChannel, ['💬', '🎪', '🔗', '❌'], embedTicketSelection).catch(err => console.log(err))
+        const ticketSelectionInteraction = await reactionEmbedSelector(dmChannel, ['<:messagecircle:1137423168080973874>', '<:speaker:1137428526178517033>', '<:link:1137424150764474388>', '<:x_:1137419292946727042>'], embedTicketSelection).catch(err => console.log(err))
         if (!ticketSelectionInteraction) return
         const emoji = ticketSelectionInteraction.customId
 
@@ -60,7 +61,7 @@ module.exports = class TicketStaffButtonInteraction extends BaseInteraction {
         const allChannels = interaction.guild.channels.cache
 
         switch(emoji) {
-            case '💬':
+            case '<:messagecircle:1137423168080973874>':
                 selectorReply(ticketSelectionInteraction, emoji, 'Ticket Communication')
                 
                 const ticketPermissions = [{ id: interaction.user.id, allow: [Permissions.FLAGS.VIEW_CHANNEL] }, { id: '743052360368259093', allow: [Permissions.FLAGS.VIEW_CHANNEL] }, {id: interaction.guild.roles.everyone.id, deny: [Permissions.FLAGS.VIEW_CHANNEL] }]
@@ -103,18 +104,18 @@ module.exports = class TicketStaffButtonInteraction extends BaseInteraction {
                 const ticketEmbed = new MessageEmbed()
                     .setTitle(eventFullName.toUpperCase())
                     .addFields(
-                        { name: '🎮 | JEU', value: ticketGame},
-                        { name: '⭐ | EQUIPE / JOUEURS', value: teamOrPlayers},
-                        { name: '📆 | DATE', value: eventTime},
-                        { name: '🔗 | LIENS', value: links},
-                        { name: '🎥 | CAST', value: webTVBoolean ? 'Oui' : 'Non'},
+                        { name: '<:zap:1137424324144410736> | JEU', value: ticketGame},
+                        { name: '<:users:1137390672194850887> | EQUIPE / JOUEURS', value: teamOrPlayers},
+                        { name: '<:calendar:1137424147056689293> | DATE', value: eventTime},
+                        { name: '<:link:1137424150764474388> | LIENS', value: links},
+                        { name: '<:video:1137424148352737310> | CAST', value: webTVBoolean ? 'Oui' : 'Non'},
                     )
-                    .setColor('#fdcb6e')
+                    .setColor('2b2d31')
                 const accessEmbed = new MessageEmbed()
-                    .setTitle(`🎫 NOUVEAU TICKET : \`${ticketName}\``)
+                    .setTitle(`<:messagesquare:1137390645972049970> NOUVEAU TICKET : \`${ticketName}\``)
                     .setDescription(`Nouveau ticket de \`${interaction.user.username}\`\nNom de l'event : \`${eventFullName}\`\nJeu associé : \`${ticketGame}\`\nDate : \`${eventTime}\``)
                     .setTimestamp()
-                    .setColor('#3498db')
+                    .setColor('2b2d31')
 
 
                 //CONFIRMATION
@@ -145,15 +146,15 @@ module.exports = class TicketStaffButtonInteraction extends BaseInteraction {
                     let requestChannel = allChannels.get(channelId)
                     await requestChannel.send({
                         embeds: [accessEmbed],
-                        components: [createButtonActionRow([createButton(`buttonAccessChannel|${newChannel.id}`, 'Accédez au ticket', 'SUCCESS'), createButton(`buttonKillAccessChannel`, "Fermez l'accès au ticket", 'DANGER')])]
+                        components: [createButtonActionRow([createEmojiButton(`buttonAccessChannel|${newChannel.id}`, 'Accédez au ticket', 'SECONDARY', '<:pluscircle:1137390650690650172>'), createEmojiButton(`buttonKillAccessChannel`, "Fermez l'accès au ticket", 'SECONDARY', '<:x_:1137419292946727042>')])]
                     })
                 }
 
                 ticketLogger.info(`<@!${interaction.user.id}> a crée un ticket de **communication** avec les paramètres suivants :`)
-                tempMsg.edit(`**:white_check_mark: | **Votre ticket a été crée avec succès!`)
+                tempMsg.edit(`**<:check:1137390614296678421> | **Votre ticket a été crée avec succès : <#${newChannel.id}>`)
 
                 break;
-            case '🎪':
+            case '<:speaker:1137428526178517033>':
                 selectorReply(ticketSelectionInteraction, emoji, 'Ticket Staff Event')
                 const eventTicketPermissions = [{ id: interaction.user.id, allow: [Permissions.FLAGS.VIEW_CHANNEL] }, { id: '743052360368259093', allow: [Permissions.FLAGS.VIEW_CHANNEL] }, {id: interaction.guild.roles.everyone.id, deny: [Permissions.FLAGS.VIEW_CHANNEL] }]
                 const eventAccessChannelsAudience = [StaffChannels.get('event')]
@@ -199,22 +200,22 @@ module.exports = class TicketStaffButtonInteraction extends BaseInteraction {
                 }
                 const ticketEventEmbed = new MessageEmbed()
                     .setTitle(eventTicketFullName.toUpperCase())
-                    .setDescription(`🎪 Nouveau ticket évenementiel crée, request envoyée au staff event !`)
+                    .setDescription(`<:speaker:1137428526178517033> Nouveau ticket évenementiel crée, request envoyée au staff event !`)
                     .addFields(
-                        { name: '📆 | DATE', value: eventTicketTime},
-                        { name: '🎥 | WEBTV', value: eventWebTVBoolean ? 'Oui' : 'Non'},
+                        { name: '<:calendar:1137424147056689293> | DATE', value: eventTicketTime},
+                        { name: '<:video:1137424148352737310> | WEBTV', value: eventWebTVBoolean ? 'Oui' : 'Non'},
                         { name: '📱 | COMMUNICATION', value: comBoolean ? 'Oui' : 'Non'},
-                        { name: '🎨 | DA', value: daBoolean ? 'Oui' : 'Non'},
+                        { name: '<:bookmark:1137437120139640842> | DA', value: daBoolean ? 'Oui' : 'Non'},
                     )
                 const eventAccessEmbed = new MessageEmbed()
-                    .setTitle(`🎪 NOUVEAU TICKET EVENEMENT : \`${eventTicketName}\``)
+                    .setTitle(`<:speaker:1137428526178517033> NOUVEAU TICKET EVENEMENT : \`${eventTicketName}\``)
                     .setDescription(`Nouveau ticket de \`${interaction.user.username}\`\nNom de l'event : \`${eventTicketFullName}\`\nDate : \`${eventTicketTime}\``)
                     .setTimestamp()
-                    .setColor('#f39c12')
+                    .setColor('2b2d31')
 
                 const ticketEventConfirmation = await askForConfirmation(dmChannel, `Etes vous sur de vouloir ouvrir un ticket avec les paramètres suivants : \`\`\`NOM: ${eventTicketName}}\nDATE: ${eventTicketTime}\nWEBTV: ${eventWebTVBoolean ? 'OUI' : 'NON'}\nCOM: ${comBoolean ? 'OUI' : 'NON'}\nDA: ${daBoolean ? 'OUI' : 'NON'} \n\nUTILISATEURS ADDITIONNELS:\n${eventUsersAudience ? eventUsersAudience.map(member => member.user.tag).join('\n') : 'Aucun'} \`\`\``).catch(err => console.log(err))
                 if (!ticketEventConfirmation || ticketEventConfirmation === false) return
-                ticketLogger.setLogData(`NOM: ${eventTicketName}}\nDATE: ${eventTicketTime}\nWEBTV: ${eventWebTVBoolean ? 'OUI' : 'NON'}\nCOM: ${comBoolean ? 'OUI' : 'NON'}\nDA: ${daBoolean ? 'OUI' : 'NON'}`)
+                ticketLogger.setLogData(`NOM: ${eventTicketName}\nDATE: ${eventTicketTime}\nWEBTV: ${eventWebTVBoolean ? 'OUI' : 'NON'}\nCOM: ${comBoolean ? 'OUI' : 'NON'}\nDA: ${daBoolean ? 'OUI' : 'NON'}`)
 
                 const tempMsgEvent = await dmChannel.send(`**${loading} |** Création de votre ticket en cours`)
 
@@ -239,28 +240,28 @@ module.exports = class TicketStaffButtonInteraction extends BaseInteraction {
                     let requestChannel = allChannels.get(channelId)
                     await requestChannel.send({
                         embeds: [eventAccessEmbed],
-                        components: [createButtonActionRow([createButton(`buttonAccessChannel|${newEventTicketChannel.id}`, 'Accédez au ticket', 'SUCCESS'), createButton(`buttonKillAccessChannel`, "Fermez l'accès au ticket", 'DANGER')])]
+                        components: [createButtonActionRow([createEmojiButton(`buttonAccessChannel|${newEventTicketChannel.id}`, 'Accédez au ticket', 'SECONDARY', '<:pluscircle:1137390650690650172>'), createEmojiButton(`buttonKillAccessChannel`, "Fermez l'accès au ticket", 'SECONDARY', '<:x_:1137419292946727042>')])]
                     })
                 }
 
-                ticketLogger.info(`<@!${interaction.user.id}> a crée un ticket de **évènementiel** avec les paramètres suivants :`)
-                tempMsgEvent.edit(`**:white_check_mark: | **Votre ticket a été crée avec succès!`)
+                await ticketLogger.info(`<@!${interaction.user.id}> a crée un ticket de **évènementiel** avec les paramètres suivants :`)
+                await tempMsgEvent.edit(`**<:check:1137390614296678421> | **Votre ticket a été crée avec succès : <#${newEventTicketChannel.id}>`)
                 break;
-            case '🔗':
+            case '<:link:1137424150764474388>':
                 selectorReply(ticketSelectionInteraction, emoji, 'Ticket requête')
                 const ticketRequestPermissions = [{ id: interaction.user.id, allow: [Permissions.FLAGS.VIEW_CHANNEL] }, { id: '743052360368259093', allow: [Permissions.FLAGS.VIEW_CHANNEL] }, {id: interaction.guild.roles.everyone.id, deny: [Permissions.FLAGS.VIEW_CHANNEL] }]
 
                 const requestSelectionMenu = createSelectionMenu('ticketSelectionMenu', 'Selectionnez 1 ou plusieurs pôles', [
-                    createSelectionMenuOption('webtv', 'Web TV', undefined, '🎥'),
-                    createSelectionMenuOption('da', 'Direction Artistique', undefined, '🎨'),
-                    createSelectionMenuOption('com', 'Communication', undefined, '✒️'),
-                    createSelectionMenuOption('event', 'Event', undefined, '🎪'),
-                    createSelectionMenuOption('esport', 'Esport', undefined, '🎮'),
-                    createSelectionMenuOption('partenariat', 'Partenariat', undefined, '💶')
+                    createSelectionMenuOption('webtv', 'Web TV', undefined, '<:video:1137424148352737310>'),
+                    createSelectionMenuOption('da', 'Direction Artistique', undefined, '<:bookmark:1137437120139640842>'),
+                    createSelectionMenuOption('com', 'Communication', undefined, '<:pentool:1137435985186136195>'),
+                    createSelectionMenuOption('event', 'Event', undefined, '<:speaker:1137428526178517033>'),
+                    createSelectionMenuOption('esport', 'Esport', undefined, '<:crosshair:1137436482248904846>'),
+                    createSelectionMenuOption('partenariat', 'Partenariat', undefined, '<:dollarsign:1137435764142116904>')
                 ], 1, 6)
 
                 const menuMessage = await dmChannel.send({
-                    embeds: [new MessageEmbed().setDescription('🔽 A quels pôles voulez vous envoyer votre requête 🔽').setColor('#00b894')],
+                    embeds: [new MessageEmbed().setDescription('<:arrowdown:1137420436016214058> A quels pôles voulez vous envoyer votre requête <:arrowdown:1137420436016214058>').setColor('2b2d31')],
                     components: [createMessageActionRow([requestSelectionMenu])]
                 })
     
@@ -270,7 +271,7 @@ module.exports = class TicketStaffButtonInteraction extends BaseInteraction {
                 const selectedOptions = selectionMenuComponent.options.filter(option => selectionMenuInteraction.values.join('').includes(option.value))
 
                 selectionMenuInteraction.update({
-                    embeds: [new MessageEmbed().setDescription(`✅ Selectionné : \`${selectionMenuInteraction.values.length}\` option(s) ✅\n\`\`\`\n${selectedOptions.map(option => option.label).join('\n')}\`\`\``).setColor('#00b894')],
+                    embeds: [new MessageEmbed().setDescription(`<:check:1137390614296678421> Selectionné : \`${selectionMenuInteraction.values.length}\` option(s) <:check:1137390614296678421>\n\`\`\`\n${selectedOptions.map(option => option.label).join('\n')}\`\`\``).setColor('2b2d31')],
                     components: [createMessageActionRow([selectionMenuComponent.setDisabled(true)])]
                 })
                 
@@ -287,10 +288,10 @@ module.exports = class TicketStaffButtonInteraction extends BaseInteraction {
                 const tempMsgRequest = await dmChannel.send(`**${loading} |** Création de votre ticket en cours`)
 
                 const requestAccessEmbed = new MessageEmbed()
-                    .setTitle(`🔗 NOUVEAU TICKET : \`${ticketRequestName}\``)
+                    .setTitle(`<:link:1137424150764474388> NOUVEAU TICKET : \`${ticketRequestName}\``)
                     .setDescription(`Nouveau ticket de \`${interaction.user.username}\`\nObject de la requête : \`\`\`${ticketRequestObject}\`\`\``)
                     .setTimestamp()
-                    .setColor('#9b59b6')
+                    .setColor('2b2d31')
                 
                 const newRequestTicketChannel = await interaction.guild.channels.create(`🔗┃${ticketRequestName}`, {
                     type: 'GUILD_TEXT',
@@ -313,14 +314,14 @@ module.exports = class TicketStaffButtonInteraction extends BaseInteraction {
                     let requestChannel = allChannels.get(channelId)
                     await requestChannel.send({
                         embeds: [requestAccessEmbed],
-                        components: [createButtonActionRow([createButton(`buttonAccessChannel|${newRequestTicketChannel.id}`, 'Accédez au ticket', 'SUCCESS'), createButton(`buttonKillAccessChannel`, "Fermez l'accès au ticket", 'DANGER')])]
+                        components: [createButtonActionRow([createEmojiButton(`buttonAccessChannel|${newRequestTicketChannel.id}`, 'Accédez au ticket', 'SECONDARY', '<:pluscircle:1137390650690650172>'), createEmojiButton(`buttonKillAccessChannel`, "Fermez l'accès au ticket", 'SECONDARY', '<:x_:1137419292946727042>')])]
                     })
                 }
 
-                tempMsgRequest.edit(`**:white_check_mark: | **Votre ticket a été crée avec succès!`)
+                tempMsgRequest.edit(`**<:check:1137390614296678421> | **Votre ticket a été crée avec succès : <#${newRequestTicketChannel.id}>`)
 
                 break;
-            case '❌':
+            case '<:x_:1137419292946727042>':
                 selectorReply(ticketSelectionInteraction, emoji, 'Commande annulée')
                 break;
             default: 

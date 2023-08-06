@@ -9,7 +9,7 @@ module.exports = class RemoveRoleCommand extends BaseCommand {
         super('removerole', 'moderation', [], {
             usage: "removerole <user> <role>",
             description: "Retire le role spécifié de l'individu selectionné",
-            categoryDisplayName: `🛡️ Moderation`,
+            categoryDisplayName: `<:shield:1137411685716611143> Moderation`,
             userPermissions: ['MANAGE_ROLES'],
             clientPermissions: [],
             examples: ['removerole Ominga Streameur|Retire le role streameur de l\'utilisateur Ominga', "removerole|Ouvre une interface en DM pour retirer plusieurs roles à plusieurs utilisateurs en meme temps"],
@@ -37,14 +37,14 @@ module.exports = class RemoveRoleCommand extends BaseCommand {
                 let stringRole = args.join(' ')
                 let role = allRoles.find(r => r.name.toLowerCase().includes(stringRole.toLowerCase()))
                 selectedMember.roles.remove(role)
-                message.channel.send(`**:white_check_mark: | **Vous avez retiré le role \`${role.name}\` à \`${selectedMember.user.username}\``)
+                message.channel.send(`**<:check:1137390614296678421> | **Vous avez retiré le role \`${role.name}\` à \`${selectedMember.user.username}\``)
                 moderationLogger.info(`<@!${message.author.id}> a retiré le role \`${role.name}\` à \`${selectedMember.user.username}\``)
             } catch (error) {
                 console.log(error)
-                message.channel.send(`**:x: | **Veuillez renseigner des arguments valides \`(adduser <user> <role>)\``)
+                message.channel.send(`**<:x_:1137419292946727042> | **Veuillez renseigner des arguments valides \`(adduser <user> <role>)\``)
             } 
         } else if (!args[1]) {
-            message.react('✅')
+            message.react('<:check:1137390614296678421>')
             message.author.createDM().then(async (dmChannel) => {
                 let usersToRemove = userResponse(dmChannel, `Veuillez entrer les utilisateurs à selectionner \`(pseudos discord séparés d'une virgule)\` :`).catch(err => console.log(err))
                 if (!usersToRemove) return
@@ -59,22 +59,22 @@ module.exports = class RemoveRoleCommand extends BaseCommand {
                     for (const roleString of rolesArgs) {
                         let role = allRoles.find(r => r.name.toLowerCase().includes(roleString.toLowerCase()))
                         if (!role) {
-                            dmChannel.send(`**:x: | **Impossible de retirer le role \`${roleString}\` à \`${userString}\``)
+                            dmChannel.send(`**<:x_:1137419292946727042> | **Impossible de retirer le role \`${roleString}\` à \`${userString}\``)
                             errorsCount = errorsCount+1
                         } else {
                             try {
                                 await member.roles.remove(role)
                                 moderationLogger.info(`<@!${message.author.id}> a retiré le role \`${role.name}\` à \`${member.user.username}\``)
                             } catch(err) {
-                                dmChannel.send(`**:x: | **Impossible de retirer le role \`${roleString}\` à \`${userString}\``)
+                                dmChannel.send(`**<:x_:1137419292946727042> | **Impossible de retirer le role \`${roleString}\` à \`${userString}\``)
                                 errorsCount = errorsCount+1
                             }
                         }
                     }
                 }
-                let emoji = '✅'
+                let emoji = '<:check:1137390614296678421>'
                 if(errorsCount > 0) {
-                    emoji = '⚠️'
+                    emoji = '<:alerttriangleyellow:1137390607069888593>'
                 }
                 await tempMsg.edit(`**${emoji} | **Opération terminée avec \`${errorsCount}\` erreur(s) !`)
             })

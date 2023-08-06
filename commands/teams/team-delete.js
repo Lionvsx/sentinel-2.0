@@ -9,7 +9,7 @@ module.exports = class TeamDeleteCommand extends BaseCommand {
         super('team-delete', 'teams', [], {
             usage: 'team-delete',
             description: 'Supprime une équipe',
-            categoryDisplayName: `👥 Teams`,
+            categoryDisplayName: `<:users:1137390672194850887> Teams`,
             userPermissions: [Permissions.FLAGS.ADMINISTRATOR],
             clientPermissions: [],
             examples: [],
@@ -29,7 +29,7 @@ module.exports = class TeamDeleteCommand extends BaseCommand {
             if (!confirmation) return
             const tempMsg = await message.channel.send(`**${loading} | **Suppression de l'équipe en cours...`)
             await mongoose.model('Team').deleteOne({ _id: existingTeam._id })
-            tempMsg.edit(`**✅ | **L'équipe \`${existingTeam.name}\` a été supprimée de la base de données !`)
-        } else message.channel.send(`**❌ | **Ce channel n'heberge aucune équipe !`)
+            tempMsg.edit(`**<:check:1137390614296678421> | **L'équipe \`${existingTeam.name}\` a été supprimée de la base de données !`)
+        } else message.channel.send(`**<:x_:1137419292946727042> | **Ce channel n'heberge aucune équipe !`)
     }
 }

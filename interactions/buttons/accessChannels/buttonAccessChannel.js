@@ -22,7 +22,7 @@ module.exports = class AccessChannelButton extends BaseInteraction {
         if (!accessChannel) {
             const embed = new MessageEmbed()
                 .setDescription("Ce ticket n'existe plus !")
-                .setColor('#e74c3c')
+                .setColor('2b2d31')
 
             interaction.update({
                 embeds: [embed],
@@ -38,10 +38,10 @@ module.exports = class AccessChannelButton extends BaseInteraction {
             })
             await ticketLogger.info(`<@!${interaction.user.id}> a accédé au ticket \`${accessChannel.name}\``)
             accessChannel.send({
-                content: `**➡️ | **\`${interaction.user.username}\` a rejoint le ticket !`
+                content: `**<:arrowrightcircle:1137421115766083726> | **\`${interaction.user.username}\` a rejoint le ticket !`
             })
             interaction.reply({
-                content: `Accès autorisé au ticket \`\`${accessChannel.name}\`\``,
+                content: `<:checksquare:1137390612543459398> Accès autorisé au ticket <#${accessChannel.id}>`,
                 ephemeral: true
             })
         } catch (err) {

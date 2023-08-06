@@ -5,7 +5,7 @@ module.exports = class TicketCommand extends BaseCommand {
         super('ticket', 'tickets', [], {
             usage: 'ticket <commands>',
             description: 'Opération sur les tickets',
-            categoryDisplayName: `🎫 Tickets`,
+            categoryDisplayName: `<:messagesquare:1137390645972049970> Tickets`,
             userPermissions: [],
             clientPermissions: [],
             examples: [],
@@ -18,6 +18,6 @@ module.exports = class TicketCommand extends BaseCommand {
     }
 
     async run(client, message, args) {
-        message.channel.send(`**❌ | **Arguments invalides ! \`\`${client.config.get(message.guild.id).prefix}help ticket\`\` pour voir les arguments disponibles !`)
+        message.channel.send(`**<:x_:1137419292946727042> | **Arguments invalides ! \`\`${client.config.get(message.guild.id).prefix}help ticket\`\` pour voir les arguments disponibles !`)
     }
 }

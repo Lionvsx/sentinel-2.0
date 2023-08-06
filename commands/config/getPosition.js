@@ -5,13 +5,14 @@ module.exports = class PositionCommand extends BaseCommand {
         super('position', 'config', [], {
             usage: "position",
             description: "",
-            categoryDisplayName: `⚙️ Config`,
+            categoryDisplayName: `<:settings:1137410884432564404> Config`,
             userPermissions: [],
             clientPermissions: [],
             examples: [],
-            hide: true,
+            serverOnly: true,
             admin: true,
-            home: false
+            home: false,
+            subCommands: false
         });
     }
 

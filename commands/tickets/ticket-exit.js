@@ -8,7 +8,7 @@ module.exports = class TicketExitCommand extends BaseCommand {
         super('ticket-exit', 'tickets', [], {
             usage: 'ticket exit',
             description: 'Quitte le ticket actuel',
-            categoryDisplayName: `🎫 Tickets`,
+            categoryDisplayName: `<:messagesquare:1137390645972049970> Tickets`,
             userPermissions: [],
             clientPermissions: [],
             examples: [],
@@ -29,7 +29,7 @@ module.exports = class TicketExitCommand extends BaseCommand {
 
             let quitEmbed = new MessageEmbed()
                 .setDescription(`\`${message.author.username}\` a quitté le ticket' 👋`)
-                .setColor('#f39c12')
+                .setColor('#2b2d31')
             try {
                 message.channel.permissionOverwrites.delete(message.author.id)
                 message.channel.send({
@@ -43,7 +43,7 @@ module.exports = class TicketExitCommand extends BaseCommand {
                 ticketLogger.error(`<@${message.author.id}> n'es pas arrivé à quitter le ticket \`${message.channel.name}\``)
             }
         } else {
-            message.channel.send(`**❌ | **Cette commande peut uniquement être utilisée dans un ticket !`)
+            message.channel.send(`**<:x_:1137419292946727042> | **Cette commande peut uniquement être utilisée dans un ticket !`)
         }
     }
 }

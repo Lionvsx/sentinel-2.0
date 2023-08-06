@@ -1,5 +1,5 @@
 const BaseInteraction = require('../../../../utils/structures/BaseInteraction')
-const { userResponse, reactionEmbedSelector, selectorReply, askForConfirmation, userResponseContent } = require('../../../../utils/functions/awaitFunctions')
+const { reactionEmbedSelector, selectorReply, askForConfirmation, userResponseContent } = require('../../../../utils/functions/awaitFunctions')
 const { MessageEmbed, Permissions } = require('discord.js')
 const { createButton, createButtonActionRow } = require('../../../../utils/functions/messageComponents')
 const Presence = require('../../../../src/schemas/PresenceSchema')
@@ -18,7 +18,7 @@ module.exports = class StartAgButtonInteraction extends BaseInteraction {
     }
 
     async run(client, interaction, buttonArgs) {
-        interaction.deferUpdate()
+        await interaction.deferUpdate()
 
         const loading = client.emojis.cache.get('741276138319380583')
 
@@ -34,13 +34,13 @@ module.exports = class StartAgButtonInteraction extends BaseInteraction {
             const selectionEmbed = new MessageEmbed()
             .setDescription(`Bonjour \`${interaction.user.username}\`\nUne AG est actuellement en cours : \`${existingAG.name}\`\n\`${existingAG.name}\` est prévue pour \`${existingAG.date}\`\nVoulez vous?`)
             .addFields(
-                { name: `🙋‍♂️ ${existingAG.open ? "Fermer l'appel" : "Ouvrir l'appel"}`, value: `L'appel est actuellement \`${existingAG.open ? "OUVERT" : "FERME"}\``, inline: true },
-                { name: `📨 Forcer présence`, value: `Marque un ou plusieurs utilisateurs comme présent à l'AG, qu'ils soient membres ou pas`, inline: true },
-                { name: '🗑 Cloturez l\'AG', value: "Cloture l'AG et ferme l'appel. L'appel ne pourra pas etre réouvert !", inline: true },
-                { name: '❌ Annuler la commande', value: "Termine l'interaction avec le bot", inline: true },
+                { name: `<:activity:1137390592314331176> ${existingAG.open ? "` Fermer l'appel `" : "` Ouvrir l'appel `"}`, value: `L'appel est actuellement \`${existingAG.open ? "OUVERT" : "FERME"}\``, inline: false },
+                { name: `<:usercheck:1137390666490589274> \` Forcer présence \``, value: `Marque un ou plusieurs utilisateurs comme présent à l'AG, qu'ils soient membres ou pas`, inline: false },
+                { name: '<:trash:1137390663797841991> ` Cloturez l\'AG `', value: "Cloture l'AG et ferme l'appel. L'appel ne pourra pas etre réouvert !", inline: false },
+                { name: '<:x_:1137419292946727042> Annuler la commande', value: "Termine l'interaction avec le bot", inline: false },
             )
-            .setColor('#9b59b6')
-            const reactionSelector = await reactionEmbedSelector(dmChannel, ['🙋‍♂️', '📨', '🗑', '❌'], selectionEmbed).catch(err => console.log(err))
+            .setColor('2b2d31')
+            const reactionSelector = await reactionEmbedSelector(dmChannel, ['<:activity:1137390592314331176>', '<:usercheck:1137390666490589274>', '<:trash:1137390663797841991>', '<:x_:1137419292946727042>'], selectionEmbed).catch(err => console.log(err))
             if (!reactionSelector) return;
     
             if (reactionSelector.customId === '🙋‍♂️') {
@@ -48,12 +48,12 @@ module.exports = class StartAgButtonInteraction extends BaseInteraction {
                 if (existingAG.open === false ) {
                     existingAG.open = true;
                     await existingAG.save()
-                    dmChannel.send(`**✅ | **L'appel a été \`ouvert\` !`)
+                    dmChannel.send(`**<:check:1137390614296678421> | **L'appel a été \`ouvert\` !`)
                     agLogger.info(`<@!${interaction.user.id}> a ouvert l'appel pour l'AG : \`${existingAG.name}\``)
                 } else {
                     existingAG.open = false;
                     await existingAG.save()
-                    dmChannel.send(`**✅ | **L'appel a été \`fermé\` !`)
+                    dmChannel.send(`**<:check:1137390614296678421> | **L'appel a été \`fermé\` !`)
                     agLogger.info(`<@!${interaction.user.id}> a fermé l'appel pour l'AG : \`${existingAG.name}\``)
                 }
                 
@@ -64,7 +64,7 @@ module.exports = class StartAgButtonInteraction extends BaseInteraction {
                 await existingAG.save()
 
 
-                dmChannel.send(`**✅ | **L'AG a été cloturée !`)
+                dmChannel.send(`**<:check:1137390614296678421> | **L'AG a été cloturée !`)
                 agLogger.info(`<@!${interaction.user.id}> a cloturé l'appel pour l'AG : \`${existingAG.name}\``)
 
                 const memberCheck = existingAG.memberCheck;
@@ -76,15 +76,15 @@ module.exports = class StartAgButtonInteraction extends BaseInteraction {
                 const usersAndErrors = await getUsersAndErrorsFromString(interaction.guild, userAudienceString.split(/\s*[,]\s*/))
                 const userAudience = usersAndErrors[0];
                 const userErrors = usersAndErrors[1];
-                if (userAudience.length === 0) return dmChannel.send(`**❌ | **Aucun utilisateur trouvé !`)
+                if (userAudience.length === 0) return dmChannel.send(`**<:x_:1137419292946727042> | **Aucun utilisateur trouvé !`)
 
                 const tempMsg = await dmChannel.send(`**${loading} | **Début de la procédure d'ajout des utilisateurs ...`)
                 const summaryEmbed = new MessageEmbed()
-                    .setTitle('COMPTE RENDU')
+                    .setTitle('\` COMPTE RENDU \`')
                     .setDescription(`Compte rendu final de l'opération`)
-                    .addField('✅ UTILISATEURS AJOUTES', `\`\`\`${userAudience.length > 0 ? userAudience.map(member => member.user.tag).join('\n'): 'Aucun'}\`\`\``, false)
-                    .addField(`❌ UTILISATEURS INTROUVABLES SUR LE SERVEUR`, `\`\`\`${userErrors.length > 0 ? userErrors.join(',\n') : 'Aucun'}\`\`\``, false)
-                    .setColor('#fdcb6e')
+                    .addField('<:check:1137390614296678421> UTILISATEURS AJOUTES', `\`\`\`${userAudience.length > 0 ? userAudience.map(member => member.user.tag).join('\n'): 'Aucun'}\`\`\``, false)
+                    .addField(`<:x_:1137419292946727042> UTILISATEURS INTROUVABLES SUR LE SERVEUR`, `\`\`\`${userErrors.length > 0 ? userErrors.join(',\n') : 'Aucun'}\`\`\``, false)
+                    .setColor('2b2d31')
         
                 agLogger.setLogData(`SUCCESS:\n${userAudience.length > 0 ? userAudience.map(member => member.user.tag).join('\n'): 'Aucun'}\n\nNOT ON SERVER: \n${userErrors.length > 0 ? userErrors.join(',\n') : 'Aucun'}`)
                 for (const member of userAudience) {
@@ -99,24 +99,24 @@ module.exports = class StartAgButtonInteraction extends BaseInteraction {
                 })
                 agLogger.info(`<@!${interaction.user.id}> a marqué des membres comme présents à l'AG : \`${existingAG.name}\``)
             } else {
-                selectorReply(reactionSelector, '❌', `Commande annulée`)
+                selectorReply(reactionSelector, '<:x_:1137419292946727042>', `Commande annulée`)
             }
         } else {
             
             const selectionEmbed = new MessageEmbed()
                 .setDescription(`Bonjour \`${interaction.user.username}\`\nComment se déroulera l'assemblée générale? `)
                 .addFields(
-                    { name: '🌐 En ligne', value: "Crée une AG en ligne et envoie une invitation à tous les membres", inline: true },
-                    { name: '👥 En présentiel', value: "Envoie une invitation pour une AG en présentiel à tous les membres", inline: true },
-                    { name: '❌ Annuler la commande', value: "Termine l'interaction avec le bot", inline: true },
+                    { name: '<:wifi:1137422002739740804> En ligne', value: "Crée une AG en ligne et envoie une invitation à tous les membres", inline: true },
+                    { name: '<:users:1137390672194850887> En présentiel', value: "Envoie une invitation pour une AG en présentiel à tous les membres", inline: true },
+                    { name: '<:x_:1137419292946727042> Annuler la commande', value: "Termine l'interaction avec le bot", inline: true },
                 )
-                .setColor('#9b59b6')
+                .setColor('2b2d31')
     
-            const reactionSelector = await reactionEmbedSelector(dmChannel, ['🌐', '👥', '❌'], selectionEmbed).catch(err => console.log(err))
+            const reactionSelector = await reactionEmbedSelector(dmChannel, ['<:wifi:1137422002739740804>', '<:users:1137390672194850887>', '<:x_:1137419292946727042>'], selectionEmbed).catch(err => console.log(err))
             if (!reactionSelector) return;
     
-            if (reactionSelector.customId === '🌐') {
-                selectorReply(reactionSelector, '🌐', `En ligne`)
+            if (reactionSelector.customId === '<:wifi:1137422002739740804>') {
+                selectorReply(reactionSelector, '<:wifi:1137422002739740804>', `En ligne`)
                 return dmChannel.send('EN DEV (WIP)')
                 const date = await userResponseContent(dmChannel, `A quelle date et heure se tiendra votre AG?`).catch(err => console.log(err))
                 if (!date) return;
@@ -125,8 +125,8 @@ module.exports = class StartAgButtonInteraction extends BaseInteraction {
 
                 const confirmation = await askForConfirmation(dmChannel, `Etes vous sur de vouloir créer une AG en ligne?`)
                 if (!confirmation) return;
-            } else if (reactionSelector.customId === '👥') {
-                selectorReply(reactionSelector, '👥', `En présentiel`)
+            } else if (reactionSelector.customId === '<:users:1137390672194850887>') {
+                selectorReply(reactionSelector, '<:users:1137390672194850887>', `En présentiel`)
                 const date = await userResponseContent(dmChannel, `A quelle date et heure se tiendra votre AG?`).catch(err => console.log(err))
                 if (!date) return;
                 const customName = await userResponseContent(dmChannel, `Quel est le nom de cette assemblée générale? \`(exemple: AG de début d'année)\``).catch(err => console.log(err))
@@ -164,8 +164,8 @@ module.exports = class StartAgButtonInteraction extends BaseInteraction {
                     ])
                     const embed = new MessageEmbed()
                         .setTitle(`**INVITATION :** \`${newAG.name}\``)
-                        .setDescription(`Tu as été invité à l'assemblée générale : \`${newAG.name}\` par \`${interaction.user.username}\`\nDate de l'assemblée générale: \`${date}\`\nLieu de l'assemblée générale : \`${localisation}\`\n\n🔽 Tu pourras t'enregistrer présent une fois l'appel ouvert 🔽`)
-                        .setColor('#d35400')
+                        .setDescription(`Tu as été invité à l'assemblée générale : \`${newAG.name}\` par \`${interaction.user.username}\`\nDate de l'assemblée générale: \`${date}\`\nLieu de l'assemblée générale : \`${localisation}\`\n\n<:arrowdown:1137420436016214058> Tu pourras t'enregistrer présent une fois l'appel ouvert <:arrowdown:1137420436016214058>`)
+                        .setColor('2b2d31')
                     try {
                         await userDmChannel.send({
                             embeds: [embed],
@@ -179,21 +179,21 @@ module.exports = class StartAgButtonInteraction extends BaseInteraction {
                 }
 
 
-                await tempMsg.edit(`**✅ | **Invitations envoyées avec succès à \`${success.length}/${allAssoMembers.length}\` membres`)
+                await tempMsg.edit(`**<:check:1137390614296678421> | **Invitations envoyées avec succès à \`${success.length}/${allAssoMembers.length}\` membres`)
                 const informationEmbed = new MessageEmbed()
-                    .setTitle(`ℹ Informations ℹ`)
-                    .setDescription(`Vous avez crée une assemblée générale avec les paramètres suivants : \nNom : \`${newAG.name}\`\nDate : \`${date}\`\nLieu : \`${localisation}\`\n\nCette commande ne démarre pas l'assemblée générale, il en crée juste une avec les paramètres renseignées et invite les joueurs en DM, afin de démarrer l'assemblée générale et donc d'ouvrir l'appel, merci de re-cliquer sur le bouton \`Gérer les Assemblées Générales\`\n\n🔽 COMPTE RENDU DES INVITATIONS 🔽\n`)
-                    .addField('✅ UTILISATEURS INVITES', `\`\`\`${success.length > 0 ? success.join('\n'): 'Aucun'}\`\`\``, false)
-                    .addField(`✉ UTILISATEURS INJOIGNABLES EN DM`, `\`\`\`${errors.length > 0 ? errors.join(',\n') : 'Aucun'}\`\`\``, false)
-                    .addField(`❌ UTILISATEURS INTROUVABLES SUR LE SERVEUR`, `\`\`\`${userErrors.length > 0 ? userErrors.join(',\n') : 'Aucun'}\`\`\``, false)
-                    .setColor('#3498db')
+                    .setTitle(`<:info:1137425479914242178> Informations <:info:1137425479914242178>`)
+                    .setDescription(`Vous avez crée une assemblée générale avec les paramètres suivants : \nNom : \`${newAG.name}\`\nDate : \`${date}\`\nLieu : \`${localisation}\`\n\nCette commande ne démarre pas l'assemblée générale, il en crée juste une avec les paramètres renseignées et invite les joueurs en DM, afin de démarrer l'assemblée générale et donc d'ouvrir l'appel, merci de re-cliquer sur le bouton \`Gérer les Assemblées Générales\`\n\n<:arrowdown:1137420436016214058> COMPTE RENDU DES INVITATIONS <:arrowdown:1137420436016214058>\n`)
+                    .addField('<:check:1137390614296678421> UTILISATEURS INVITES', `\`\`\`${success.length > 0 ? success.join('\n'): 'Aucun'}\`\`\``, false)
+                    .addField(`<:mail:1137430731925241996> UTILISATEURS INJOIGNABLES EN DM`, `\`\`\`${errors.length > 0 ? errors.join(',\n') : 'Aucun'}\`\`\``, false)
+                    .addField(`<:x_:1137419292946727042> UTILISATEURS INTROUVABLES SUR LE SERVEUR`, `\`\`\`${userErrors.length > 0 ? userErrors.join(',\n') : 'Aucun'}\`\`\``, false)
+                    .setColor('#2b2d31')
                 agLogger.setLogData(`NOM : \`${newAG.name}\`\nDATE : \`${date}\`\nLIEU : \`${localisation}\``)
                 agLogger.info(`<@!${interaction.user.id}> a crée une AG avec les paramètres suivants :`)
                 await dmChannel.send({
                     embeds: [informationEmbed]
                 })
             } else {
-                selectorReply(reactionSelector, '❌', `Commande annulée`)
+                selectorReply(reactionSelector, '<:x_:1137419292946727042>', `Commande annulée`)
             }
         }
     }

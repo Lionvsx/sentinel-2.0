@@ -254,7 +254,7 @@ module.exports = class SyncDatabaseButton extends BaseInteraction {
                 let bar = renderProgressBar(barProgress, 20)
                 let embed = new MessageEmbed()
                     .setDescription(`**${loading} | **Syncing with notion...\n\`\`\`${bar} ${percentage}% | ${count}/${allMembers.size}\`\`\``)
-                    .setColor('#c92b42')
+                    .setColor('2b2d31')
                 await msg.edit({
                     embeds: [embed],
                     content: ` `
@@ -264,8 +264,8 @@ module.exports = class SyncDatabaseButton extends BaseInteraction {
 
         await msg.delete()
         let embed = new MessageEmbed()
-            .setColor('GREEN')
-            .setDescription(`**✅ | **Members synced !`)
+            .setColor('2b2d31')
+            .setDescription(`**<:check:1137390614296678421> | **Members synced !`)
         await dmChannel.send({
             embeds: [embed]
         })
@@ -276,7 +276,7 @@ module.exports = class SyncDatabaseButton extends BaseInteraction {
         let dmChannel = await member.createDM()
         if (!dmChannel) this.error(`Could not create DM channel with ${member.user.tag}`)
         let embed = new MessageEmbed()
-            .setColor('#3ac6d9')
+            .setColor('2b2d31')
             .setTitle(`Invitation au serveur LDV Esport !`)
             .setDescription(`Bonjour \`${member.user.username}\` !\n\nJe suis LDV Sentinel, le bot en charge de gérer tous les serveurs en relation avec LDV Esport !\nJ'ai remarqué que tu a été accepté chez LDV le semestre prochain mais tu n'es pas sur le serveur LDV !\nJe t'invite donc à rejoindre notre serveur Discord !\nPour cela, clique sur le lien suivant : https://discord.gg/ldvesport\n\nA bientôt !`)
         await dmChannel.send({

@@ -11,7 +11,7 @@ module.exports = class TeamInfoCommand extends BaseCommand {
         super('team-add', 'teams', [], {
             usage: "team-add <user> <team>",
             description: 'Ajoute un utilisateur à une équipe',
-            categoryDisplayName: `👥 Teams`,
+            categoryDisplayName: `<:users:1137390672194850887> Teams`,
             userPermissions: [],
             clientPermissions: [],
             examples: ["team-add Ominga Orion|Ajoute l'utilisateur Ominga à l'équipe LDV Orion."],
@@ -46,10 +46,10 @@ module.exports = class TeamInfoCommand extends BaseCommand {
                 const user = await User.findOne({ discordId: selectedMember.id });
                 if (!user && !user.id) {
                     teamLogger.error(`Corruption de la base de données pour \`${selectedMember.user.tag}\` => veuillez la re-synchroniser !`)
-                    message.channel.send(`**:x: | **Joueur introuvable !`)
+                    message.channel.send(`**<:x_:1137419292946727042> | **Joueur introuvable !`)
                 } else if (!isMember(user)) {
                     teamLogger.error(`Le joueur \`${user.userTag}\` a le rôle membre mais n'es pas enregistré en tant que membre !`)
-                    message.channel.send(`**:x: | **Le joueur n'est pas membre !`)
+                    message.channel.send(`**<:x_:1137419292946727042> | **Le joueur n'est pas membre !`)
                 } else {
                     const rolesToAdd = allRoles.filter(role => (role.id === '679422903346790411' || role.id === '744234937535955045' || role.id === '744234676088209449' || role.id === existingTeam.linkedRoleId) && !selectedMember.roles.cache.has(role.id))
                     try {
@@ -61,15 +61,15 @@ module.exports = class TeamInfoCommand extends BaseCommand {
                         console.log(err)
                         teamLogger.warning(`Erreur lors de la création d'un profil de joueur pour <@!${user.discordId}>`)
                     }
-                    message.channel.send(`**:white_check_mark: | **Vous avez ajouté le joueur \`${selectedMember.user.username}\` à l'équipe \`${existingTeam.name}\``)
+                    message.channel.send(`**<:check:1137390614296678421> | **Vous avez ajouté le joueur \`${selectedMember.user.username}\` à l'équipe \`${existingTeam.name}\``)
                     teamLogger.info(`<@!${message.author.id}> a ajouté \`${selectedMember.user.username}\` à l'équipe \`${existingTeam.name}\``)
                 }
             } else {
-                message.channel.send(`**:x: | **Équipe introuvable !`)
+                message.channel.send(`**<:x_:1137419292946727042> | **Équipe introuvable !`)
             }
 
         } else {
-            message.channel.send(`**:x: | **Veuillez renseigner des arguments valides \`(team-add <user> <team>)\``)
+            message.channel.send(`**<:x_:1137419292946727042> | **Veuillez renseigner des arguments valides \`(team-add <user> <team>)\``)
         }
     }
 }

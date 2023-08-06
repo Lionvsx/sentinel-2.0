@@ -23,7 +23,7 @@ module.exports = class CommandsInteraction extends BaseInteraction {
         let array = Array.from(client.commands)
         if (!categoryOption) {
             let categoriesEmbed = new Discord.MessageEmbed()
-                .setColor('#9b59b6')
+                .setColor('2b2d31')
                 .setAuthor(`${client.user.username} Commandes disponibles`, client.user.avatarURL())
                 .setDescription(`Pour afficher toutes les commandes dans une catégorie :
                 \`\`\`${prefix}commands <category>\`\`\``)
@@ -52,7 +52,7 @@ module.exports = class CommandsInteraction extends BaseInteraction {
                 )
 
             } else {
-                interaction.reply(`**:x: | **Catégorie non valide, \`${prefix}commands\` pour afficher toutes les catégories`)
+                interaction.reply(`**<:x_:1137419292946727042> | **Catégorie non valide, \`${prefix}commands\` pour afficher toutes les catégories`)
             }
         }
     }

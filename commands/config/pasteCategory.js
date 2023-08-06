@@ -6,7 +6,7 @@ module.exports = class CopyCategoryCommand extends BaseCommand {
         super('pastecategory', 'config', [], {
             usage: "pastecategory",
             description: "Colle la dernière catégorie copiée",
-            categoryDisplayName: `⚙️ Config`,
+            categoryDisplayName: `<:settings:1137410884432564404> Config`,
             userPermissions: [Permissions.FLAGS.ADMINISTRATOR],
             clientPermissions: [],
             examples: ['pastecategory|Colle la dernière catégorie copiée'],
@@ -63,7 +63,7 @@ module.exports = class CopyCategoryCommand extends BaseCommand {
                 })
             })
         }
-        message.channel.send(`**:white_check_mark: | **Categorie collée !`)
+        message.channel.send(`**<:check:1137390614296678421> | **Categorie collée !`)
 
     }
 }

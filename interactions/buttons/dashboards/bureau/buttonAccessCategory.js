@@ -1,9 +1,10 @@
 const BaseInteraction = require('../../../../utils/structures/BaseInteraction')
-const { userResponseContent, reactionEmbedSelector, selectorReply } = require('../../../../utils/functions/awaitFunctions')
 const { MessageEmbed, MessageActionRow, MessageSelectMenu } = require('discord.js')
 
 const mongoose = require('mongoose')
-const { updateGuildMemberCache, getEmoji, getDuplicates } = require('../../../../utils/functions/utilitaryFunctions')
+const {
+    fillSelectMap, updateSelectionMenu
+} = require('../../../../utils/functions/utilitaryFunctions')
 const { createButton, createMessageActionRow, createSelectionMenu, createSelectionMenuOption, createButtonActionRow, createEmojiButton } = require('../../../../utils/functions/messageComponents')
 
 const DiscordLogger = require('../../../../utils/services/discordLoggerService')
@@ -17,7 +18,7 @@ module.exports = class AccessCategoryButtonInteraction extends BaseInteraction {
     }
 
     async run(client, interaction, buttonArgs) {
-        interaction.deferUpdate()
+        await interaction.deferUpdate()
 
 
         const loading = client.emojis.cache.get('741276138319380583')
@@ -35,14 +36,14 @@ module.exports = class AccessCategoryButtonInteraction extends BaseInteraction {
         const categoriesMap = fillSelectMap(categoryChannels);
 
         const selectMenu = createMessageActionRow([createSelectionMenu(`catMenu`, 'Page 1', categoriesMap[index], 1, categoriesMap[index].length)])
-        const buttonRow = createButtonActionRow([createEmojiButton(`previous`, 'Page précédente', 'SECONDARY', '⬅️'), createEmojiButton(`valid`, 'Valider', 'SUCCESS', '✅'), createEmojiButton(`next`, 'Page suivante', 'SECONDARY', '➡️')])
+        const buttonRow = createButtonActionRow([createEmojiButton(`previous`, '', 'SECONDARY', '<:arrowleftcircle:1137421111378837585>'), createEmojiButton(`valid`, '', 'SECONDARY', '<:check:1137390614296678421>'), createEmojiButton(`next`, '', 'SECONDARY', '<:arrowrightcircle:1137421115766083726>')])
 
         let arrayOfCategoryIds = []
         
         let embedSelected = new MessageEmbed()
             .setColor('#247ba0')
             .setTitle('Catégories sélectionnées')
-            .setDescription(`\`\`\`\nAucune\`\`\`\n\n🔽 Veuillez sélectionner une catégorie ci-dessous 🔽`)
+            .setDescription(`\`\`\`\nAucune\`\`\`\n\n<:arrowdown:1137420436016214058> Veuillez sélectionner une catégorie ci-dessous <:arrowdown:1137420436016214058>`)
 
         let message = await dmChannel.send({
             embeds: [embedSelected],
@@ -73,7 +74,7 @@ module.exports = class AccessCategoryButtonInteraction extends BaseInteraction {
         collector.on('end', async (collected, reason) => {
             if (reason === 'idle') {
                 return message.edit({
-                    embeds: [new MessageEmbed().setDescription(`**❌ Commande annulée : \`Timed Out\`**`).setColor('#c0392b')],
+                    embeds: [new MessageEmbed().setDescription(`**<:x_:1137419292946727042> Commande annulée : \`Timed Out\`**`).setColor('#c0392b')],
                     components: []
                 })
             }
@@ -96,82 +97,12 @@ module.exports = class AccessCategoryButtonInteraction extends BaseInteraction {
                     })
                 }
             }
-            tempMsg.edit(`**✅ | **Accès accordé  à ${selectedCategories?.size} catégories`)
+            tempMsg.edit(`**<:check:1137390614296678421> | **Accès accordé  à ${selectedCategories?.size} catégories`)
         }) 
     }
 }
 
-/**
- * 
- * @param {object} interaction 
- * @param {string[]} arrayOfCategoryIds 
- * @param {number} index 
- * @param {object[]} categoriesMap 
- * @param {object} allChannels 
- */
-function updateSelectionMenu(interaction, arrayOfCategoryIds, index, categoriesMap, allChannels) {
 
-    
-    index = ((index%categoriesMap.length) + categoriesMap.length)%categoriesMap.length
-
-    const selectMenu = createMessageActionRow([createSelectionMenu(`catMenu`, `Page ${index + 1}`, categoriesMap[index], 1, categoriesMap[index].length)])
-    const buttonRow = createButtonActionRow([createEmojiButton(`previous`, 'Page précédente', 'SECONDARY', '⬅️'), createEmojiButton(`valid`, 'Valider', 'SUCCESS', '✅'), createEmojiButton(`next`, 'Page suivante', 'SECONDARY', '➡️')])
-    
-
-    const selectedCategories = allChannels.filter(channel => channel.type === 'GUILD_CATEGORY' && arrayOfCategoryIds.includes(channel.id))
-
-    let embedSelected = new MessageEmbed()
-    .setColor('#247ba0')
-    .setTitle('Catégories sélectionnées')
-    .setDescription(`\`\`\`\n${selectedCategories?.size > 0 ? selectedCategories.map(chan => chan.name).join('\n'): 'Aucune'}\`\`\`\n\n🔽 Veuillez sélectionner une catégorie ci-dessous 🔽`)
-
-    interaction.update({
-        embeds: [embedSelected],
-        components: [selectMenu, buttonRow]
-    })
-}
-
-function fetchName(str) {
-    return str.replace(/[^a-zA-Z éèêàù]+/g, '').trim();
-}
-
-/**
- * 
- * @param {String} str 
- * @returns {Void} 
- */
-function fetchEmoji(str) {
-    let i = 0
-    let char = str.charAt(i)
-    while (i < str.length && (char === '─' || char === ' ')) {
-        i++
-        char = str.charAt(i)
-    }
-    const emoji = `${char + str.charAt(i+1)}`
-    return String.fromCodePoint(emoji.codePointAt(0));
-}
-/**
- * 
- * @param {String} categoryChannels 
- * @returns {void}
- */
-function fillSelectMap(categoryChannels) {
-    let i = 0
-    let tmpArr = []
-    let map = []
-
-    for (const [key, cat] of categoryChannels) {
-        if (i === 25) {
-            i = 0
-            map.push(tmpArr)
-            tmpArr = []
-        }
-        tmpArr.push(createSelectionMenuOption(cat.id, fetchName(cat.name), undefined, fetchEmoji(cat.name)))
-        i++
-    }
-    map.push(tmpArr)
-    return map
-}
 
 
 

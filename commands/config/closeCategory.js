@@ -5,13 +5,14 @@ module.exports = class CreateCategoryCommand extends BaseCommand {
         super('closecategory', 'config', [], {
             usage: "closecategory <category ID>",
             description: "Ferme la catégorie avec l'ID renseigné",
-            categoryDisplayName: `⚙️ Config`,
+            categoryDisplayName: `<:settings:1137410884432564404> Config`,
             userPermissions: [],
             clientPermissions: [],
             examples: ['closecategory 758638202071285790|Ferme la catégorie avec pour ID 758638202071285790'],
-            hide: false,
+            serverOnly: true,
             admin: true,
-            home: false
+            home: false,
+            subCommands: false
         });
     }
 

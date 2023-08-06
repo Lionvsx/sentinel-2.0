@@ -13,7 +13,7 @@ module.exports = class DashDatabaseCommand extends BaseCommand {
         super('dashboardserver', 'dashboard', [], {
             usage: "dashboardserver",
             description: "Crée un dashboard pour gérer le serveur",
-            categoryDisplayName: `🧭 Dashboard`,
+            categoryDisplayName: `<:compass:1137390624090374228> Dashboard`,
             userPermissions: ['ADMINISTRATOR'],
             clientPermissions: [],
             examples: [],
@@ -39,12 +39,12 @@ module.exports = class DashDatabaseCommand extends BaseCommand {
             GuildDashboard.addField(guild.name, `\`\`\`css\nMEMBERS [${guild.memberCount}]\nSLASH COMMANDS [${guildConfig.slashCommands ? 'ENABLED' : 'DISABLED'}]\nLOG CHANNEL [${guildConfig.logChannelId ? guild.channels.cache.get(guildConfig.logChannelId)?.name : 'NOT SET'}]\nOWNER [${guild.members.cache.get(guild.ownerId)?.user.tag}]\nSENTINEL LEVEL [${sentinelLevel}]\`\`\``, true)
         }
         const GuildDashboardRow1 = createButtonActionRow([
-            createEmojiButton('buttonRefreshGuildDashboard', 'Mettre à jour les données', 'SUCCESS', '🔄'),
-            createEmojiButton('buttonSlashCommands', 'Gérer les (/) commands', 'PRIMARY', '⚡'),
-            createEmojiButton('buttonDisplayGuildUsers', 'Afficher les utilisateurs', 'PRIMARY', '👥')
+            createEmojiButton('buttonRefreshGuildDashboard', 'Mettre à jour les données', 'SECONDARY', '🔄'),
+            createEmojiButton('buttonSlashCommands', 'Gérer les (/) commands', 'SECONDARY', '⚡'),
+            createEmojiButton('buttonDisplayGuildUsers', 'Afficher les utilisateurs', 'SECONDARY', '<:users:1137390672194850887>')
         ])
         const GuildDashboardRow2 = createButtonActionRow([
-            createEmojiButton('broadcastMessage', 'Envoie un message d\'annonce à distance', 'DANGER', '✉')
+            createEmojiButton('broadcastMessage', 'Envoie un message d\'annonce à distance', 'SECONDARY', '<:mail:1137430731925241996>')
         ])
         // Sentinel servers ✅
         // Tickets viewer + Archive

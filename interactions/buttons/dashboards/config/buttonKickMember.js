@@ -11,6 +11,7 @@ const {
     createMessageActionRow
 } = require('../../../../utils/functions/messageComponents');
 const { isMember } = require('../../../../utils/functions/dbFunctions')
+const {deletePage} = require("../../../../utils/functions/notionFunctions");
 
 module.exports = class KickMember extends BaseInteraction {
     constructor() {
@@ -35,7 +36,7 @@ module.exports = class KickMember extends BaseInteraction {
         configLogger.setLogMember(interaction.member)
         configLogger.setGuild(interaction.guild)
 
-        if (userAudience.length === 0) return dmChannel.send(`**❌ | **Aucun utilisateur trouvé !`)
+        if (userAudience.length === 0) return dmChannel.send(`**<:x_:1137419292946727042> | **Aucun utilisateur trouvé !`)
 
         const confirmation = await askForConfirmation(dmChannel, `Êtes vous sûr de vouloir retirer le statut de **membre** des utilisateurs suivants ?\n\nUSERS TROUVES:\n\`\`\`${userAudience.length > 0 ? userAudience.map(member => member.user.tag).join('\n'): 'Aucun'}\`\`\`\nUSERS INTROUVABLES:\n\`\`\`${userErrors.length > 0 ? userErrors.join('\n') : 'Aucun'}\`\`\``).catch(err => console.log(err))
         if (!confirmation) return;
@@ -49,11 +50,11 @@ module.exports = class KickMember extends BaseInteraction {
         const summaryEmbed = new MessageEmbed()
             .setTitle('COMPTE RENDU')
             .setDescription(`Compte rendu final de l'opération :\n*(Vous pouvez recopier les champs d'erreur pour les re-envoyer au bot lors d'une prochaine commande)*`)
-            .addField('✅ UTILISATEURS RADIES', `\`\`\`${kickResults.success.length > 0 ? kickResults.success.join('\n'): 'Aucun'}\`\`\``, false)
-            .addField('ℹ UTILISATEURS NON MEMBRES', `\`\`\`${kickResults.nonMembers.length > 0 ? kickResults.nonMembers.join('\n'): 'Aucun'}\`\`\``, false)
-            .addField(`✉ UTILISATEURS INJOIGNABLES EN DM`, `\`\`\`${kickResults.errors.length > 0 ? kickResults.errors.join(',\n') : 'Aucun'}\`\`\``, false)
-            .addField(`❌ UTILISATEURS INTROUVABLES SUR LE SERVEUR`, `\`\`\`${userErrors.length > 0 ? userErrors.join(',\n') : 'Aucun'}\`\`\``, false)
-            .setColor('#fdcb6e')
+            .addField('<:check:1137390614296678421> UTILISATEURS RADIES', `\`\`\`${kickResults.success.length > 0 ? kickResults.success.join('\n'): 'Aucun'}\`\`\``, false)
+            .addField('<:info:1137425479914242178> UTILISATEURS NON MEMBRES', `\`\`\`${kickResults.nonMembers.length > 0 ? kickResults.nonMembers.join('\n'): 'Aucun'}\`\`\``, false)
+            .addField(`<:mail:1137430731925241996> UTILISATEURS INJOIGNABLES EN DM`, `\`\`\`${kickResults.errors.length > 0 ? kickResults.errors.join(',\n') : 'Aucun'}\`\`\``, false)
+            .addField(`<:x_:1137419292946727042> UTILISATEURS INTROUVABLES SUR LE SERVEUR`, `\`\`\`${userErrors.length > 0 ? userErrors.join(',\n') : 'Aucun'}\`\`\``, false)
+            .setColor('2b2d31')
 
         configLogger.setLogData(`KICKED USERS: \n${kickResults.success.length > 0 ? kickResults.success.join('\n'): 'Aucun'}\n\nCANT DM: \n${kickResults.errors.length > 0 ? kickResults.errors.join(',\n') : 'Aucun'}\n\nNOT ON SERVER: \n${userErrors.length > 0 ? userErrors.join(',\n') : 'Aucun'}`)
         
@@ -92,23 +93,34 @@ function kickMembers(client, audience, tempMsg, loading, allRoles) {
                 const embed = new MessageEmbed()
                     .setTitle(`**MISE A JOUR DE VOTRE STATUT**`)
                     .setDescription(`Votre statut en tant que membre de LDV Esport a été modifié : vous avez été retiré de la base de données des membres de LDV Esport\nSi vous pensez que cela est une erreur, merci d'ouvrir un ticket par le biais du bouton ci dessous`)
-                    .setColor('#e67e22')
+                    .setColor('2b2d31')
                 try {
                     await dmChannel.send({
                         embeds: [embed],
                         components: [createMessageActionRow([
-                            createButton('buttonTicketRequestBureau', 'Ouvrir un ticket', 'DANGER')
+                            createButton('buttonTicketBureau', 'Ouvrir un ticket', 'SECONDARY')
                         ])]
                     })
                     let roles = member.roles
         
-                    let rolesToRemove = roles.cache.filter(role => role.rawPosition < allRoles.get('742810872044322918').rawPosition && role.rawPosition > allRoles.get('624713487112732673').rawPosition || role.rawPosition < allRoles.get('676798588034220052').rawPosition && role.rawPosition > allRoles.get('677220059575222282').rawPosition || role.id === '744234761282650213')
+                    let rolesToRemove = roles.cache.filter(role => role.rawPosition < allRoles.get('742810872044322918').rawPosition && role.rawPosition > allRoles.get('642769397525774336').rawPosition || role.id === '744234761282650213')
+
+                    if (dBUser.isOnNotion && dBUser.linkedNotionPageId) {
+                        await deletePage(dBUser.linkedNotionPageId)
+                    }
         
                     dBUser.isMember = false
                     dBUser.isResponsable = false
-                    dBUser.role = undefined
+                    dBUser.roles = undefined
                     dBUser.roleResponsable = undefined
+                    dBUser.linkedNotionPageId = undefined
+                    dBUser.school = undefined
+                    dBUser.schoolYear = undefined
+                    dBUser.isOnNotion = false
+
                     await dBUser.save();
+
+
                     client.allUsers.delete(member.user.id)
                     console.log(`${member.user.username} => DB Config Nuked!`)
 
@@ -130,7 +142,7 @@ function kickMembers(client, audience, tempMsg, loading, allRoles) {
             
         }
         if (success.length + errors.length + nonMembers.length === audience.length) {
-            tempMsg.edit(`**✅ | **Modification de la configuration des utilisateurs terminée`)
+            tempMsg.edit(`**<:check:1137390614296678421> | **Modification de la configuration des utilisateurs terminée`)
             resolve({
                 success: success,
                 errors: errors,

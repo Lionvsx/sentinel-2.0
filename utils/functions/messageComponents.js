@@ -29,7 +29,7 @@ function createEmojiActionRow(emojiArray) {
     const emojiActionRow = new MessageActionRow()
     for (const emoji of emojiArray) {
         emojiActionRow.addComponents(
-            createEmojiButton(emoji, '', 'PRIMARY', emoji)
+            createEmojiButton(emoji, '', 'SECONDARY', emoji)
         )
     }
     return emojiActionRow

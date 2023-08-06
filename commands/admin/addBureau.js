@@ -3,14 +3,14 @@ const mongoose = require('mongoose');
 
 const { MessageEmbed, Permissions } = require('discord.js');
 const { updateGuildMemberCache } = require('../../utils/functions/utilitaryFunctions');
-const { createMessageActionRow, createSelectionMenu, createButtonActionRow, createButton, createSelectionMenuOption } = require('../../utils/functions/messageComponents')
+const { createMessageActionRow, createSelectionMenu, createButtonActionRow, createButton, createSelectionMenuOption, createEmojiButton } = require('../../utils/functions/messageComponents')
 
 module.exports = class TestCommand extends BaseCommand {
     constructor() {
         super('bureau', 'admin', [], {
             usage: "bureau <user>",
             description: "Ajoute un utilisateur en tant que membre du bureau",
-            categoryDisplayName: `🔺 Admin`,
+            categoryDisplayName: `<:triangle:1137394274816753695> Admin`,
             userPermissions: [Permissions.FLAGS.ADMINISTRATOR],
             clientPermissions: [],
             examples: [],
@@ -30,9 +30,9 @@ module.exports = class TestCommand extends BaseCommand {
             let targetMembers = message.mentions.members.filter(m => !m.user.bot)
 
             if (targetMembers.size === 0) {
-                return message.channel.send(`**❌ | **Veuillez selectionner au moins un utilisateur !`)
+                return message.channel.send(`**<:x_:1137419292946727042> | **Veuillez selectionner au moins un utilisateur !`)
             } else if (targetMembers.size > 1) {
-                return message.channel.send(`**❌ | **Veuillez selectionner qu'un seul utilisateur à ajouter en tant que membre du bureau`)
+                return message.channel.send(`**<:x_:1137419292946727042> | **Veuillez selectionner qu'un seul utilisateur à ajouter en tant que membre du bureau`)
             } else if (targetMembers.size === 1) {
                 guildMember = targetMembers.first()
             }
@@ -46,12 +46,12 @@ module.exports = class TestCommand extends BaseCommand {
                 User.save();
                 await guildMember.roles.add(rolesToAdd)
                 await registerMember(guildMember, User)
-                message.channel.send(`**✅ | **\`\`${guildMember.user.username}\`\` a bien été ajouté en tant que membre du bureau !`)
+                message.channel.send(`**<:check:1137390614296678421> | **\`\`${guildMember.user.username}\`\` a bien été ajouté en tant que membre du bureau !`)
             } else {
-                message.channel.send(`**❌ | **INTERNAL SERVER ERROR : DB CORRUPTION`)
+                message.channel.send(`**<:x_:1137419292946727042> | **INTERNAL SERVER ERROR : DB CORRUPTION`)
             }
         } else {
-            message.channel.send(`**❌ | **Utilisateur introuvable !`)
+            message.channel.send(`**<:x_:1137419292946727042> | **Utilisateur introuvable !`)
         }
     }
 }
@@ -60,12 +60,12 @@ async function registerMember(member, dBUser) {
     const dmChannel = await member.createDM()
 
     const componentRow = createButtonActionRow([
-        createButton('askMemberInformation', 'Je suis prêt à remplir le formulaire', 'SUCCESS')
+        createEmojiButton('askMemberInformation', 'Je suis prêt à remplir le formulaire', 'SUCCESS', '<:checksquare:1137390612543459398>')
     ])
     const embed = new MessageEmbed()
-        .setTitle(`**BIENVENUE CHEZ LDV ESPORT**`)
+        .setTitle(`\` BIENVENUE CHEZ LDV ESPORT \``)
         .setDescription(`Afin de finaliser ton inscription en tant que membre de LDV Esport, nous aurons besoin que quelques informations sur toi.\nClique sur le bouton juste en dessous une fois que tu es prêt à remplir ce formulaire !`)
-        .setColor('#00b894')
+        .setColor('#2b2d31')
     try {
         dmChannel.send({
             embeds: [embed],
