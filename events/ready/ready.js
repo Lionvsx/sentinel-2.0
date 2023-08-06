@@ -20,7 +20,7 @@ module.exports = class ReadyEvent extends BaseEvent {
 
         const commands = []
 
-        const sentinelLogger = new DiscordLogger('sentinel', '#23e5ec')
+        const sentinelLogger = new DiscordLogger('environnement', '#23e5ec')
         const ldvGuild = client.guilds.cache.get('227470914114158592')
         const logData = []
 
