@@ -146,19 +146,19 @@ function selectorReply(interaction, emoji, text) {
 function askForConfirmation(channel, message) {
     return new Promise(async (resolve, reject) => {
         const interaction = await reactionEmbedSelector(channel, ['<:check:1137390614296678421>', '<:x_:1137419292946727042>'], new MessageEmbed()
-            .setTitle('<:alerttriangleyellow:1137390607069888593> Etes vous sûrs? <:alerttriangleyellow:1137390607069888593>')
+            .setTitle('<:alerttriangleyellow:1137390607069888593> ` Etes vous sûrs? ` <:alerttriangleyellow:1137390607069888593>')
             .setDescription(message)
-            .setColor('2b2d31'))
+            .setColor('#2b2d31'))
     
         if (interaction && interaction.customId === '<:check:1137390614296678421>') {
             interaction.update({
-                embeds: [new MessageEmbed().setDescription(`**<:check:1137390614296678421> Commande validée**`).setColor('2b2d31')],
+                embeds: [new MessageEmbed().setDescription(`<:check:1137390614296678421> \` Commande validée \``).setColor('#2b2d31')],
                 components: []
             })
             resolve(true)
         } else if (interaction) {
             interaction.update({
-                embeds: [new MessageEmbed().setDescription(`**<:x_:1137419292946727042> Commande annulée**`).setColor('2b2d31')],
+                embeds: [new MessageEmbed().setDescription(`<:x_:1137419292946727042> \` Commande annulée \``).setColor('#2b2d31')],
                 components: []
             })
             resolve(false)
@@ -171,18 +171,18 @@ function askYesOrNo(channel, message) {
     return new Promise(async (resolve, reject) => {
         const interaction = await reactionEmbedSelector(channel, ['<:check:1137390614296678421>', '<:x_:1137419292946727042>'], new MessageEmbed()
             .setDescription(message)
-            .setColor('2b2d31'))
+            .setColor('#2b2d31'))
 
         if (!interaction) return
         if (interaction.customId === '<:check:1137390614296678421>') {
             interaction.update({
-                embeds: [new MessageEmbed().setDescription(`**<:check:1137390614296678421> Oui**`).setColor('2b2d31')],
+                embeds: [new MessageEmbed().setDescription(`<:check:1137390614296678421> Oui`).setColor('2b2d31')],
                 components: []
             })
             resolve(true)
         } else {
             interaction.update({
-                embeds: [new MessageEmbed().setDescription(`**<:x_:1137419292946727042> Non**`).setColor('2b2d31')],
+                embeds: [new MessageEmbed().setDescription(`<:x_:1137419292946727042> Non`).setColor('2b2d31')],
                 components: []
             })
             resolve(false)
