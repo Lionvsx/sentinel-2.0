@@ -1,7 +1,7 @@
 const BaseCommand = require('../../utils/structures/BaseCommand')
 const mongoose = require('mongoose');
 
-const { MessageEmbed, Permissions } = require('discord.js');
+const { Permissions } = require('discord.js');
 const { updateGuildMemberCache } = require('../../utils/functions/utilitaryFunctions');
 const { createMessageActionRow, createSelectionMenu, createButtonActionRow, createButton, createSelectionMenuOption } = require('../../utils/functions/messageComponents')
 
@@ -10,7 +10,7 @@ module.exports = class TestCommand extends BaseCommand {
         super('op', 'admin', [], {
             usage: "op <user>",
             description: "Ajoute un utilisateur en tant qu'admin bot",
-            categoryDisplayName: `🔺 Admin`,
+            categoryDisplayName: `<:triangle:1137394274816753695> Admin`,
             userPermissions: [Permissions.FLAGS.ADMINISTRATOR],
             clientPermissions: [],
             examples: [],
@@ -30,9 +30,9 @@ module.exports = class TestCommand extends BaseCommand {
             let targetMembers = message.mentions.members.filter(m => !m.user.bot)
 
             if (targetMembers.size === 0) {
-                return message.channel.send(`**❌ | **Veuillez selectionner au moins un utilisateur !`)
+                return message.channel.send(`**<:x_:1137419292946727042> | **Veuillez selectionner au moins un utilisateur !`)
             } else if (targetMembers.size > 1) {
-                return message.channel.send(`**❌ | **Veuillez selectionner qu'un seul utilisateur à ajouter en tant qu'admin`)
+                return message.channel.send(`**<:x_:1137419292946727042> | **Veuillez selectionner qu'un seul utilisateur à ajouter en tant qu'admin`)
             } else if (targetMembers.size === 1) {
                 guildMember = targetMembers.first()
             }
@@ -43,12 +43,12 @@ module.exports = class TestCommand extends BaseCommand {
             if (User && User.id) {
                 User.isAdmin = true;
                 User.save();
-                message.channel.send(`**✅ | **\`\`${guildMember.user.username}\`\` a bien été ajouté aux administrateurs du bot`)
+                message.channel.send(`**<:check:1137390614296678421> | **\`\`${guildMember.user.username}\`\` a bien été ajouté aux administrateurs du bot`)
             } else {
-                message.channel.send(`**❌ | **INTERNAL SERVER ERROR : DB CORRUPTION`)
+                message.channel.send(`**<:x_:1137419292946727042> | **INTERNAL SERVER ERROR : DB CORRUPTION`)
             }
         } else {
-            message.channel.send(`**❌ | **Utilisateur introuvable !`)
+            message.channel.send(`**<:x_:1137419292946727042> | **Utilisateur introuvable !`)
         }
     }
 }

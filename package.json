@@ -6,7 +6,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "pm2 start ./src/sentinel.js",
-    "release": "standard-version"
+    "release": "standard-version",
+    "stop": "pm2 stop sentinel",
+    "logs": "pm2 logs sentinel --lines 150"
   },
   "repository": {
     "type": "git",
@@ -22,12 +24,14 @@
     "@discordjs/builders": "^0.6.0",
     "@discordjs/rest": "0.1.0-canary.0",
     "@discordjs/voice": "^0.6.0",
+    "@notionhq/client": "^2.2.0",
     "ascii-table": "0.0.9",
     "date-and-time": "^2.0.1",
     "discord-api-types": "^0.23.1",
     "discord.js": "^13.1.0",
     "dotenv": "^10.0.0",
     "emoji-regex": "^10.0.0",
+    "feather-icons": "^4.29.0",
     "fs": "0.0.1-security",
     "fs-extra": "^10.0.0",
     "https": "^1.0.0",
@@ -35,6 +39,7 @@
     "mongoose": "^6.0.8",
     "mongoose-sequence": "^5.3.1",
     "pm2": "^5.1.2",
-    "standard-version": "^9.3.1"
+    "standard-version": "^9.3.1",
+    "winston": "^3.8.2"
   }
 }

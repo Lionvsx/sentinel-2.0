@@ -4,10 +4,18 @@ const https = require('https');
 
 
 const DiscordLogger = require('../services/discordLoggerService')
+const {
+    createMessageActionRow,
+    createSelectionMenu,
+    createButtonActionRow,
+    createEmojiButton,
+    createSelectionMenuOption
+} = require("./messageComponents");
+const {MessageEmbed} = require("discord.js");
 const envLogger = new DiscordLogger('environnement', '#00cec9')
 
 function removeEmojis (string) {
-    var regex = emojiRegex();
+    var regex =emojiRegex();
   
     return string?.replace(regex, '');
 }
@@ -60,6 +68,11 @@ const readFile = (path) => {
         })
     })
 }
+
+function fetchName(str) {
+    return str.replace(/[^a-zA-Z éèêàù]+/g, '').trim();
+}
+
 /**
  * 
  * @param {number} ms time in milliseconds
@@ -119,6 +132,17 @@ const getUsersFromString = (guild, searchArgs) => {
 }
 
 /**
+ *
+ * @param value
+ * @param index
+ * @param self
+ * @returns {boolean}
+ */
+function onlyUnique(value, index, self) {
+    return self.indexOf(value) === index;
+}
+
+/**
  * 
  * @param {object} guild 
  * @returns {object} guild members cache
@@ -130,7 +154,7 @@ const updateGuildMemberCache = async (guild) => {
     envLogger.setGuild(guild)
     envLogger.setLogData(`CACHED USERS: ${guildMembersCache.size}\nUSERS ON SERVER: ${guild.memberCount}\nUNCACHED USERS: ${guild.memberCount - guildMembersCache.size}`)
 
-    if (guildMembersCache.size != guild.memberCount) {
+    if (guildMembersCache.size !== guild.memberCount) {
         envLogger.warning(`Le cache des utilisateurs du serveur \`${guild.name}\` était incomplet\nProcédure de remise en cache :`)
         await guild.members.fetch();
     }
@@ -206,6 +230,76 @@ const substractArrays = (array1, array2) => {
     })
 }
 
+/**
+ *
+ * @param {String} str
+ * @returns {Void}
+ */
+function fetchEmoji(str) {
+    let i = 0
+    let char = str.charAt(i)
+    while (i < str.length && (char === '─' || char === ' ')) {
+        i++
+        char = str.charAt(i)
+    }
+    const emoji = `${char + str.charAt(i+1)}`
+    return String.fromCodePoint(emoji.codePointAt(0));
+}
+
+/**
+ *
+ * @param {object} interaction
+ * @param {string[]} arrayOfCategoryIds
+ * @param {number} index
+ * @param {object[]} categoriesMap
+ * @param {object} allChannels
+ */
+function updateSelectionMenu(interaction, arrayOfCategoryIds, index, categoriesMap, allChannels) {
+
+
+    index = ((index%categoriesMap.length) + categoriesMap.length)%categoriesMap.length
+
+    const selectMenu = createMessageActionRow([createSelectionMenu(`catMenu`, `Page ${index + 1}`, categoriesMap[index], 1, categoriesMap[index].length)])
+    const buttonRow = createButtonActionRow([createEmojiButton(`previous`, 'Page précédente', 'SECONDARY', '<:arrowleftcircle:1137421111378837585>'), createEmojiButton(`valid`, 'Valider', 'SUCCESS', '<:check:1137390614296678421>'), createEmojiButton(`next`, 'Page suivante', 'SECONDARY', '<:arrowrightcircle:1137421115766083726>')])
+
+
+    const selectedCategories = allChannels.filter(channel => channel.type === 'GUILD_CATEGORY' && arrayOfCategoryIds.includes(channel.id))
+
+    let embedSelected = new MessageEmbed()
+        .setColor('2b2d31')
+        .setTitle('Catégories sélectionnées')
+        .setDescription(`\`\`\`\n${selectedCategories?.size > 0 ? selectedCategories.map(chan => chan.name).join('\n'): 'Aucune'}\`\`\`\n\n<:arrowdown:1137420436016214058> Veuillez sélectionner une catégorie ci-dessous <:arrowdown:1137420436016214058>`)
+
+    interaction.update({
+        embeds: [embedSelected],
+        components: [selectMenu, buttonRow]
+    })
+}
+
+
+/**
+ *
+ * @param {String} channels
+ * @returns {void}
+ */
+function fillSelectMap(channels) {
+    let i = 0
+    let tmpArr = []
+    let map = []
+
+    for (const [key, chan] of channels) {
+        if (i === 25) {
+            i = 0
+            map.push(tmpArr)
+            tmpArr = []
+        }
+        tmpArr.push(createSelectionMenuOption(chan.id, fetchName(chan.name), undefined, fetchEmoji(chan.name)))
+        i++
+    }
+    map.push(tmpArr)
+    return map
+}
+
 
 module.exports = {
     removeEmojis,
@@ -221,7 +315,10 @@ module.exports = {
     getDuplicates,
     substractArrays,
     getUsersAndRolesFromString,
-    getDivider
-}
-
-
+    getDivider,
+    onlyUnique,
+    fetchEmoji,
+    fetchName,
+    fillSelectMap,
+    updateSelectionMenu
+};

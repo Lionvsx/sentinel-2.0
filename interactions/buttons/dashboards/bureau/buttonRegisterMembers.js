@@ -21,7 +21,7 @@ module.exports = class RegisterAssoMembersButtonInteraction extends BaseInteract
     }
 
     async run(client, interaction, buttonArgs) {
-        interaction.deferUpdate()
+        await interaction.deferUpdate()
 
         const configLogger = new DiscordLogger('config', '#e17055')
         configLogger.setLogMember(interaction.member)
@@ -36,7 +36,7 @@ module.exports = class RegisterAssoMembersButtonInteraction extends BaseInteract
         const userAudience = usersAndErrors[0];
         const userErrors = usersAndErrors[1];
 
-        if (userAudience.length === 0) return dmChannel.send(`**❌ | **Aucun utilisateur trouvé !`)
+        if (userAudience.length === 0) return dmChannel.send(`**<:x_:1137419292946727042> | **Aucun utilisateur trouvé !`)
 
         const confirmation = await askForConfirmation(dmChannel, `Êtes vous sûr de vouloir ajouter les utilisateurs suivants en tant que **membre** ?\n\nUSERS TROUVES:\n\`\`\`${userAudience.length > 0 ? userAudience.map(member => member.user.tag).join('\n'): 'Aucun'}\`\`\`\nUSERS INTROUVABLES:\n\`\`\`${userErrors.length > 0 ? userErrors.join('\n') : 'Aucun'}\`\`\``).catch(err => console.log(err))
         if (!confirmation) return;
@@ -49,18 +49,18 @@ module.exports = class RegisterAssoMembersButtonInteraction extends BaseInteract
         const summaryEmbed = new MessageEmbed()
             .setTitle('COMPTE RENDU')
             .setDescription(`Compte rendu final de l'opération d'ajout de membres en tant que membres associatifs :\n*(Vous pouvez recopier les champs d'erreur pour les re-envoyer au bot lors d'une prochaine commande)*`)
-            .addField('✅ UTILISATEURS AJOUTES', `\`\`\`${registerResults.success.length > 0 ? registerResults.success.join('\n'): 'Aucun'}\`\`\``, false)
-            .addField('ℹ UTILISATEURS DEJA ENREGISTRES', `\`\`\`${registerResults.presence.length > 0 ? registerResults.presence.join('\n'): 'Aucun'}\`\`\``, false)
-            .addField(`✉ UTILISATEURS INJOIGNABLES EN DM`, `\`\`\`${registerResults.errors.length > 0 ? registerResults.errors.join(',\n') : 'Aucun'}\`\`\``, false)
-            .addField(`❌ UTILISATEURS INTROUVABLES SUR LE SERVEUR`, `\`\`\`${userErrors.length > 0 ? userErrors.join(',\n') : 'Aucun'}\`\`\``, false)
-            .setColor('#fdcb6e')
+            .addField('<:check:1137390614296678421> UTILISATEURS AJOUTES', `\`\`\`${registerResults.success.length > 0 ? registerResults.success.join('\n'): 'Aucun'}\`\`\``, false)
+            .addField('<:info:1137425479914242178> UTILISATEURS DEJA ENREGISTRES', `\`\`\`${registerResults.presence.length > 0 ? registerResults.presence.join('\n'): 'Aucun'}\`\`\``, false)
+            .addField(`<:mail:1137430731925241996> UTILISATEURS INJOIGNABLES EN DM`, `\`\`\`${registerResults.errors.length > 0 ? registerResults.errors.join(',\n') : 'Aucun'}\`\`\``, false)
+            .addField(`<:x_:1137419292946727042> UTILISATEURS INTROUVABLES SUR LE SERVEUR`, `\`\`\`${userErrors.length > 0 ? userErrors.join(',\n') : 'Aucun'}\`\`\``, false)
+            .setColor('2b2d31')
 
         configLogger.setLogData(`ADDED USERS: \n${registerResults.success.length > 0 ? registerResults.success.join('\n'): 'Aucun'}\n\nCANT DM: \n${registerResults.errors.length > 0 ? registerResults.errors.join(',\n') : 'Aucun'}\n\nNOT ON SERVER: \n${userErrors.length > 0 ? userErrors.join(',\n') : 'Aucun'}`)
         
-        dmChannel.send({
+        await dmChannel.send({
             embeds: [summaryEmbed]
         })
-        configLogger.info(`<@!${interaction.user.id}> a ajouté \`${registerResults.success.length}\` utilisateur(s) en tant que membre LDV Esport :`)
+        await configLogger.info(`<@!${interaction.user.id}> a ajouté \`${registerResults.success.length}\` utilisateur(s) en tant que membre LDV Esport :`)
     }
 }
 
@@ -84,8 +84,8 @@ function registerUsers(audience, tempMsg, loading) {
             ])
             const embed = new MessageEmbed()
                 .setTitle(`**BIENVENUE CHEZ LDV ESPORT**`)
-                .setDescription(`Afin de finaliser ton inscription en tant que membre de LDV Esport, nous aurons besoin que quelques informations sur toi.\nClique sur le bouton juste en dessous une fois que tu es prêt à remplir ce formulaire !`)
-                .setColor('#00b894')
+                .setDescription(`Afin de finaliser ton inscription en tant que membre de LDV Esport, nous aurions besoin de quelques informations sur toi.\nClique sur le bouton juste en dessous une fois que tu es prêt à remplir ce formulaire !`)
+                .setColor('2b2d31')
             try {
                 await dmChannel.send({
                     embeds: [embed],
@@ -107,17 +107,19 @@ function registerUsers(audience, tempMsg, loading) {
                 success.push(member.user.tag)
                 await tempMsg.edit(`**${loading} | **Ajout des utilisateurs en cours à la DB : \`${success.length + errors.length + presence.length}/${audience.length}\``)
             } catch (err) {
+                console.log(err)
                 errors.push(member.user.tag)
             }
+            if (success.length + errors.length + presence.length === audience.length) {
+                await tempMsg.edit(`**<:check:1137390614296678421> | **Ajout des utilisateurs terminé`)
+                await resolve({
+                    success: success,
+                    errors: errors,
+                    presence: presence
+                })
+            }
         }
-        if (success.length + errors.length + presence.length === audience.length) {
-            tempMsg.edit(`**✅ | **Ajout des utilisateurs terminé`)
-            resolve({
-                success: success,
-                errors: errors,
-                presence: presence
-            })
-        }
+
     })
 }
 

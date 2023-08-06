@@ -1,6 +1,6 @@
 const BaseInteraction = require('../../../../utils/structures/BaseInteraction')
 const { userResponse, reactionEmbedSelector, selectorReply, askForConfirmation, askYesOrNo, userResponseContent } = require('../../../../utils/functions/awaitFunctions')
-const { createButtonActionRow, createButton } = require('../../../../utils/functions/messageComponents')
+const { createButtonActionRow, createEmojiButton } = require('../../../../utils/functions/messageComponents')
 const { MessageEmbed, Permissions } = require('discord.js')
 const mongoose = require('mongoose')
 const Ticket = require('../../../../src/schemas/TicketSchema')
@@ -37,7 +37,7 @@ module.exports = class TicketTechniqueButtonInteraction extends BaseInteraction 
 
         const staffTechniqueRequestChannel = allChannels.get('742404106676862996')
 
-        const ticketEmbed = new MessageEmbed().setDescription(`Merci d'avoir ouvert un ticket d'assistance pour le staff technique !\nUn administrateur sera bientôt avec vous pour traiter votre demande !`).setColor('#2ecc71')
+        const ticketEmbed = new MessageEmbed().setDescription(`Merci d'avoir ouvert un ticket d'assistance pour le staff technique !\nUn administrateur sera bientôt avec vous pour traiter votre demande !`).setColor('2b2d31')
 
         const ticketPermissions = [{ id: interaction.guild.roles.everyone.id, deny: Permissions.FLAGS.VIEW_CHANNEL }, { id: interaction.user.id, allow: [Permissions.FLAGS.VIEW_CHANNEL] }]
 
@@ -61,16 +61,16 @@ module.exports = class TicketTechniqueButtonInteraction extends BaseInteraction 
         await client.allTickets.set(newTicket.ticketChannelId, newTicket);
 
         const accessEmbed = new MessageEmbed()
-            .setTitle(`🔧 NOUVEAU TICKET : \`${newTicket.name}\``)
+            .setTitle(`<:tool:1137412707629412453> NOUVEAU TICKET : \`${newTicket.name}\``)
             .setDescription(`Nouveau ticket de \`${interaction.user.username}\`\nDescription du problème : \`\`\`${ticketContent}\`\`\``)
             .setTimestamp()
-            .setColor('#e74c3c')
+            .setColor('2b2d31')
 
         await staffTechniqueRequestChannel.send({
             embeds: [accessEmbed],
-            components: [createButtonActionRow([createButton(`buttonAccessChannel|${newChannel.id}`, 'Accédez au ticket', 'SUCCESS'), createButton(`buttonKillAccessChannel`, "Fermez l'accès au ticket", 'DANGER')])]
+            components: [createButtonActionRow([createEmojiButton(`buttonAccessChannel|${newChannel.id}`, 'Accédez au ticket', 'SECONDARY', '<:pluscircle:1137390650690650172>'), createEmojiButton(`buttonKillAccessChannel`, "Fermez l'accès au ticket", 'SECONDARY', '<:x_:1137419292946727042>')])]
         })
-        tempMsg.edit(`**:white_check_mark: | **Votre ticket a été crée avec succès!`)
+        tempMsg.edit(`**<:check:1137390614296678421> | **Votre ticket a été crée avec succès!`)
         ticketLogger.info(`<@!${interaction.user.id}> a crée un ticket d'assistance **staff technique** avec le problème suivant :`)
     }
 }

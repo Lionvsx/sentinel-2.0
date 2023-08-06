@@ -5,7 +5,7 @@ module.exports = class TeamCommand extends BaseCommand {
         super('team', 'teams', [], {
             usage: 'team <commands>',
             description: 'Commandes à lancer dans des canaux d\'équipe',
-            categoryDisplayName: `👥 Teams`,
+            categoryDisplayName: `<:users:1137390672194850887> Teams`,
             userPermissions: [],
             clientPermissions: [],
             examples: [],
@@ -18,6 +18,6 @@ module.exports = class TeamCommand extends BaseCommand {
     }
 
     async run(client, message, args) {
-        message.channel.send(`**❌ | **Arguments invalides ! \`\`${client.config.get(message.guild.id).prefix}help team\`\` pour voir les arguments disponibles !`)
+        message.channel.send(`**<:x_:1137419292946727042> | **Arguments invalides ! \`\`${client.config.get(message.guild.id).prefix}help team\`\` pour voir les arguments disponibles !`)
     }
 }

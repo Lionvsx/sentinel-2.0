@@ -9,7 +9,7 @@ module.exports = class TicketRemoveCommand extends BaseCommand {
         super('ticket-remove', 'tickets', [], {
             usage: 'ticket remove <user(s)>',
             description: `Retire un ou des utilisateur(s) à ce ticket`,
-            categoryDisplayName: `🎫 Tickets`,
+            categoryDisplayName: `<:messagesquare:1137390645972049970> Tickets`,
             userPermissions: [Permissions.FLAGS.MANAGE_ROLES],
             clientPermissions: [],
             examples: ["ticket remove Lionvsx, Ominga|Retire Lionvsx et Ominga au ticket !"],
@@ -42,7 +42,11 @@ module.exports = class TicketRemoveCommand extends BaseCommand {
             for (let i = 0; i < membersToRemoveArray.length; i++) {
                 let memberString = membersToRemoveArray[i];
                 let guildMember = allMembers.find(m => m.user.tag.toLowerCase().includes(memberString.toLowerCase()));
-                message.channel.permissionOverwrites.delete(guildMember.user.id)
+                if (!guildMember) {
+                    errors++
+                    continue
+                }
+                await message.channel.permissionOverwrites.delete(guildMember.user.id)
                     .then(channel => {
                         removedMembersArray.push(guildMember.user.tag)
                         count++;
@@ -55,9 +59,9 @@ module.exports = class TicketRemoveCommand extends BaseCommand {
                         errors++;
                     })
             }
-            count === 0 ? tempMsg.edit(`**❌ | **Je ne suis pas arrivé à retirer le(s) utilisateur(s) du ticket !`) : errors > 1 ? tempMsg.edit(`**⚠ | **Je suis seulement arrivé à retirer le(s) utilisateur(s) suivant(s) du ticket : \`\`${removedMembersArray.join(', ')}\`\``) : tempMsg.edit(`**✅ | **J'ai retiré le(s) utilisateur(s) suivant(s) du ticket : \`\`${removedMembersArray.join(', ')}\`\``)
+            count === 0 ? tempMsg.edit(`**<:x_:1137419292946727042> | **Je ne suis pas arrivé à retirer le(s) utilisateur(s) du ticket !`) : errors > 1 ? tempMsg.edit(`**<:alerttriangleyellow:1137390607069888593> | **Je suis seulement arrivé à retirer le(s) utilisateur(s) suivant(s) du ticket : \`\`${removedMembersArray.join(', ')}\`\``) : tempMsg.edit(`**<:check:1137390614296678421> | **J'ai retiré le(s) utilisateur(s) suivant(s) du ticket : \`\`${removedMembersArray.join(', ')}\`\``)
         } else {
-            message.channel.send(`**❌ | **Cette commande peut uniquement être utilisée dans un ticket !`)
+            message.channel.send(`**<:x_:1137419292946727042> | **Cette commande peut uniquement être utilisée dans un ticket !`)
         }
     }
 }

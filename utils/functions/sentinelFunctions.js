@@ -17,9 +17,10 @@ const updateUserDashboard = async (sortFunction, interaction) => {
 
     embedsArray.push(
         new MessageEmbed()
-            .setColor('#0099ff')
-            .setTitle("DASHBOARD DE CONFIGURATION")
+            .setColor('#2b2d31')
+            .setTitle("\` DASHBOARD DE CONFIGURATION \`")
             .setDescription(`Vous permet de gérer tout les membres du serveur LDV Esport inscrits dans la DB\n\`\`\`LAST UPDATED ON : ${getDateTime()}\`\`\``)
+            .setImage("https://cdn.discordapp.com/attachments/1133094075625640167/1133367506300571719/1440x1-00ffff7f.png")
     )
 
     const allUsers = await mongoose.model('User').find({ onServer: true, isMember: true})
@@ -45,7 +46,9 @@ const updateUserDashboard = async (sortFunction, interaction) => {
             { name: `\`User\``, value: `\`\`\`\n${userChunks[i].join('\n')}\`\`\``, inline: true },
             { name: `\`Member Status\``, value: `\`\`\`\n${memberChunks[i].join('\n')}\`\`\``, inline: true },
             { name: `\`Role\``, value: `\`\`\`\n${roleChunks[i].join('\n')}\`\`\``, inline: true }
-        ).setColor('#f1c40f'))
+        ).setColor('#2b2d31')
+        .setImage("https://cdn.discordapp.com/attachments/1133094075625640167/1133367506300571719/1440x1-00ffff7f.png")
+        )
     }
 
     await interaction.update({
@@ -76,9 +79,10 @@ const updateDatabaseView = async (sortFunction, interaction, dataset, fieldsArra
 
     embedsArray.push(
         new MessageEmbed()
-            .setColor('#0099ff')
-            .setTitle("DASHBOARD DE CONFIGURATION")
+            .setColor('2b2d31')
+            .setTitle("\` DASHBOARD DE CONFIGURATION \`")
             .setDescription(`Vous permet de gérer tout les membres du serveur LDV Esport inscrits dans la DB\n\`\`\`LAST UPDATED ON : ${getDateTime()}\`\`\``)
+            .setImage("https://cdn.discordapp.com/attachments/1133094075625640167/1133367506300571719/1440x1-00ffff7f.png")
     )
 
 
@@ -96,8 +100,8 @@ const updateDatabaseView = async (sortFunction, interaction, dataset, fieldsArra
             ['lastName', user.lastName],
             ['firstName', user.firstName],
             ['memberRole', user.isAdmin ? `ADMIN` : user.isBureau ? `BUREAU` : user.isResponsable ? `RESPONSABLE` : user.isMember ? `MEMBER` : `USER`],
-            ['memberGeneralRole', user.role ? user.role.split('|')[0] : ' '],
-            ['memberSpecificRole', user.role ? user.role.split('|')[1] : ' '],
+            ['memberGeneralRole', " "],
+            ['memberSpecificRole', " "],
             ['username', user.username],
             ['userTag', user.userTag],
             ['school', user.school ? user.school : ' '],
@@ -122,7 +126,8 @@ const updateDatabaseView = async (sortFunction, interaction, dataset, fieldsArra
             { name: `\`${fieldsArray[0].name}\``, value: `\`\`\`\n${column1Chunks[i].join('\n')}\`\`\``, inline: true },
             { name: `\`${fieldsArray[1].name}\``, value: `\`\`\`\n${column2Chunks[i].join('\n')}\`\`\``, inline: true },
             { name: `\`${fieldsArray[2].name}\``, value: `\`\`\`\n${column3Chunks[i].join('\n')}\`\`\``, inline: true }
-        ).setColor('#f1c40f'))
+        ).setColor('2b2d31').setImage("https://cdn.discordapp.com/attachments/1133094075625640167/1133367506300571719/1440x1-00ffff7f.png")
+        )
     }
 
     await interaction.update({

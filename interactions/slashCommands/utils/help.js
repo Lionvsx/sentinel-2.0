@@ -24,7 +24,7 @@ module.exports = class HelpInteraction extends BaseInteraction {
         if (!commandOption) {
             let helpEmbed = new MessageEmbed()
                 .setDescription(`**INFORMATIONS SUR UNE COMMANDE**\n\`${prefix}help <command>\`\n\n**LISTE DE TOUTES LES COMMANDES**\n\`${prefix}commands\`\n\n**LIENS UTILES**\n[Site LDV Esport](https://ldvesport.com)`)
-                .setColor('#1abc9c')
+                .setColor('2b2d31')
             interaction.reply({
                 embeds: [helpEmbed]
             })
@@ -35,7 +35,7 @@ module.exports = class HelpInteraction extends BaseInteraction {
                     .setTitle(`${command.category.toUpperCase()} | ${command.name.toUpperCase()} COMMAND`)
                     .setDescription(command.help.description)
                     .addField("Usage",`\`${prefix}${command.help.usage}\``)
-                    .setColor('#1abc9c')
+                    .setColor('2b2d31')
 
                 let cmdargs = command.help.arguments
                 if (cmdargs) embed.addField("Arguments", cmdargs)
@@ -59,7 +59,7 @@ module.exports = class HelpInteraction extends BaseInteraction {
                     embeds: [embed]
                 })
             } else {
-                interaction.reply(`**:x: | **Cette commande n'existe pas !`)
+                interaction.reply(`**<:x_:1137419292946727042> | **Cette commande n'existe pas !`)
             }
         }
     }

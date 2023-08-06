@@ -28,7 +28,7 @@ function userResponse(channel, displayMessage) {
             .then(collected => {
                 resolve(collected.first())
             }).catch(collected => {
-                sentMsg.edit(`**❌ | **Commande annulée : \`Timed Out\``)
+                sentMsg.edit(`**<:x_:1137419292946727042> | **Commande annulée : \`Timed Out\``)
                 reject('User Response Timed Out')
             })
     })
@@ -44,7 +44,7 @@ function userResponseContent(channel, displayMessage) {
             .then(collected => {
                 resolve(collected.first().content)
             }).catch(collected => {
-                sentMsg.edit(`**❌ | **Commande annulée : \`Timed Out\``)
+                sentMsg.edit(`**<:x_:1137419292946727042> | **Commande annulée : \`Timed Out\``)
                 reject('User Response Timed Out')
             })
     })
@@ -68,7 +68,7 @@ function menuInteraction(message) {
           .then(interaction => resolve(interaction))
           .catch(error => {
             message.edit({
-                embeds: [new MessageEmbed().setDescription(`**❌ Commande annulée : \`Timed Out\`**`).setColor('#c0392b')],
+                embeds: [new MessageEmbed().setDescription(`**<:x_:1137419292946727042> Commande annulée : \`Timed Out\`**`).setColor('2b2d31')],
                 components: []
             })
               reject(`User Response Timed Out`)
@@ -108,7 +108,7 @@ async function reactionEmbedSelector(channel, emojiArray, embed) {
     })
     const interaction = await buttonInteraction(channel, sentMessage).catch(errorMessage => {
         sentMessage.edit({
-            embeds: [new MessageEmbed().setDescription(`**❌ Commande annulée : \`Timed Out\`**`).setColor('#c0392b')],
+            embeds: [new MessageEmbed().setDescription(`**<:x_:1137419292946727042> Commande annulée : \`Timed Out\`**`).setColor('2b2d31')],
             components: []
         })
         throw errorMessage
@@ -119,11 +119,11 @@ async function reactionEmbedSelector(channel, emojiArray, embed) {
 async function reactionEmbedMultipleSelector(channel, emojiArray, embed) {
     const sentMessage = await channel.send({
         embeds: [embed],
-        components: [createEmojiActionRow(emojiArray), createButtonActionRow([createButton('submit', 'Valider', 'SUCCESS'), createButton('cancel', 'Annuler', 'DANGER')])]
+        components: [createEmojiActionRow(emojiArray), createButtonActionRow([createButton('submit', 'Valider', 'SUCCESS'), createButton('cancel', 'Annuler', 'SECONDARY')])]
     })
     const interactionCollector = await createButtonInteractionCollector(channel, sentMessage).catch(errorMessage => {
         sentMessage.edit({
-            embeds: [new MessageEmbed().setDescription(`**❌ Commande annulée : \`Timed Out\`**`).setColor('#c0392b')],
+            embeds: [new MessageEmbed().setDescription(`**<:x_:1137419292946727042> Commande annulée : \`Timed Out\`**`).setColor('2b2d31')],
             components: []
         })
         throw errorMessage
@@ -134,7 +134,7 @@ async function reactionEmbedMultipleSelector(channel, emojiArray, embed) {
 function selectorReply(interaction, emoji, text) {
     const embed = new MessageEmbed()
         .setDescription(`**${emoji} Option sélectionnée : **${text}`)
-        .setColor('#2ecc71')
+        .setColor('2b2d31')
     interaction.update({
         embeds: [embed],
         components: [],
@@ -145,20 +145,20 @@ function selectorReply(interaction, emoji, text) {
 
 function askForConfirmation(channel, message) {
     return new Promise(async (resolve, reject) => {
-        const interaction = await reactionEmbedSelector(channel, ['✅', '❌'], new MessageEmbed()
-            .setTitle('⚠ Etes vous sûrs? ⚠')
+        const interaction = await reactionEmbedSelector(channel, ['<:check:1137390614296678421>', '<:x_:1137419292946727042>'], new MessageEmbed()
+            .setTitle('<:alerttriangleyellow:1137390607069888593> Etes vous sûrs? <:alerttriangleyellow:1137390607069888593>')
             .setDescription(message)
-            .setColor('#e67e22')).catch(errorMessage => reject(errorMessage))
+            .setColor('2b2d31'))
     
-        if (interaction && interaction.customId === '✅') {
+        if (interaction && interaction.customId === '<:check:1137390614296678421>') {
             interaction.update({
-                embeds: [new MessageEmbed().setDescription(`**✅ Commande validée**`).setColor('#2ecc71')],
+                embeds: [new MessageEmbed().setDescription(`**<:check:1137390614296678421> Commande validée**`).setColor('2b2d31')],
                 components: []
             })
             resolve(true)
         } else if (interaction) {
             interaction.update({
-                embeds: [new MessageEmbed().setDescription(`**❌ Commande annulée**`).setColor('#c0392b')],
+                embeds: [new MessageEmbed().setDescription(`**<:x_:1137419292946727042> Commande annulée**`).setColor('2b2d31')],
                 components: []
             })
             resolve(false)
@@ -169,20 +169,20 @@ function askForConfirmation(channel, message) {
 
 function askYesOrNo(channel, message) {
     return new Promise(async (resolve, reject) => {
-        const interaction = await reactionEmbedSelector(channel, ['✅', '❌'], new MessageEmbed()
+        const interaction = await reactionEmbedSelector(channel, ['<:check:1137390614296678421>', '<:x_:1137419292946727042>'], new MessageEmbed()
             .setDescription(message)
-            .setColor('#e67e22')).catch(errorMessage => reject(errorMessage))
+            .setColor('2b2d31'))
 
         if (!interaction) return
-        if (interaction.customId === '✅') {
+        if (interaction.customId === '<:check:1137390614296678421>') {
             interaction.update({
-                embeds: [new MessageEmbed().setDescription(`**✅ Oui**`).setColor('#2ecc71')],
+                embeds: [new MessageEmbed().setDescription(`**<:check:1137390614296678421> Oui**`).setColor('2b2d31')],
                 components: []
             })
             resolve(true)
         } else {
             interaction.update({
-                embeds: [new MessageEmbed().setDescription(`**❌ Non**`).setColor('#c0392b')],
+                embeds: [new MessageEmbed().setDescription(`**<:x_:1137419292946727042> Non**`).setColor('2b2d31')],
                 components: []
             })
             resolve(false)

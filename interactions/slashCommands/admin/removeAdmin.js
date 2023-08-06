@@ -34,15 +34,16 @@ module.exports = class PrefixInteraction extends BaseInteraction {
                 if (userDB.isAdmin) {
                     userDB.isAdmin = false;
                     userDB.save();
-                    interaction.reply(`**✅ | **\`\`${user}\`\` a bien été retiré des administrateurs du bot`)
+                    client.allUsers.set(userDB.discordId, userDB);
+                    interaction.reply(`**<:check:1137390614296678421> | **\`\`${user}\`\` a bien été retiré des administrateurs du bot`)
                 } else {
-                    interaction.reply(`**ℹ️ | **\`\`${user}\`\` n'est pas administrateur du bot`)
+                    interaction.reply(`**<:info:1137425479914242178> | **\`\`${user}\`\` n'est pas administrateur du bot`)
                 }
             } else {
-                interaction.reply(`**❌ | **INTERNAL SERVER ERROR : DB CORRUPTION`)
+                interaction.reply(`**<:x_:1137419292946727042> | **INTERNAL SERVER ERROR : DB CORRUPTION`)
             }
         } else {
-            interaction.reply(`**❌ | **L'utilisateur ${user} est introuvable !`)
+            interaction.reply(`**<:x_:1137419292946727042> | **L'utilisateur ${user} est introuvable !`)
         }
 
     }

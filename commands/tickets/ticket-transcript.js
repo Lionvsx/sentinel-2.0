@@ -11,7 +11,7 @@ module.exports = class TicketTranscriptCommand extends BaseCommand {
         super('ticket-transcript', 'tickets', [], {
             usage: 'ticket transcript',
             description: `Envoie un transcript html du ticket`,
-            categoryDisplayName: `🎫 Tickets`,
+            categoryDisplayName: `<:messagesquare:1137390645972049970> Tickets`,
             userPermissions: [Permissions.FLAGS.MANAGE_ROLES],
             clientPermissions: [],
             examples: [],
@@ -42,19 +42,19 @@ module.exports = class TicketTranscriptCommand extends BaseCommand {
             let sendedAttachment = sendedMessage.attachments.first()
 
             let embed = new MessageEmbed()
-                .setDescription(`**${ticketMember.user.tag}**`)
+                .setDescription(`\` ${ticketMember.user.tag} \``)
                 .addFields(
                     { name: "Auteur du ticket", value: ticketMember.user.tag, inline: true },
                     { name: "Channel du ticket", value: message.channel.name, inline: true },
                     { name: "Lien du transcript", value: `[Link](${sendedAttachment.url})`, inline: true },
                 )
-                .setColor('#f1c40f')
+                .setColor('#2b2d31')
             message.channel.send({
                 embeds: [embed]
             })
             ticketLogger.info(`<@!${message.author.id}> a crée un transcript pour le ticket \`${existingDBTicket.name}\``)
         } else {
-            message.channel.send(`**❌ | **Cette commande peut uniquement être utilisée dans un ticket !`)
+            message.channel.send(`**<:x_:1137419292946727042> | **Cette commande peut uniquement être utilisée dans un ticket !`)
         }
     }
 }

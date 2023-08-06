@@ -1,5 +1,5 @@
 const BaseInteraction = require('../../../../utils/structures/BaseInteraction')
-const { userResponseContent, reactionEmbedSelector, selectorReply, askForConfirmation, menuInteraction } = require('../../../../utils/functions/awaitFunctions')
+const { userResponseContent, selectorReply, askForConfirmation, menuInteraction } = require('../../../../utils/functions/awaitFunctions')
 const { MessageEmbed, Permissions } = require('discord.js')
 const { createSelectionMenu, createSelectionMenuOption, createMessageActionRow} = require('../../../../utils/functions/messageComponents')
 const { getEmoji, getUsersAndRolesFromString } = require('../../../../utils/functions/utilitaryFunctions')
@@ -43,7 +43,7 @@ module.exports = class CreateChannelButtonInteraction extends BaseInteraction {
         
         if (!userDB.roleResponsable) {
             interaction.reply({
-                content: `**❌ | **Vous n'êtes pas responsable dans la base de données !`,
+                content: `**<:x_:1137419292946727042> | **Vous n'êtes pas responsable dans la base de données !`,
                 ephemeral: true
             })
             return
@@ -58,13 +58,13 @@ module.exports = class CreateChannelButtonInteraction extends BaseInteraction {
 
         let typeEmbed = new MessageEmbed()
             .setDescription(`Bonjour ${interaction.user.username}, \nQuel type de channel voulez vous créer?`)
-            .setColor('#2ecc71')
+            .setColor('2b2d31')
 
         const selectionMenuComponent = createSelectionMenu('selectionCreateChannelMenu', 'Veuillez sélectionner un type de channel', [
-            createSelectionMenuOption('GUILD_TEXT', 'Channel Textuel', undefined, '💬'),
-            createSelectionMenuOption('GUILD_VOICE', 'Channel Vocal', undefined, '🔊'),
-            createSelectionMenuOption('GUILD_STAGE_VOICE', 'Channel de Conférence', undefined, '👥'),
-            createSelectionMenuOption('CANCEL', 'Annulez la commande', undefined, '❌')
+            createSelectionMenuOption('GUILD_TEXT', 'Channel Textuel', undefined, '<:messagecircle:1137423168080973874>'),
+            createSelectionMenuOption('GUILD_VOICE', 'Channel Vocal', undefined, '<:headphones:1137423170215886890>'),
+            createSelectionMenuOption('GUILD_STAGE_VOICE', 'Channel de Conférence', undefined, '<:users:1137390672194850887>'),
+            createSelectionMenuOption('CANCEL', 'Annulez la commande', undefined, '<:x_:1137419292946727042>')
         ], 1, 1)
         const selectionMenuMessage = await dmChannel.send({
             embeds: [typeEmbed],
@@ -75,7 +75,7 @@ module.exports = class CreateChannelButtonInteraction extends BaseInteraction {
         if (!selectionMenuInteraction) return;
 
         if (selectionMenuInteraction.values[0] === 'CANCEL') return selectionMenuInteraction.update({
-            embeds: [new MessageEmbed().setDescription(`**❌ | **Commande annulée`)],
+            embeds: [new MessageEmbed().setDescription(`**<:x_:1137419292946727042> | **Commande annulée`)],
             component: []
         })
 
@@ -104,27 +104,27 @@ module.exports = class CreateChannelButtonInteraction extends BaseInteraction {
         }
 
         const permissionSelectorMenu = selectionMenuInteraction.values[0] === 'GUILD_TEXT' ? createSelectionMenu('selectPermissionMenu', 'Veuillez sélectionner un modèle de permissions', [
-            createSelectionMenuOption('annonce', 'Channel Annonce', `Seul le Head Staff peut envoyer des messages`, '📢'),
-            createSelectionMenuOption('discussion', 'Channel Discussion', `Tout le monde peut parler`, '💬'),
-            createSelectionMenuOption('interpole', 'Channel Communication Inter-Pole', `Seul le votre pôle peut parler, pas les rôles/utilisateurs additionnels`, '🔃'),
-            createSelectionMenuOption('documents', 'Channel Documents', `Seul vous pouvez parler`, '📂'),
+            createSelectionMenuOption('annonce', 'Channel Annonce', `Seul le Head Staff peut envoyer des messages`, '<:triangle:1137394274816753695>'),
+            createSelectionMenuOption('discussion', 'Channel Discussion', `Tout le monde peut parler`, '<:messagecircle:1137423168080973874>'),
+            createSelectionMenuOption('interpole', 'Channel Communication Inter-Pole', `Seul le votre pôle peut parler, pas les rôles/utilisateurs additionnels`, '<:share:1137426868971245630>'),
+            createSelectionMenuOption('documents', 'Channel Documents', `Seul vous pouvez parler`, '<:folder:1137426389793001572>'),
 
         ], 1, 1) 
         : selectionMenuInteraction.values[0] === 'GUILD_VOICE' ? createSelectionMenu('selectPermissionMenu', 'Veuillez sélectionner un modèle de permissions', [
-            createSelectionMenuOption('vocal', 'Channel Vocal', `Tout le monde peut parler`, '🔊'),
-            createSelectionMenuOption('reunion', 'Channel .Réunion', `Seul vous pouvez parler, vous aurez besoin de démute les autres`, '🔺'),
-            createSelectionMenuOption('private', 'Channel privé', `Seulement vous pourrez vous connecter`, '🔒'),
+            createSelectionMenuOption('vocal', 'Channel Vocal', `Tout le monde peut parler`, '<:headphones:1137423170215886890>'),
+            createSelectionMenuOption('reunion', 'Channel .Réunion', `Seul vous pouvez parler, vous aurez besoin de démute les autres`, '<:triangle:1137394274816753695>'),
+            createSelectionMenuOption('private', 'Channel privé', `Seulement vous pourrez vous connecter`, '<:lock:1137390640418803782>'),
         ], 1, 1)
         : undefined
 
         const allRoles = interaction.guild.roles.cache
 
         const poleRole = allRoles.get(poleRoleIds[userDB.roleResponsable])
-        if (!poleRole) return dmChannel.send(`**❌ | **Le rôle de vôtre pôle est introuvable !`)
+        if (!poleRole) return dmChannel.send(`**<:x_:1137419292946727042> | **Le rôle de vôtre pôle est introuvable !`)
         
         if (permissionSelectorMenu) {
             const permissionSelectorMessage = await dmChannel.send({
-                embeds: [new MessageEmbed().setDescription('🔽 Veuillez sélectionner un type de permission 🔽').setColor('#2ecc71')],
+                embeds: [new MessageEmbed().setDescription('<:arrowdown:1137420436016214058> Veuillez sélectionner un type de permission <:arrowdown:1137420436016214058>').setColor('2b2d31')],
                 components: [createMessageActionRow([permissionSelectorMenu])]
             })
             const permissionSelectorMenuInteraction = await menuInteraction(permissionSelectorMessage).catch(err => console.log(err))
@@ -140,7 +140,7 @@ module.exports = class CreateChannelButtonInteraction extends BaseInteraction {
         }
 
         const emoji = getEmoji(channelEmoji)
-        if (!emoji) return dmChannel.send(`**❌ | **Emoji non valide !`)
+        if (!emoji) return dmChannel.send(`**<:x_:1137419292946727042> | **Emoji non valide !`)
 
         const tempMsg = await dmChannel.send(`**${loading} | **Création du channel en cours ...`)
         const newChannel = await interaction.guild.channels.create(`${emoji}┃${channelName}`, {
@@ -150,7 +150,7 @@ module.exports = class CreateChannelButtonInteraction extends BaseInteraction {
             parent: interaction.guild.channels.cache.get(poleCategoryIds[userDB.roleResponsable])
         })
 
-        tempMsg.edit(`**✅ | **Channel crée avec succès !`)
+        tempMsg.edit(`**<:check:1137390614296678421> | **Channel crée avec succès !`)
 
         channelLogger.setLogData(`Name: ${newChannel.name}\nCategory: ${newChannel.parent.name}\nType: ${newChannel.type}`)
 

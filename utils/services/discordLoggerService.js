@@ -12,7 +12,7 @@ class LoggerService {
 
         const createLogEmbed = (message, color, level) => {
             const logEmbed = new MessageEmbed()
-                .setColor(color)
+                .setColor('2b2d31')
 
             this.logData 
                 ? logEmbed.setDescription(`\`\`\`${getDateTime()} | ${level.toUpperCase()} | ${this.category.toUpperCase()}\`\`\`\n${message}\n\`\`\`\n${this.logData}\`\`\``) 

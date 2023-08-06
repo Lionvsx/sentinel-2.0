@@ -25,6 +25,7 @@ const {
     client.allUsers = new Map();
     client.allTickets = new Map();
     client.reactionRoles = new Map();
+    client.clipboard = new Map();
     await registerCommands(client, '../commands');
     await registerEvents(client, '../events');
     await registerInteractions(client, '../interactions')

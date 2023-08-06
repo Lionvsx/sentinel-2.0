@@ -21,7 +21,7 @@ module.exports = class PingInteraction extends BaseInteraction {
         })
 
         let embed = new MessageEmbed()
-            .setColor('#2ecc71')
+            .setColor('2b2d31')
             .addFields([
                 {name: 'Ping', value: `\`${Math.abs(interaction.createdTimestamp - message.createdTimestamp)} ms\``, inline: true},
                 {name: 'API Latency', value: `\`${Math.round(client.ws.ping)} ms\``, inline: true}

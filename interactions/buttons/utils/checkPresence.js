@@ -1,7 +1,7 @@
 const BaseInteraction = require('../../../utils/structures/BaseInteraction')
 const { menuInteraction, userResponseContent } = require('../../../utils/functions/awaitFunctions')
 const { MessageEmbed, MessageButton } = require('discord.js')
-const { createMessageActionRow, createSelectionMenu, createButtonActionRow, createButton, createSelectionMenuOption } = require('../../../utils/functions/messageComponents')
+const { createMessageActionRow, createSelectionMenu, createButtonActionRow, createButton, createSelectionMenuOption, createEmojiButton } = require('../../../utils/functions/messageComponents')
 const mongoose = require('mongoose');
 
 const DiscordLogger = require('../../../utils/services/discordLoggerService');
@@ -22,7 +22,7 @@ module.exports = class PresenceCheckButton extends BaseInteraction {
         const Presence = await mongoose.model('Presence').findById(buttonArgs[1], 'running open -_id').exec()
         if (!Presence?.running) {
             interaction.update({
-                embeds: [new MessageEmbed().setDescription(`**❌ Ce relevé de présence a été cloturé**`).setColor('#c0392b')],
+                embeds: [new MessageEmbed().setDescription(`**<:x_:1137419292946727042> Ce relevé de présence a été cloturé**`).setColor('2b2d31')],
                 components: []
             })
         } else if (Presence?.running === true) { 
@@ -30,7 +30,7 @@ module.exports = class PresenceCheckButton extends BaseInteraction {
                 const User = await mongoose.model('User').findOne({ discordId: interaction.user.id })
                 if (!isMember(User)) {
                     await interaction.reply({
-                        content: `**⚠ Tu ne peux pas t'enregistrer présent tant que tu n'as rempli les informations requises !**\n🔽 Voici le formulaire à remplir 🔽`
+                        content: `**<:alerttriangleyellow:1137390607069888593> Tu ne peux pas t'enregistrer présent tant que tu n'as rempli les informations requises !**\n<:arrowdown:1137420436016214058> Voici le formulaire à remplir <:arrowdown:1137420436016214058>`
                     })
                     restoreForm(interaction.channel)
                 } else {
@@ -45,7 +45,7 @@ module.exports = class PresenceCheckButton extends BaseInteraction {
                 }
             } else {
                 interaction.reply({
-                    content: `**❌ L'appel est fermé !**`
+                    content: `**<:x_:1137419292946727042> L'appel est fermé !**`
                 })
             }
         }
@@ -54,12 +54,12 @@ module.exports = class PresenceCheckButton extends BaseInteraction {
 
 function restoreForm(dmChannel) {
     const componentRow = createButtonActionRow([
-        createButton('askMemberInformation', 'Je suis prêt à remplir le formulaire', 'SUCCESS')
+        createEmojiButton('askMemberInformation', 'Je suis prêt à remplir le formulaire', 'SECONDARY', '<:checksquare:1137390612543459398>')
     ])
     const embed = new MessageEmbed()
         .setTitle(`**BIENVENUE CHEZ LDV ESPORT**`)
-        .setDescription(`Afin de finaliser ton inscription en tant que membre de LDV Esport, nous aurons besoin que quelques informations sur toi.\nClique sur le bouton juste en dessous une fois que tu es prêt à remplir ce formulaire !`)
-        .setColor('#00b894')
+        .setDescription(`Afin de finaliser ton inscription en tant que membre de LDV Esport, nous aurions besoin de quelques informations sur toi.\nClique sur le bouton juste en dessous une fois que tu es prêt à remplir ce formulaire !`)
+        .setColor('2b2d31')
     dmChannel.send({
         embeds: [embed],
         components: [componentRow]

@@ -19,9 +19,6 @@ async function registerCommands(client, dir = '') {
       if (Command.prototype instanceof BaseCommand) {
         const cmd = new Command();
         table.addRow(`${cmd.name}.js`,'✅')
-        cmd.aliases.forEach(alias => {
-          client.aliases.set(alias, cmd)
-        })
         client.commands.set(cmd.name, cmd);
         if (!cmd.name && cmd.help) {
           table.addRow(`${cmd.name}.js`, '❌ -> Error in the structure')

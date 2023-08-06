@@ -38,7 +38,7 @@ module.exports = class SortDashboardInteraction extends BaseInteraction {
             }), '📨')
             const missingMembers = formatData(allUsers.filter(member => {
                 return !memberCheck.includes(member.discordId) && audience.includes(member.discordId)
-            }), '❌')
+            }), '<:x_:1137419292946727042>')
             const presenceMembers = formatData(allUsers.filter(member => {
                 return memberCheck.includes(member.discordId) && audience.includes(member.discordId)
             }), '✅')
@@ -66,7 +66,7 @@ function formatData(dataset, presence) {
         school: user.school,
         schoolYear: user.schoolYear,
         discordId: user.discordId,
-        role: user.role,
+        role: user.roles[0],
         isMember: user.isMember,
         isResponsable: user.isResponsable,
         isBureau: user.isBureau,
@@ -118,9 +118,9 @@ const sortFunctions = new Map([
         return 0
     }],
     ['sortByPresence', function (userA, userB) {
-        if (userA.presence === '✅' && userB.presence === '❌') return -1
+        if (userA.presence === '✅' && userB.presence === '<:x_:1137419292946727042>') return -1
         if (userA.presence === '✅' && userB.presence === '✉') return -1
-        if (userA.presence === '✉' && userB.presence === '❌') return -1
+        if (userA.presence === '✉' && userB.presence === '<:x_:1137419292946727042>') return -1
         return 0;
     }]
 ])

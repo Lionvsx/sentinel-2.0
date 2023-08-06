@@ -29,7 +29,7 @@ function createEmojiActionRow(emojiArray) {
     const emojiActionRow = new MessageActionRow()
     for (const emoji of emojiArray) {
         emojiActionRow.addComponents(
-            createEmojiButton(emoji, '', 'PRIMARY', emoji)
+            createEmojiButton(emoji, '', 'SECONDARY', emoji)
         )
     }
     return emojiActionRow
@@ -55,6 +55,15 @@ function createMessageActionRow(componentsArray) {
     return actionRow
 }
 
+/**
+ * 
+ * @param {String} menuId 
+ * @param {String} placeholderText 
+ * @param {Object[]} menuOptionArray 
+ * @param {Number} minSelections 
+ * @param {Number} maxSelections 
+ * @returns {MessageSelectMenu}
+ */
 function createSelectionMenu(menuId, placeholderText, menuOptionArray, minSelections, maxSelections) {
     return new MessageSelectMenu()
         .setCustomId(menuId)

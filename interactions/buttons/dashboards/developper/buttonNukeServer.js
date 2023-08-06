@@ -1,8 +1,10 @@
 const BaseInteraction = require('../../../../utils/structures/BaseInteraction')
 const { askForConfirmation } = require('../../../../utils/functions/awaitFunctions')
-const { Permissions } = require('discord.js')
+const { Permissions, MessageEmbed } = require('discord.js')
 const { updateGuildMemberCache } = require('../../../../utils/functions/utilitaryFunctions')
 const mongoose = require('mongoose');
+const {deletePage} = require("../../../../utils/functions/notionFunctions");
+const DiscordLogger = require('../../../../utils/services/discordLoggerService')
 
 module.exports = class NukeServerButton extends BaseInteraction {
     constructor() {
@@ -13,14 +15,19 @@ module.exports = class NukeServerButton extends BaseInteraction {
     }
 
     async run(client, interaction, buttonArgs) {
-        interaction.deferUpdate()
+        await interaction.deferUpdate()
 
         const loading = client.emojis.cache.get('741276138319380583')
 
         const dmChannel = await interaction.user.createDM()
 
+        const envLogger = new DiscordLogger('environnement', '#00cec9')
+        envLogger.setGuild(interaction.guild)
+        envLogger.setLogMember(interaction.member)
+
         const allMembers = await updateGuildMemberCache(interaction.guild)
         const allRoles = interaction.guild.roles.cache
+        const memberToNuke = allMembers.filter(m => m.bannable && !m.user.bot && !m.roles.cache.has("676812746519609344"))
 
         const confirmation = await askForConfirmation(dmChannel, `Vous voulez vraiment reset tout les rôles des membres du serveur ${interaction.guild.name} ?`).catch(err => console.log(err))
         if (!confirmation) return;
@@ -29,37 +36,78 @@ module.exports = class NukeServerButton extends BaseInteraction {
         let msg = await dmChannel.send(`**${loading} | **Nuking members...`)
         let count = 0
 
-        for (const [id, member] of allMembers.entries()) {
-            if (member.bot) continue
-            if (member.roles.cache.has('624705251966189588') || member.roles.cache.has('744660910861320242')) continue
-    
-
+        for (const [id, member] of memberToNuke.entries()) {
             let roles = member.roles
 
-            let rolesToRemove = roles.cache.filter(role => role.rawPosition < allRoles.get('742810872044322918').rawPosition && role.rawPosition > allRoles.get('624713487112732673').rawPosition || role.rawPosition < allRoles.get('676798588034220052').rawPosition && role.rawPosition > allRoles.get('677220059575222282').rawPosition)
+            let rolesToRemove = roles.cache.filter(role => role.rawPosition < allRoles.get('742810872044322918').rawPosition && role.rawPosition > allRoles.get('624713487112732673').rawPosition || role.rawPosition < allRoles.get('676798588034220052').rawPosition && role.rawPosition > allRoles.get('642769397525774336').rawPosition)
 
             const User = await mongoose.model('User').findOne({ discordId: member.user.id })
 
             count++;
 
-            if (User && User.id) {
+            if (User && User.id && (User.isMember || User.isResponsable)) {
                 User.isMember = false
                 User.isResponsable = false
-                User.role = undefined
+                User.isBureau = false
                 User.roleResponsable = undefined
+                User.school = undefined
+                User.schoolYear = undefined
+                User.roles = undefined
+
+                if (User.isOnNotion && User.linkedNotionPageId) {
+                    await deletePage(User.linkedNotionPageId)
+                    User.isOnNotion = false
+                    User.linkedNotionPageId = undefined
+                    this.log("Notion config nuked for " + member.user.username)
+                }
                 await User.save();
-                console.log(`${member.user.username} => DB Config Nuked!`)
+                this.log(`${member.user.username} => DB Config Nuked!`)
+            } else {
+                this.log(`${member.user.username} => Config OK!`)
             }
 
             if (rolesToRemove.size > 0) {
-                await member.roles.remove(rolesToRemove)
-                console.log(`${member.user.username} => ${rolesToRemove.size} roles removed !`)
+                try {
+                    await member.roles.remove(rolesToRemove)
+                } catch (error) {
+                    console.log(error)
+                    continue;
+                }
+                this.log(`${member.user.username} => ${rolesToRemove.size} roles removed !`)
             }
+            let percentage = Math.floor(count / memberToNuke.size * 100)
+            let barProgress = Math.floor(percentage / 5)
 
-            await msg.edit(`**${loading} | **Members nuked count : \`${count}/${allMembers.size}\``)
-            
+            if (percentage % 5 === 0) {
+                let bar = renderProgressBar(barProgress, 20)
+                let embed = new MessageEmbed()
+                    .setDescription(`**${loading} | **Nuking members...\n\`\`\`${bar} ${percentage}% | ${count}/${memberToNuke.size}\`\`\``)
+                    .setColor('2b2d31')
+                await msg.edit({
+                    embeds: [embed],
+                    content: ` `
+                })
+            }
         }
+        await msg.delete()
+        let embed = new MessageEmbed()
+            .setColor('2b2d31')
+            .setDescription(`**<:check:1137390614296678421> | **Members nuked !`)
+        await dmChannel.send({
+            embeds: [embed]
+        })
 
-        await msg.edit(`**✅ | **Members nuked !`)
+        await envLogger.info(`**${interaction.member.user.username}** a nuke le serveur !`)
     }
+}
+
+function renderProgressBar(progress, size) {
+    let bar = "";
+    for (let i = 0; i < progress; i++) {
+        bar += "█"
+    }
+    for (let i = 0; i < size - progress; i++) {
+        bar += "▁"
+    }
+    return bar;
 }

@@ -10,7 +10,7 @@ module.exports = class TicketCloseCommand extends BaseCommand {
         super('ticket-close', 'tickets', [], {
             usage: 'ticket close',
             description: `Ferme le ticket et le marque comme terminé.`,
-            categoryDisplayName: `🎫 Tickets`,
+            categoryDisplayName: `<:messagesquare:1137390645972049970> Tickets`,
             userPermissions: [Permissions.FLAGS.MANAGE_ROLES],
             clientPermissions: [Permissions.FLAGS.MANAGE_CHANNELS],
             examples: [],
@@ -30,18 +30,20 @@ module.exports = class TicketCloseCommand extends BaseCommand {
             ticketLogger.setLogMember(message.member)
 
             let deleteEmbed = new MessageEmbed()
-                .setDescription("Suppression du ticket dans 5 secondes...")
-                .setColor('ff5733')
+                .setDescription("<:trash:1137390663797841991> Suppression du ticket dans 5 secondes...")
+                .setColor('#2b2d31')
             message.channel.send({
                 embeds: [deleteEmbed]
             });
 
             const allMembers = await updateGuildMemberCache(message.guild)
             let ticketMember = await allMembers.get(existingDBTicket.authorId)
-            if (!ticketMember) return;
+
+            let ticketUsername = ticketMember ? ticketMember.user.username.toLowerCase() : "DeletedUser"
+            let tickerUserTag = ticketMember ? ticketMember.user.tag : "DeletedUser#0000"
 
             const archiveChannel = message.guild.channels.cache.get('632219616973815827')
-            let fileName = await createTicketTranscript(client, ticketMember.user.username.toLowerCase(), existingDBTicket.ticketChannelId, message.guild.id)
+            let fileName = await createTicketTranscript(client, ticketUsername, existingDBTicket.ticketChannelId, message.guild.id)
             let sendedMessage = await archiveChannel.send({ files: [
                 {
                     attachment: `./files/transcripts/${fileName}`,
@@ -52,13 +54,13 @@ module.exports = class TicketCloseCommand extends BaseCommand {
             let sendedAttachment = sendedMessage.attachments.first()
 
             let embed = new MessageEmbed()
-                .setDescription(`**${ticketMember.user.tag}**`)
+                .setDescription(`\` ${tickerUserTag} \``)
                 .addFields(
-                    { name: "Auteur du ticket", value: ticketMember.user.tag, inline: true },
+                    { name: "Auteur du ticket", value: tickerUserTag, inline: true },
                     { name: "Channel du ticket", value: existingDBTicket.name, inline: true },
                     { name: "Lien du transcript", value: `[Link](${sendedAttachment.url})`, inline: true },
                 )
-                .setColor('#f1c40f')
+                .setColor('#2b2d31')
             archiveChannel.send({
                 embeds: [embed]
             })
@@ -70,7 +72,7 @@ module.exports = class TicketCloseCommand extends BaseCommand {
             ticketLogger.info(`Le ticket \`${existingDBTicket.name}\` a été supprimé par <@!${message.author.id}>`)
             message.channel.delete();
         } else {
-            message.channel.send(`**❌ | **Cette commande peut uniquement être utilisée dans un ticket !`)
+            message.channel.send(`**<:x_:1137419292946727042> | **Cette commande peut uniquement être utilisée dans un ticket !`)
         }
     }
 }

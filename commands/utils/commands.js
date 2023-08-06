@@ -6,7 +6,7 @@ module.exports = class DisplayCommandsCommand extends BaseCommand {
         super('commands', 'utilities', [], {
             usage: "commands <category>",
             description: "Affiche toutes les commandes",
-            categoryDisplayName: `🔧 Utilities`,
+            categoryDisplayName: `<:tool:1137412707629412453> Utilities`,
             userPermissions: [],
             clientPermissions: [],
             examples: ['commands moderation|Affiche toutes les commandes dans la catégorie \'moderation\'', 'commands|Affiche toutes les catégories'],
@@ -22,7 +22,7 @@ module.exports = class DisplayCommandsCommand extends BaseCommand {
         let array = Array.from(client.commands)
         if (!args[1]) {
             let categoriesEmbed = new Discord.MessageEmbed()
-                .setColor('#9b59b6')
+                .setColor('#2b2d31')
                 .setAuthor(`${client.user.username} Commandes disponibles`, client.user.avatarURL())
                 .setDescription(`Pour afficher toutes les commandes dans une catégorie :
                 \`\`\`${prefix}commands <category>\`\`\``)
@@ -51,7 +51,7 @@ module.exports = class DisplayCommandsCommand extends BaseCommand {
                 )
 
             } else {
-                message.channel.send(`**:x: | **Catégorie non valide, \`${prefix}commands\` pour afficher toutes les catégories`)
+                message.channel.send(`**<:x_:1137419292946727042> | **Catégorie non valide, \`${prefix}commands\` pour afficher toutes les catégories`)
             }
         }
     }

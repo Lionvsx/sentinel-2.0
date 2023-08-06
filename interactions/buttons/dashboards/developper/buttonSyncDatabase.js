@@ -15,7 +15,7 @@ module.exports = class SyncDatabaseButton extends BaseInteraction {
     }
 
     async run(client, interaction, buttonArgs) {
-        interaction.deferUpdate()
+        await interaction.deferUpdate()
 
         const envLogger = new DiscordLogger('environnement', '#00cec9')
         envLogger.setGuild(interaction.guild)
@@ -39,17 +39,17 @@ module.exports = class SyncDatabaseButton extends BaseInteraction {
                 if (existingDBUser.username != member.user.username) {
                     existingDBUser.username = member.user.username
                     await existingDBUser.save()
-                    messages.push(`**⚠ | **Username mis à jour pour :  \`${member.user.username}\``)
+                    messages.push(`**<:alerttriangleyellow:1137390607069888593> | **Username mis à jour pour :  \`${member.user.username}\``)
                 }
                 if (existingDBUser.userTag != member.user.tag) {
                     existingDBUser.userTag = member.user.tag
                     await existingDBUser.save()
-                    messages.push(`**⚠ | **Discord tag mis à jour pour :  \`${member.user.username}\``)
+                    messages.push(`**<:alerttriangleyellow:1137390607069888593> | **Discord tag mis à jour pour :  \`${member.user.username}\``)
                 }
                 if (existingDBUser.avatarURL != member.user.displayAvatarURL()) {
                     existingDBUser.avatarURL = member.user.displayAvatarURL()
                     await existingDBUser.save()
-                    messages.push(`**⚠ | **Discord avatar mis à jour pour :  \`${member.user.username}\``)
+                    messages.push(`**<:alerttriangleyellow:1137390607069888593> | **Discord avatar mis à jour pour :  \`${member.user.username}\``)
                 }
             } else {
                 try {
@@ -63,7 +63,7 @@ module.exports = class SyncDatabaseButton extends BaseInteraction {
                 } catch (err) {
                     console.error(err)
                 }
-                messages.push(`**✅ | **Nouvelle entrée dans la DB :  \`${member.user.username}\``)
+                messages.push(`**<:check:1137390614296678421> | **Nouvelle entrée dans la DB :  \`${member.user.username}\``)
             }
         }
         for (const user of Users) {
@@ -72,16 +72,16 @@ module.exports = class SyncDatabaseButton extends BaseInteraction {
             if (!linkedGuildMember) {
                 user.onServer = false
                 await user.save()
-                messages.push(`**❌ | **L'utilisateur \`${user.username}\` a quitté le serveur, entrée effacée dans la DB !`)
+                messages.push(`**<:x_:1137419292946727042> | **L'utilisateur \`${user.username}\` a quitté le serveur, entrée effacée dans la DB !`)
             }
         }
     
         var sortstring = function (a, b)    {
             a = a.toLowerCase();
             b = b.toLowerCase();
-            if (a.startsWith('**✅') && b.startsWith('**❌')) return -1
-            if (a.startsWith('**✅') && b.startsWith('**⚠')) return -1
-            if (a.startsWith('**⚠') && b.startsWith('**❌')) return -1
+            if (a.startsWith('**<:check:1137390614296678421>') && b.startsWith('**<:x_:1137419292946727042>')) return -1
+            if (a.startsWith('**<:check:1137390614296678421>') && b.startsWith('**<:alerttriangleyellow:1137390607069888593>')) return -1
+            if (a.startsWith('**<:alerttriangleyellow:1137390607069888593>') && b.startsWith('**<:x_:1137419292946727042>')) return -1
             return 0;
         }
     
@@ -89,7 +89,7 @@ module.exports = class SyncDatabaseButton extends BaseInteraction {
 
         
         if (messages.length > 0) {
-            await msg.edit('**⚠ | **Erreurs trouvées :')
+            await msg.edit('**<:alerttriangleyellow:1137390607069888593> | **Erreurs trouvées :')
             const messagesChunks = chunkArray(messages, 30)
             for (const chunk of messagesChunks) {
                 await dmChannel.send({
@@ -98,7 +98,7 @@ module.exports = class SyncDatabaseButton extends BaseInteraction {
             }
             envLogger.warning(`Database update : \`${messages.length}\` fixed !`)
         } else {
-            await msg.edit(`**✅ | **Configuration correcte !`)
+            await msg.edit(`**<:check:1137390614296678421> | **Configuration correcte !`)
             envLogger.info(`Database update : \`${messages.length}\` users updated : config up to date !`)
         }
     }

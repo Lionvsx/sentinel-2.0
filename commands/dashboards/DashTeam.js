@@ -13,7 +13,7 @@ module.exports = class DashRespoCommand extends BaseCommand {
         super('dashboardteam', 'dashboard', [], {
             usage: "dashboardteam",
             description: "Crée un dashboard pour l'équipe de ce salon",
-            categoryDisplayName: `🧭 Dashboard`,
+            categoryDisplayName: `<:compass:1137390624090374228> Dashboard`,
             userPermissions: ['ADMINISTRATOR'],
             clientPermissions: [],
             examples: [],
@@ -71,7 +71,8 @@ module.exports = class DashRespoCommand extends BaseCommand {
                 components: [Row1, Row2]
             })
 
-        } else message.channel.send(`**❌ | **Ce channel n'heberge aucune équipe !`)
+
+        } else message.channel.send(`**<:x_:1137419292946727042> | **Ce channel n'heberge aucune équipe !`)
     
         message.delete()
 

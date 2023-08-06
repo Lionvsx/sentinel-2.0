@@ -1,7 +1,7 @@
 const BaseInteraction = require('../../../../utils/structures/BaseInteraction')
-const { userResponse, reactionEmbedSelector, selectorReply, askForConfirmation, askYesOrNo, userResponseContent } = require('../../../../utils/functions/awaitFunctions')
+const { userResponse, selectorReply, askForConfirmation, askYesOrNo, userResponseContent } = require('../../../../utils/functions/awaitFunctions')
 const { getUsersFromString, updateGuildMemberCache } = require('../../../../utils/functions/utilitaryFunctions')
-const { createButtonActionRow, createButton } = require('../../../../utils/functions/messageComponents')
+const { createButtonActionRow, createEmojiButton } = require('../../../../utils/functions/messageComponents')
 const { MessageEmbed, Permissions } = require('discord.js')
 const mongoose = require('mongoose')
 const Ticket = require('../../../../src/schemas/TicketSchema')
@@ -18,12 +18,20 @@ module.exports = class TicketBureauButton extends BaseInteraction {
     }
 
     async run(client, interaction, buttonArgs) {
-        interaction.deferUpdate()
+        await interaction.deferUpdate()
+
+        let mode = "server"
+
+        let guild = interaction.guild
+        if (!guild) {
+            guild = await client.guilds.cache.get("227470914114158592")
+            mode = "dm"
+        }
 
         const loading = client.emojis.cache.get('741276138319380583')
         
         const ticketLogger = new DiscordLogger('tickets', '#ffeaa7')
-        ticketLogger.setGuild(interaction.guild)
+        ticketLogger.setGuild(guild)
         ticketLogger.setLogMember(interaction.member)
 
         const dmChannel = await interaction.user.createDM()
@@ -34,16 +42,16 @@ module.exports = class TicketBureauButton extends BaseInteraction {
 
         ticketLogger.setLogData(ticketContent)
 
-        const allChannels = interaction.guild.channels.cache
+        const allChannels = guild.channels.cache
 
         const bureauRequestChannel = allChannels.get('742403764211679342')
 
-        const ticketEmbed = new MessageEmbed().setDescription(`Merci d'avoir ouvert un ticket d'assistance pour le bureau !\nUn membre du bureau sera bientôt avec vous pour traiter votre demande !`).setColor('#2ecc71')
+        const ticketEmbed = new MessageEmbed().setDescription(`Merci d'avoir ouvert un ticket d'assistance pour le bureau !\nUn membre du bureau sera bientôt avec vous pour traiter votre demande !`).setColor('2b2d31')
 
-        const ticketPermissions = [{ id: interaction.guild.roles.everyone.id, deny: Permissions.FLAGS.VIEW_CHANNEL }, { id: interaction.user.id, allow: [Permissions.FLAGS.VIEW_CHANNEL] }]
+        const ticketPermissions = [{ id: guild.roles.everyone.id, deny: Permissions.FLAGS.VIEW_CHANNEL }, { id: interaction.user.id, allow: [Permissions.FLAGS.VIEW_CHANNEL] }]
 
 
-        const newChannel = await interaction.guild.channels.create(`💼┃${interaction.user.username}`, {
+        const newChannel = await guild.channels.create(`💼┃${interaction.user.username}`, {
             type: 'GUILD_TEXT',
             position: 100,
             permissionOverwrites: ticketPermissions,
@@ -65,14 +73,27 @@ module.exports = class TicketBureauButton extends BaseInteraction {
             .setTitle(`💼 NOUVEAU TICKET : \`${newTicket.name}\``)
             .setDescription(`Nouveau ticket de \`${interaction.user.username}\`\nDescription du problème : \`\`\`${ticketContent}\`\`\``)
             .setTimestamp()
-            .setColor('#e74c3c')
+            .setColor('2b2d31')
 
         await bureauRequestChannel.send({
             embeds: [accessEmbed],
-            components: [createButtonActionRow([createButton(`buttonAccessChannel|${newChannel.id}`, 'Accédez au ticket', 'SUCCESS'), createButton(`buttonKillAccessChannel`, "Fermez l'accès au ticket", 'DANGER')])]
+            components: [createButtonActionRow([createEmojiButton(`buttonAccessChannel|${newChannel.id}`, 'Accédez au ticket', 'SECONDARY', '<:pluscircle:1137390650690650172>'), createEmojiButton(`buttonKillAccessChannel`, "Fermez l'accès au ticket", 'SECONDARY', '<:x_:1137419292946727042>')])]
         })
-        tempMsg.edit(`**:white_check_mark: | **Votre ticket a été crée avec succès!`)
-        ticketLogger.info(`<@!${interaction.user.id}> a crée un ticket d'assistance **bureau** avec le problème suivant :`)
+
+
+        if (mode === "dm") {
+            const embed = new MessageEmbed()
+                .setTitle(`**MISE A JOUR DE VOTRE STATUT**`)
+                .setDescription(`Votre statut en tant que membre de LDV Esport a été modifié : vous avez été retiré de la base de données des membres de LDV Esport\nVotre ticket a bien été créé, le bureau vous répondra sur le serveur dans les plus brefs délais !`)
+                .setColor('2b2d31')
+
+            interaction.message.edit({
+                embeds: [embed],
+                components: []
+            })
+        }
+        await tempMsg.edit(`**<:check:1137390614296678421> | **Votre ticket a été crée avec succès!`)
+        await ticketLogger.info(`<@!${interaction.user.id}> a crée un ticket d'assistance **bureau** avec le problème suivant :`)
     }
 }
 

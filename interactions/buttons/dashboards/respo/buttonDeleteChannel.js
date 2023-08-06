@@ -26,7 +26,7 @@ module.exports = class DeleteChannelButtonInteraction extends BaseInteraction {
 
         if (!userDB.roleResponsable) {
             return interaction.reply({
-                content: `**❌ | **Vous n'êtes pas responsable dans la base de données !`,
+                content: `**<:x_:1137419292946727042> | **Vous n'êtes pas responsable dans la base de données !`,
                 ephemeral: true
             })
         }
@@ -35,11 +35,11 @@ module.exports = class DeleteChannelButtonInteraction extends BaseInteraction {
         channelLogger.setLogMember(interaction.member)
         channelLogger.setGuild(interaction.guild)
 
-        interaction.deferUpdate()
+        await interaction.deferUpdate()
 
         const embed = new MessageEmbed()
             .setDescription(`Bonjour ${interaction.user.username}, \nQuel channel(s) voulez vous supprimer?`)
-            .setColor('#2ecc71')
+            .setColor('2b2d31')
         const categoryOptions = getCategoryMenuOptions(allChannels.get(poleCategoryIds[userDB.roleResponsable]))
 
         const selectionMenuComponent = createSelectionMenu('selectionChannelDelte', 'Veuillez sélectionner un ou plusieurs channel(s)', categoryOptions, 1, categoryOptions.length)
@@ -52,7 +52,7 @@ module.exports = class DeleteChannelButtonInteraction extends BaseInteraction {
         if (!selectionMenuInteraction) return;
 
         if (selectionMenuInteraction.values[0] === 'CANCEL') return selectionMenuInteraction.update({
-            embeds: [new MessageEmbed().setDescription(`**❌ | **Commande annulée`)],
+            embeds: [new MessageEmbed().setDescription(`**<:x_:1137419292946727042> | **Commande annulée`)],
             component: []
         })
 
@@ -72,7 +72,7 @@ module.exports = class DeleteChannelButtonInteraction extends BaseInteraction {
 
         }
 
-        tempMsg.edit(`**✅ | **\`${selectionMenuInteraction.values.length}\` channels supprimés !`)
+        tempMsg.edit(`**<:check:1137390614296678421> | **\`${selectionMenuInteraction.values.length}\` channels supprimés !`)
 
         channelLogger.setLogData(deletedChannelsNames.join('\n'))
 
@@ -92,8 +92,14 @@ const getCategoryMenuOptions = (categoryChannel) => {
     const optionsArray = []
 
     for (const [channelId, channel] of childChannels) {
-        const emoji = getEmoji(channel.name)
+        let emoji = getEmoji(channel.name)
         const name = removeDivider(removeEmojis(channel.name))?.trim()
+
+        // If emoji is bugged, fix
+        if (emoji.length > 2) {
+            // Take first 2 caracters
+            emoji = emoji.substring(0, 2)
+        }
         
         optionsArray.push(
             createSelectionMenuOption(channel.id, name, undefined, emoji)
