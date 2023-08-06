@@ -200,6 +200,12 @@ module.exports = class SyncDatabaseButton extends BaseInteraction {
                         }
                     }
                 let notionPage = await getNotionPage("fec4ef6d3b204c2b86a4c4cc2855d0e4", filter)
+                if (!notionPage) {
+                    user.isOnNotion = false
+                    user.linkedNotionPageId = undefined
+                    await user.save()
+                    continue;
+                }
                 let pageId = notionPage.id
                 if (!user.linkedNotionPageId) {
                     user.linkedNotionPageId = pageId
@@ -276,7 +282,7 @@ module.exports = class SyncDatabaseButton extends BaseInteraction {
         let dmChannel = await member.createDM()
         if (!dmChannel) this.error(`Could not create DM channel with ${member.user.tag}`)
         let embed = new MessageEmbed()
-            .setColor('2b2d31')
+            .setColor('#2b2d31')
             .setTitle(`Invitation au serveur LDV Esport !`)
             .setDescription(`Bonjour \`${member.user.username}\` !\n\nJe suis LDV Sentinel, le bot en charge de gérer tous les serveurs en relation avec LDV Esport !\nJ'ai remarqué que tu a été accepté chez LDV le semestre prochain mais tu n'es pas sur le serveur LDV !\nJe t'invite donc à rejoindre notre serveur Discord !\nPour cela, clique sur le lien suivant : https://discord.gg/ldvesport\n\nA bientôt !`)
         await dmChannel.send({

@@ -8,7 +8,6 @@ const { onlyUnique } = require("../../../../utils/functions/utilitaryFunctions")
 const {isMember} = require("../../../../utils/functions/dbFunctions");
 const {
     createButtonActionRow,
-    createButton,
     createEmojiButton
 } = require("../../../../utils/functions/messageComponents");
 const {MessageEmbed} = require("discord.js");
