@@ -111,7 +111,7 @@ module.exports = class ButtonSyncTeams extends BaseInteraction {
 
                 let allTeamMembers = players.concat(staffUsers)
 
-                for (const [key, member] of teamRole.members) {
+                for (const [, member] of teamRole.members) {
                     if (!allTeamMembers.includes(member.id)) {
                         member.roles.remove(teamRole)
                     }
@@ -181,7 +181,7 @@ async function cleanTeams(guild) {
         let teamCategory = guild.channels.cache.get(team.linkedCategoryId)
         if (notionTeam.archived === true) {
             let childChannels = teamCategory.children
-            for (const [key, channel] of childChannels) {
+            for (const [, channel] of childChannels) {
                 await channel.delete()
             }
             await Teams.deleteOne({linkedCategoryId: team.linkedCategoryId})
@@ -226,9 +226,6 @@ async function getTeamMembers(teamNotionPage) {
     return members
 }
 
-async function syncTeam(notionPageId, categoryId, guild) {
-
-}
 
 async function createTeamChannels(guild, teamCategory, role, staffPermissions) {
     await guild.channels.create(`📌┃organisation`, {
@@ -550,7 +547,7 @@ async function updateTeamChannels(guild, teamCategory, role, staffPermissions) {
 
 async function sendTeamsDashboard(channel) {
     const DashBoardTeam = new MessageEmbed()
-        .setColor('2b2d31')
+        .setColor('#2b2d31')
         .setTitle(`DASHBOARD TEAM`)
         .setThumbnail('https://cdn.discordapp.com/attachments/624619133799104522/742037500536684574/icon_dashboard.png')
         .setDescription("Panneau de controle pour les managers afin de gérer son équipe. \nToutes les fonctionnalités sont expliquées ci-dessous:")
