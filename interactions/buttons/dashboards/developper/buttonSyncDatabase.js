@@ -1,11 +1,9 @@
 const BaseInteraction = require('../../../../utils/structures/BaseInteraction')
-const { MessageEmbed, Permissions } = require('discord.js')
+const {Permissions } = require('discord.js')
 const { updateGuildMemberCache, chunkArray } = require('../../../../utils/functions/utilitaryFunctions')
 const DiscordLogger = require('../../../../utils/services/discordLoggerService')
-
-
 const mongoose = require('mongoose');
-
+const {deletePage, updateUserPage, getNotionPage} = require("../../../../utils/functions/notionFunctions");
 module.exports = class SyncDatabaseButton extends BaseInteraction {
     constructor() {
         super('buttonSyncDatabase', 'dashboards', 'button', {
@@ -32,25 +30,49 @@ module.exports = class SyncDatabaseButton extends BaseInteraction {
 
         const Users = await mongoose.model('User').find({ onServer: true });
 
-        for (const [key, member] of allMembers) {
+        for (const [, member] of allMembers) {
             const existingDBUser = await mongoose.model('User').findOne({ discordId: member.user.id })
 
             if (existingDBUser && existingDBUser.id) {
-                if (existingDBUser.username != member.user.username) {
+                if (existingDBUser.username !== member.user.username) {
                     existingDBUser.username = member.user.username
                     await existingDBUser.save()
-                    messages.push(`**<:alerttriangleyellow:1137390607069888593> | **Username mis à jour pour :  \`${member.user.username}\``)
                 }
-                if (existingDBUser.userTag != member.user.tag) {
+                let notionUpdate = false
+                if (existingDBUser.userTag !== member.user.tag) {
                     existingDBUser.userTag = member.user.tag
                     await existingDBUser.save()
+                    notionUpdate = true
                     messages.push(`**<:alerttriangleyellow:1137390607069888593> | **Discord tag mis à jour pour :  \`${member.user.username}\``)
                 }
-                if (existingDBUser.avatarURL != member.user.displayAvatarURL()) {
+                if (existingDBUser.avatarURL !== member.user.displayAvatarURL()) {
                     existingDBUser.avatarURL = member.user.displayAvatarURL()
                     await existingDBUser.save()
+                    notionUpdate = true
                     messages.push(`**<:alerttriangleyellow:1137390607069888593> | **Discord avatar mis à jour pour :  \`${member.user.username}\``)
                 }
+
+                if (existingDBUser.isOnNotion && existingDBUser.linkedNotionPageId) {
+                    // Check if notion page still exists
+                    try {
+                        await getNotionPage(existingDBUser.linkedNotionPageId)
+                    } catch (e) {
+                        this.error(`Page has been deleted for member ${existingDBUser.username} on notion`)
+                        messages.push(`**<:alerttriangleyellow:1137390607069888593> | **La page Notion de \`${existingDBUser.username}\` a été supprimée, restoration de la DB`)
+
+                        await existingDBUser.save()
+                    }
+                }
+
+                if (existingDBUser.isOnNotion && existingDBUser.linkedNotionPageId && notionUpdate) {
+                    await updateUserPage(existingDBUser.linkedNotionPageId, {
+                        discordTag: member.user.tag,
+                        avatarURL: member.user.displayAvatarURL(),
+                    })
+                    this.log("Notion config updated for " + existingDBUser.username)
+                    messages.push(`**<:alerttriangleyellow:1137390607069888593> | **Notion page mise à jour pour :  \`${member.user.username}\``)
+                }
+
             } else {
                 try {
                     await mongoose.model('User').create({
@@ -70,13 +92,33 @@ module.exports = class SyncDatabaseButton extends BaseInteraction {
             let linkedGuildMember = await allMembers.get(user.discordId)
     
             if (!linkedGuildMember) {
+                user.isMember = false
+                user.isResponsable = false
+                user.isBureau = false
+                user.roleResponsable = undefined
+                user.school = undefined
+                user.schoolYear = undefined
+                user.roles = undefined
+
+                if (user.isOnNotion && user.linkedNotionPageId) {
+                    try {
+                        await deletePage(user.linkedNotionPageId)
+                    } catch (e) {
+                        this.error(`Page has already been deleted for ${user.username} on notion`)
+                        messages.push(`**<:x_:1137419292946727042> | **La page Notion de \`${user.username}\` a déjà été supprimée !`)
+                    }
+                    user.isOnNotion = false
+                    user.linkedNotionPageId = undefined
+                    this.log("Notion config removed for " + user.username)
+                }
+                this.log(`${user.username} => User removed from DB : left the server`)
                 user.onServer = false
                 await user.save()
                 messages.push(`**<:x_:1137419292946727042> | **L'utilisateur \`${user.username}\` a quitté le serveur, entrée effacée dans la DB !`)
             }
         }
     
-        var sortstring = function (a, b)    {
+        var sortstring = function (a, b) {
             a = a.toLowerCase();
             b = b.toLowerCase();
             if (a.startsWith('**<:check:1137390614296678421>') && b.startsWith('**<:x_:1137419292946727042>')) return -1
@@ -90,7 +132,7 @@ module.exports = class SyncDatabaseButton extends BaseInteraction {
         
         if (messages.length > 0) {
             await msg.edit('**<:alerttriangleyellow:1137390607069888593> | **Erreurs trouvées :')
-            const messagesChunks = chunkArray(messages, 30)
+            const messagesChunks = chunkArray(messages, 25)
             for (const chunk of messagesChunks) {
                 await dmChannel.send({
                     content: chunk.join('\n')
