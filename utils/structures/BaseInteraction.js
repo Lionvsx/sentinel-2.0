@@ -15,7 +15,7 @@ module.exports = class BaseInteraction {
      * @param logData {JSON}
      */
     log(message, logData = undefined) {
-        logData ? this.consoleLogger.log(message, 'info') : this.consoleLogger.log(message, 'info', logData);
+        logData ? this.consoleLogger.log(message, 'info', logData) : this.consoleLogger.log(message, 'info');
     }
     /**
      *
@@ -23,7 +23,7 @@ module.exports = class BaseInteraction {
      * @param logData {JSON}
      */
     error(message, logData = undefined) {
-        logData ? this.consoleLogger.log(message, 'error') : this.consoleLogger.log(message, 'error', logData);
+        logData ? this.consoleLogger.log(message, 'error', logData) : this.consoleLogger.log(message, 'error');
     }
     /**
      *
@@ -31,6 +31,6 @@ module.exports = class BaseInteraction {
      * @param logData {JSON}
      */
     warn(message, logData = undefined) {
-        logData ? this.consoleLogger.log(message, 'warn') : this.consoleLogger.log(message, 'warning', logData);
+        logData ? this.consoleLogger.log(message, 'warn', logData) : this.consoleLogger.log(message, 'warn');
     }
 }
