@@ -101,6 +101,29 @@ async function createUserPage(userProperties) {
     });
 }
 
+async function updateUserPage(pageId, userProperties) {
+    return await notion.pages.update({
+        "page_id": pageId,
+        "icon": {
+            "type": "external",
+            "external": {
+                "url": userProperties.avatarURL
+            }
+        },
+        "properties": {
+            "Discord Tag": {
+                "title": [
+                    {
+                        "text": {
+                            "content": userProperties.discordTag
+                        }
+                    }
+                ]
+            },
+        }
+    });
+}
+
 async function deletePage(pageId) {
     return await notion.blocks.delete({
         block_id: pageId,
@@ -240,5 +263,6 @@ module.exports = {
     queryDatabaseFilter,
     deletePage,
     selectionUserSwitch,
-    getNotionPageById
+    getNotionPageById,
+    updateUserPage
 }
