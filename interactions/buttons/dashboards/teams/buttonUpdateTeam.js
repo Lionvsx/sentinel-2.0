@@ -78,6 +78,6 @@ module.exports = class ButtonUpdateTeam extends BaseInteraction {
 
         await updateTeamChannels(interaction.guild, teamCategory, teamRole, staffPermissions)
 
-        this.log("Updated team " + teamName)
+        this.log("Updated team " + teamName);
     }
 }

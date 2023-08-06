@@ -1,8 +1,8 @@
 const BaseInteraction = require('../../../../utils/structures/BaseInteraction')
 
-module.exports = class ButtonStartCall extends BaseInteraction {
+module.exports = class buttonEditTeam extends BaseInteraction {
     constructor() {
-        super('buttonStartCall', 'dashboards', 'button', {
+        super('buttonEditTeam', 'dashboards', 'button', {
             userPermissions: [],
             clientPermissions: []
         })
@@ -10,8 +10,9 @@ module.exports = class ButtonStartCall extends BaseInteraction {
 
     async run(client, interaction, buttonArgs) {
         interaction.reply({
-            content: `L'appel est ouvert !`,
+            content: `Check tes DMs !`,
             ephemeral: true
         })
+        
     }
 }
