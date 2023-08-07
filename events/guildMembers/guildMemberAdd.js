@@ -8,7 +8,7 @@ module.exports = class guildMemberAdd extends BaseEvent {
     }
 
     async run(client, guildMember) {
-        if (guildMember.guild.id != '227470914114158592' || guildMember.user.bot === true) return
+        if (guildMember.guild.id !== '227470914114158592' || guildMember.user.bot === true) return
         const existingUser = await User.findOne({ discordId: guildMember.user.id, onServer: false });
 
         if (existingUser && existingUser.id) {
