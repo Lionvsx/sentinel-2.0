@@ -3,7 +3,8 @@ const {Permissions } = require('discord.js')
 const { updateGuildMemberCache, chunkArray } = require('../../../../utils/functions/utilitaryFunctions')
 const DiscordLogger = require('../../../../utils/services/discordLoggerService')
 const mongoose = require('mongoose');
-const {deletePage, updateUserPage, getNotionPage} = require("../../../../utils/functions/notionFunctions");
+const {deletePage, updateUserPage, getNotionPageById, restorePage} = require("../../../../utils/functions/notionFunctions");
+
 module.exports = class SyncDatabaseButton extends BaseInteraction {
     constructor() {
         super('buttonSyncDatabase', 'dashboards', 'button', {
@@ -43,23 +44,32 @@ module.exports = class SyncDatabaseButton extends BaseInteraction {
                     existingDBUser.userTag = member.user.tag
                     await existingDBUser.save()
                     notionUpdate = true
-                    messages.push(`**<:alerttriangleyellow:1137390607069888593> | **Discord tag mis à jour pour :  \`${member.user.username}\``)
+                    messages.push(`**<:info:1137425479914242178> | **Discord tag mis à jour pour :  \`${member.user.username}\``)
                 }
                 if (existingDBUser.avatarURL !== member.user.displayAvatarURL()) {
                     existingDBUser.avatarURL = member.user.displayAvatarURL()
                     await existingDBUser.save()
                     notionUpdate = true
-                    messages.push(`**<:alerttriangleyellow:1137390607069888593> | **Discord avatar mis à jour pour :  \`${member.user.username}\``)
+                    messages.push(`**<:info:1137425479914242178> | **Discord avatar mis à jour pour :  \`${member.user.username}\``)
                 }
 
                 if (existingDBUser.isOnNotion && existingDBUser.linkedNotionPageId) {
                     // Check if notion page still exists
                     try {
-                        await getNotionPage(existingDBUser.linkedNotionPageId)
+                        let page = await getNotionPageById(existingDBUser.linkedNotionPageId)
+                        if (page.archived) await restorePage(existingDBUser.linkedNotionPageId)
                     } catch (e) {
                         this.error(`Page has been deleted for member ${existingDBUser.username} on notion`)
-                        messages.push(`**<:alerttriangleyellow:1137390607069888593> | **La page Notion de \`${existingDBUser.username}\` a été supprimée, restoration de la DB`)
-
+                        messages.push(`**<:alerttriangleyellow:1137390607069888593> | **La page Notion de \`${existingDBUser.username}\` a été supprimée, vous devrez lui redemander ses infos`)
+                        existingDBUser.isOnNotion = false
+                        existingDBUser.linkedNotionPageId = undefined
+                        existingDBUser.firstName = undefined
+                        existingDBUser.lastName = undefined
+                        existingDBUser.school = undefined
+                        existingDBUser.schoolYear = undefined
+                        existingDBUser.roleResponsable = undefined
+                        existingDBUser.isResponsable = false
+                        existingDBUser.isBureau = false
                         await existingDBUser.save()
                     }
                 }
@@ -70,7 +80,7 @@ module.exports = class SyncDatabaseButton extends BaseInteraction {
                         avatarURL: member.user.displayAvatarURL(),
                     })
                     this.log("Notion config updated for " + existingDBUser.username)
-                    messages.push(`**<:alerttriangleyellow:1137390607069888593> | **Notion page mise à jour pour :  \`${member.user.username}\``)
+                    messages.push(`**<:info:1137425479914242178> | **Notion page mise à jour pour :  \`${member.user.username}\``)
                 }
 
             } else {
@@ -85,7 +95,7 @@ module.exports = class SyncDatabaseButton extends BaseInteraction {
                 } catch (err) {
                     console.error(err)
                 }
-                messages.push(`**<:check:1137390614296678421> | **Nouvelle entrée dans la DB :  \`${member.user.username}\``)
+                messages.push(`**<:info:1137425479914242178> | **Nouvelle entrée dans la DB :  \`${member.user.username}\``)
             }
         }
         for (const user of Users) {
@@ -121,8 +131,8 @@ module.exports = class SyncDatabaseButton extends BaseInteraction {
         var sortstring = function (a, b) {
             a = a.toLowerCase();
             b = b.toLowerCase();
-            if (a.startsWith('**<:check:1137390614296678421>') && b.startsWith('**<:x_:1137419292946727042>')) return -1
-            if (a.startsWith('**<:check:1137390614296678421>') && b.startsWith('**<:alerttriangleyellow:1137390607069888593>')) return -1
+            if (a.startsWith('**<:info:1137425479914242178>') && b.startsWith('**<:x_:1137419292946727042>')) return -1
+            if (a.startsWith('**<:info:1137425479914242178>') && b.startsWith('**<:alerttriangleyellow:1137390607069888593>')) return -1
             if (a.startsWith('**<:alerttriangleyellow:1137390607069888593>') && b.startsWith('**<:x_:1137419292946727042>')) return -1
             return 0;
         }
