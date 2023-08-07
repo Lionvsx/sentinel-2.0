@@ -134,6 +134,9 @@ async function getNotionPageById(pageId) {
     return await notion.pages.retrieve({ page_id: pageId })
 }
 
+async function restorePage(pageId) {
+    return await notion.pages.update({ page_id: pageId, archived: false })
+}
 async function queryDatabase(databaseId) {
     const database = await notion.databases.query({ database_id: databaseId })
     return database.results
@@ -264,5 +267,6 @@ module.exports = {
     deletePage,
     selectionUserSwitch,
     getNotionPageById,
-    updateUserPage
+    updateUserPage,
+    restorePage
 }
