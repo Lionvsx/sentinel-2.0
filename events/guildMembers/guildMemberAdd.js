@@ -1,5 +1,5 @@
 const BaseEvent = require('../../utils/structures/BaseEvent')
-const mongoose = require('mongoose')
+require('mongoose');
 const User = require('../../src/schemas/UserSchema')
 
 module.exports = class guildMemberAdd extends BaseEvent {
