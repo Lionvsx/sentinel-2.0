@@ -1,7 +1,7 @@
 const BaseInteraction = require('../../../../utils/structures/BaseInteraction')
 const { MessageEmbed, Permissions } = require('discord.js')
-const { updateGuildMemberCache, chunkArray, sleep} = require('../../../../utils/functions/utilitaryFunctions')
-const {queryDatabase, createSelectionUser, updateSelectionUser, getNotionPage} = require("../../../../utils/functions/notionFunctions");
+const { updateGuildMemberCache, sleep} = require('../../../../utils/functions/utilitaryFunctions')
+const {createSelectionUser, updateSelectionUser, getNotionPage} = require("../../../../utils/functions/notionFunctions");
 const {isMember} = require("../../../../utils/functions/dbFunctions");
 const Users = require("../../../../src/schemas/UserSchema");
 const SelectionUser = require("../../../../src/schemas/SelectionUserSchema");
@@ -19,21 +19,17 @@ module.exports = class SyncDatabaseButton extends BaseInteraction {
 
         const loading = client.emojis.cache.get('741276138319380583')
 
-        const allRoles = interaction.guild.roles.cache
         const cachedMembers = await updateGuildMemberCache(interaction.guild)
         const allMembers = cachedMembers.filter(member => !member.user.bot)
         const ldvGuild = client.guilds.cache.get('227470914114158592')
         const ldvGuildMembers = await updateGuildMemberCache(ldvGuild)
-        const ldvGuildRoles = ldvGuild.roles.cache
-
-        let notionUsers = await queryDatabase("fec4ef6d3b204c2b86a4c4cc2855d0e4")
 
         const dmChannel = await interaction.user.createDM()
         let msg = await dmChannel.send(`**${loading} | **Syncing DB...`)
 
         let count = 0;
 
-        for (const [key, member] of allMembers) {
+        for (const [, member] of allMembers) {
             let accepted = member.roles.cache.has("676720835393880075")
             let rejected = member.roles.cache.has("676720836853366784")
             let ldvMember = ldvGuildMembers.get(member.user.id)
@@ -51,7 +47,7 @@ module.exports = class SyncDatabaseButton extends BaseInteraction {
 
             if (member.roles.cache.has("754421243268300851")) poles.push({name: "Head Staff"})
 
-            for (const [key, toRole] of tryoutRoles) {
+            for (const [, toRole] of tryoutRoles) {
                 let roleSeparator = toRole.name.split('| ')
                 let toRoleArgs = roleSeparator[1].split(' ')
                 switch(toRoleArgs[1].toLowerCase()) {
@@ -210,6 +206,8 @@ module.exports = class SyncDatabaseButton extends BaseInteraction {
                 if (!user.linkedNotionPageId) {
                     user.linkedNotionPageId = pageId
                     await user.save()
+
+
                 }
 
                 if (notionPage.properties['Server State'].select.name === "Switched") continue;
@@ -283,7 +281,7 @@ module.exports = class SyncDatabaseButton extends BaseInteraction {
         if (!dmChannel) this.error(`Could not create DM channel with ${member.user.tag}`)
         let embed = new MessageEmbed()
             .setColor('#2b2d31')
-            .setTitle(`Invitation au serveur LDV Esport !`)
+            .setTitle(`\` Invitation au serveur LDV Esport ! \``)
             .setDescription(`Bonjour \`${member.user.username}\` !\n\nJe suis LDV Sentinel, le bot en charge de gérer tous les serveurs en relation avec LDV Esport !\nJ'ai remarqué que tu a été accepté chez LDV le semestre prochain mais tu n'es pas sur le serveur LDV !\nJe t'invite donc à rejoindre notre serveur Discord !\nPour cela, clique sur le lien suivant : https://discord.gg/ldvesport\n\nA bientôt !`)
         await dmChannel.send({
             embeds: [embed]
