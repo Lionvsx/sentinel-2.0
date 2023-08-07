@@ -31,6 +31,9 @@ class LoggerService {
                 case "moderation":
                     emoji = '<:shield:1137411685716611143> ` MODERATION `'
                     break;
+                case "config":
+                    emoji = '<:settings:1137410884432564404> ` CONFIG `'
+                    break;
                 default:
                     emoji = '<:activity:1137390592314331176> ` LOG `'
                     break;
