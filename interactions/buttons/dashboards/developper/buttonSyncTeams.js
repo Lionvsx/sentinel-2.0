@@ -179,6 +179,10 @@ async function cleanTeams(guild) {
         let notionTeam = await getNotionPageById(team.linkedNotionPageId)
         let teamRole = guild.roles.cache.get(team.linkedRoleId)
         let teamCategory = guild.channels.cache.get(team.linkedCategoryId)
+        if (!teamCategory) {
+            await Teams.deleteOne({linkedCategoryId: team.linkedCategoryId})
+            continue;
+        }
         if (notionTeam.archived === true) {
             let childChannels = teamCategory.children
             for (const [, channel] of childChannels) {
