@@ -75,7 +75,6 @@ module.exports = class AnnonceButtonInteraction extends BaseInteraction {
                         files: annoucementMessage.attachments
                     })
                 }
-
                 break;
 
 
@@ -203,7 +202,7 @@ const broadcastMessage = (client, channel, audience, annonceLogger, message) => 
                     emoji = '<:check:1137390614296678421>'
                     annonceLogger.info(`Message d'annonce envoyé à \`${count}\` utilisateur(s) avec \`${errorsCount}\` erreur(s) !`)
                 } else annonceLogger.warning(`Message d'annonce envoyé à \`${count}\` utilisateur(s) avec \`${errorsCount}\` erreur(s) !\n**Erreurs :**\n${errorsDMS.join('\n')}`)
-                await tempMsg.edit(`**${emoji} |** Message envoyé avec succès à \`${count}\` utilisateur(s) avec \`${errorsCount}\` erreur(s) !\n**Erreurs :**\n\`${errorsDMS.join('\n')}\``)
+                await tempMsg.edit(`**${emoji} |** Message envoyé avec succès à \`${count}\` utilisateur(s) avec \`${errorsCount}\` erreur(s) !\n**Erreurs :**\n\`${errorsDMS.length > 0 ? errorsDMS.join('\n') : "Aucune"}\``)
                 resolve()
             }
         }
