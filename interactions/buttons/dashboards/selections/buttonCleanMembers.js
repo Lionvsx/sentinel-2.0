@@ -15,10 +15,20 @@ module.exports = class ButtonCleanMembers extends BaseInteraction {
     async run(client, interaction, options) {
         await interaction.deferUpdate();
         let filter = {
-            property: "Server State",
-            select: {
-                equals: "Switched"
-            }
+            or: [
+                {
+                    property: "Server State",
+                    select: {
+                        equals: "Switched"
+                    }
+                },
+                {
+                    property: "Etat",
+                    select: {
+                        equals: "Refusé"
+                    }
+                }
+            ]
         }
 
         let authorDmChannel = await interaction.user.createDM();
@@ -39,6 +49,7 @@ module.exports = class ButtonCleanMembers extends BaseInteraction {
         const success = []
         const errors = []
         const alreadyLeft = []
+        let count = 0
 
         for (const userPage of selectionMembersToKick) {
             const discordTag = userPage.properties["Discord Tag"].title[0].text.content;
@@ -47,21 +58,39 @@ module.exports = class ButtonCleanMembers extends BaseInteraction {
             if (discordMember) {
                 try {
                     await discordMember.kick("Kick automatique des membres de la sélection LDV")
-                    await configLogger.info(`Kicked ${discordTag} (${discordId}) from LDV Selections`)
+                    await configLogger.info(`Kicked \`${discordTag}\` from LDV Selections`)
+                    this.log(`Kicked ${discordTag} (${discordId}) from LDV Selections`)
                     // Delete notion page
                     await deletePage(userPage.id)
                     success.push(discordTag)
                 } catch (err) {
                     errors.push(discordTag)
                     await configLogger.error(`Could not kick \`${discordTag}\` : ${err.message}`)
+                    this.error(`Could not kick \`${discordTag}\` : ${err.message}`)
                 }
             } else {
                 await configLogger.info(`Could not kick \`${discordTag}\` : Already left the server`)
+                this.log(`Could not kick \`${discordTag}\` : Already left the server`)
                 alreadyLeft.push(discordTag)
+            }
+            count++
+
+            let percentage = Math.floor(count / selectionMembersToKick.length * 100)
+            let barProgress = Math.floor(percentage / 5)
+
+            if (count % 3 === 0) {
+                let bar = renderProgressBar(barProgress, 20)
+                let embed = new MessageEmbed()
+                    .setDescription(`**${loading} | **Kicking users...\n\`\`\`${bar} ${percentage}% | ${count}/${selectionMembersToKick.length}\`\`\``)
+                    .setColor('#2b2d31')
+                await tempMsg.edit({
+                    embeds: [embed],
+                    content: ` `
+                })
             }
         }
 
-        await tempMsg.edit(`**<:check:1137390614296678421> | **Operation terminée`)
+        await tempMsg.delete()
 
         const summaryEmbed = new MessageEmbed()
             .setTitle('<:info:1137425479914242178> ` COMPTE RENDU `')
@@ -74,4 +103,15 @@ module.exports = class ButtonCleanMembers extends BaseInteraction {
             embeds: [summaryEmbed]
             })
     }
+}
+
+function renderProgressBar(progress, size) {
+    let bar = "";
+    for (let i = 0; i < progress; i++) {
+        bar += "█"
+    }
+    for (let i = 0; i < size - progress; i++) {
+        bar += "▁"
+    }
+    return bar;
 }

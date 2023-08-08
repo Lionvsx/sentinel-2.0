@@ -231,7 +231,7 @@ module.exports = class SyncDatabaseButton extends BaseInteraction {
                 await sleep(200)
                 count++
             } else {
-                await createSelectionUser({
+                let page = await createSelectionUser({
                     avatarURL: member.user.displayAvatarURL(),
                     discordId: member.user.id,
                     discordTag: member.user.tag,
@@ -241,12 +241,20 @@ module.exports = class SyncDatabaseButton extends BaseInteraction {
                     poles: poles
                 })
                 this.log(`Created Notion user ${member.user.tag}`)
-                await SelectionUser.create({
-                    discordId: member.user.id,
-                    isOnNotion: true,
-                    userTag: member.user.tag,
-                    avatarURL: member.user.displayAvatarURL()
-                })
+                if (user) {
+                    user.userTag = member.user.tag
+                    user.avatarURL = member.user.displayAvatarURL()
+                    user.isOnNotion = true
+                    user.linkedNotionPageId = page.id
+                    await user.save()
+                } else {
+                    await SelectionUser.create({
+                        discordId: member.user.id,
+                        isOnNotion: true,
+                        userTag: member.user.tag,
+                        avatarURL: member.user.displayAvatarURL()
+                    })
+                }
                 await sleep(200)
                 count++
             }
@@ -258,7 +266,7 @@ module.exports = class SyncDatabaseButton extends BaseInteraction {
                 let bar = renderProgressBar(barProgress, 20)
                 let embed = new MessageEmbed()
                     .setDescription(`**${loading} | **Syncing with notion...\n\`\`\`${bar} ${percentage}% | ${count}/${allMembers.size}\`\`\``)
-                    .setColor('2b2d31')
+                    .setColor('#2b2d31')
                 await msg.edit({
                     embeds: [embed],
                     content: ` `
@@ -268,7 +276,7 @@ module.exports = class SyncDatabaseButton extends BaseInteraction {
 
         await msg.delete()
         let embed = new MessageEmbed()
-            .setColor('2b2d31')
+            .setColor('#2b2d31')
             .setDescription(`**<:check:1137390614296678421> | **Members synced !`)
         await dmChannel.send({
             embeds: [embed]
