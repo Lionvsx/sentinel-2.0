@@ -1,6 +1,13 @@
 const client = require('./client');
 const mongoose = require('mongoose');
 require('dotenv').config();
+const {Configuration, OpenAIApi} = require('openai');
+
+
+const config = new Configuration({
+    organizationId: "org-le4yQgH85p1FXwryz6dtWDmx",
+    apiKey: process.env.OPENAI_API_KEY,
+});
 
 const { 
     registerCommands, 
@@ -26,6 +33,8 @@ const {
     client.allTickets = new Map();
     client.reactionRoles = new Map();
     client.clipboard = new Map();
+    client.openAIAgent = new OpenAIApi(config);
+    client.tasks = new Map();
     await registerCommands(client, '../commands');
     await registerEvents(client, '../events');
     await registerInteractions(client, '../interactions')

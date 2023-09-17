@@ -1,6 +1,9 @@
 const BaseInteraction = require("../../../../utils/structures/BaseInteraction");
 const { MessageEmbed } = require("discord.js");
 const Teams = require("../../../../src/schemas/TeamSchema");
+const {getTeamMembers, getTeamStaff, updateTeamChannels} = require("../../../../utils/functions/teamsFunctions");
+const {getNotionPageById} = require("../../../../utils/functions/notionFunctions");
+const {updateGuildMemberCache} = require("../../../../utils/functions/utilitaryFunctions");
 
 module.exports = class ButtonUpdateTeam extends BaseInteraction {
     constructor() {
@@ -17,6 +20,11 @@ module.exports = class ButtonUpdateTeam extends BaseInteraction {
 
         let dbTeam = await Teams.findOne({linkedCategoryId: interaction.channel.parent.id})
 
+        let team = await getNotionPageById(dbTeam.linkedNotionPageId)
+
+        const allRoles = interaction.guild.roles.cache
+        const allMembers = updateGuildMemberCache(interaction.guild)
+
         let teamId = team.id
         let teamEmoji = team.icon.emoji
         let teamName = team.properties["Nom d'équipe"].title[0].plain_text
@@ -31,7 +39,7 @@ module.exports = class ButtonUpdateTeam extends BaseInteraction {
         let allTeamMembers = players.concat(staffUsers)
 
         for (const [key, member] of teamRole.members) {
-            if (!allTeamMembers.includes(member.id)) {
+            if (!allTeamMembers.includes(member.id) && !member.roles.cache.has("1138459577734680577")) {
                 member.roles.remove(teamRole)
             }
         }

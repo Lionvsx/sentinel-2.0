@@ -1,5 +1,6 @@
-const { Client, Intents, Options } = require('discord.js');
+const { Client, Intents, Options, Interaction, Message, TextChannel, DMChannel} = require('discord.js');
 const Logger = require('../utils/services/Logger');
+const discordModals = require("discord-modals");
 
 class client extends Client {
     constructor() {
@@ -27,6 +28,7 @@ class client extends Client {
         this.allTickets = new Map();
         this.reactionRoles = new Map();
         this.clipboard = new Map();
+        discordModals(this);
     }
 
     /**
@@ -85,9 +87,9 @@ class client extends Client {
         if (object instanceof DMChannel) return object.send(`**${this.loadingEmoji} | **${content}`)
     }
     get loadingEmoji() { return this.emojis.cache.get('741276138319380583') }
-    get warningEmoji() { return this.emojis.cache.get('1134467379678675086') }
-    get errorEmoji() { return this.emojis.cache.get('745912720565731328') }
-    get successEmoji() { return this.emojis.cache.get('745912720502554635') }
+    get warningEmoji() { return '<:alerttriangleyellow:1137390607069888593>' }
+    get errorEmoji() { return '<:x_:1137419292946727042>' }
+    get successEmoji() { return '<:check:1137390614296678421>' }
     get shutdownEmoji() { return this.emojis.cache.get('1134467389111664750') }
     get gearEmoji() { return this.emojis.cache.get('1134467391590514750') }
     get profileEmoji() { return this.emojis.cache.get('1134467387383615498') }

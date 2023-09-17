@@ -111,7 +111,7 @@ const getUsersFromString = (guild, searchArgs) => {
  * 
  * @param {object} guild discord guild object
  * @param {string[]} searchArgs arguments array
- * @returns {object[]} array of user objects
+ * @returns {Promise<unknown>} array of user objects
  */
  const getUsersAndRolesFromString = (guild, searchArgs) => {
     return new Promise(async (resolve) => {
@@ -260,13 +260,13 @@ function updateSelectionMenu(interaction, arrayOfCategoryIds, index, categoriesM
     index = ((index%categoriesMap.length) + categoriesMap.length)%categoriesMap.length
 
     const selectMenu = createMessageActionRow([createSelectionMenu(`catMenu`, `Page ${index + 1}`, categoriesMap[index], 1, categoriesMap[index].length)])
-    const buttonRow = createButtonActionRow([createEmojiButton(`previous`, 'Page précédente', 'SECONDARY', '<:arrowleftcircle:1137421111378837585>'), createEmojiButton(`valid`, 'Valider', 'SUCCESS', '<:check:1137390614296678421>'), createEmojiButton(`next`, 'Page suivante', 'SECONDARY', '<:arrowrightcircle:1137421115766083726>')])
+    const buttonRow = createButtonActionRow([createEmojiButton(`previous`, '', 'SECONDARY', '<:arrowleftcircle:1137421111378837585>'), createEmojiButton(`valid`, '', 'SECONDARY', '<:check:1137390614296678421>'), createEmojiButton(`next`, '', 'SECONDARY', '<:arrowrightcircle:1137421115766083726>')])
 
 
     const selectedCategories = allChannels.filter(channel => channel.type === 'GUILD_CATEGORY' && arrayOfCategoryIds.includes(channel.id))
 
     let embedSelected = new MessageEmbed()
-        .setColor('2b2d31')
+        .setColor('#2b2d31')
         .setTitle('Catégories sélectionnées')
         .setDescription(`\`\`\`\n${selectedCategories?.size > 0 ? selectedCategories.map(chan => chan.name).join('\n'): 'Aucune'}\`\`\`\n\n<:arrowdown:1137420436016214058> Veuillez sélectionner une catégorie ci-dessous <:arrowdown:1137420436016214058>`)
 

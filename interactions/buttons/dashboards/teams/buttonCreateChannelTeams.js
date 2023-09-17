@@ -3,35 +3,34 @@ const { userResponseContent, menuInteraction } = require('../../../../utils/func
 const { MessageEmbed, Permissions } = require('discord.js')
 const { createSelectionMenu, createSelectionMenuOption, createMessageActionRow} = require('../../../../utils/functions/messageComponents')
 const { getEmoji, getUsersAndRolesFromString } = require('../../../../utils/functions/utilitaryFunctions')
-const mongoose = require('mongoose')
 
 const DiscordLogger = require('../../../../utils/services/discordLoggerService')
+const Teams = require("../../../../src/schemas/TeamSchema");
 
-module.exports = class CreateBureauChannelButton extends BaseInteraction {
+module.exports = class CreateChannelTeams extends BaseInteraction {
     constructor() {
-        super('buttonCreateChannelBureau', 'dashboards', 'button', {
+        super('buttonCreateChannelTeams', 'teams', 'button', {
             userPermissions: [],
             clientPermissions: []
         })
     }
 
     async run(client, interaction, buttonArgs) {
+        if (!buttonArgs[1]) return
+
+        let parentCategoryId = buttonArgs[1]
+        let Team = await Teams.findOne({linkedCategoryId: parentCategoryId})
+
+        if (!Team) return interaction.reply('<:x_:1137419292946727042> Erreur critique de configuration')
 
         const dmChannel = await interaction.user.createDM()
 
         const loading = client.emojis.cache.get('741276138319380583')
 
-        const userDB = await mongoose.model('User').findOne({ onServer: true, discordId: interaction.user.id })
-        
-        if (!userDB.isBureau) {
-            interaction.reply({
-                content: `**<:x_:1137419292946727042> | **Vous n'êtes pas membre du bureau dans la base de données !`,
-                ephemeral: true
-            })
-            return
-        }
-        
-        interaction.deferUpdate()
+        await interaction.reply({
+            content: '<:check:1137390614296678421> Check tes DMS',
+            ephemeral: true
+        })
 
         const channelLogger = new DiscordLogger('channel', '#00cec9')
         channelLogger.setLogMember(interaction.member)
@@ -66,6 +65,7 @@ module.exports = class CreateBureauChannelButton extends BaseInteraction {
         const channelPermissions = [
             { id: interaction.guild.roles.everyone.id, deny: Permissions.FLAGS.VIEW_CHANNEL },
             { id: interaction.user.id, allow: [Permissions.FLAGS.VIEW_CHANNEL, Permissions.FLAGS.CONNECT, Permissions.FLAGS.SEND_MESSAGES] },
+            { id: '624715536693198888', allow: [Permissions.FLAGS.VIEW_CHANNEL, Permissions.FLAGS.CONNECT, Permissions.FLAGS.SEND_MESSAGES, Permissions.FLAGS.MUTE_MEMBERS, Permissions.FLAGS.MOVE_MEMBERS, Permissions.FLAGS.DEAFEN_MEMBERS] }
         ]
 
         const channelName = await userResponseContent(dmChannel, `Quel nom voulez vous donner à votre channel ?`).catch(err => console.log(err))
@@ -78,7 +78,7 @@ module.exports = class CreateBureauChannelButton extends BaseInteraction {
 
         let audience = undefined
         if (userAndRolesToAdd.toLowerCase() != 'aucun') {
-            audience = await getUsersAndRolesFromString(interaction.guild, userAndRolesToAdd.split(/\s*[,]\s*/))
+            audience = await getUsersAndRolesFromString(interaction.guild, userAndRolesToAdd.split(/\s*,\s*/))
             if (audience.length === 0) return
             for (const element of audience) {
                 channelPermissions.push({ id: element.id, allow: [Permissions.FLAGS.VIEW_CHANNEL]})
@@ -86,20 +86,20 @@ module.exports = class CreateBureauChannelButton extends BaseInteraction {
         }
 
         const permissionSelectorMenu = selectionMenuInteraction.values[0] === 'GUILD_TEXT' ? createSelectionMenu('selectPermissionMenu', 'Veuillez sélectionner un modèle de permissions', [
-            createSelectionMenuOption('annonce', 'Channel Annonce', `Seul le Head Staff peut envoyer des messages`, '<:triangle:1137394274816753695>'),
-            createSelectionMenuOption('discussion', 'Channel Discussion', `Tout le monde peut parler`, '<:messagecircle:1137423168080973874>'),
-            createSelectionMenuOption('interpole', 'Channel Communication Inter-Pole', `Seul le bureau peut parler, pas les rôles/utilisateurs additionnels`, '<:share:1137426868971245630>'),
-            createSelectionMenuOption('documents', 'Channel Documents', `Seul vous pouvez parler`, '<:folder:1137426389793001572>'),
+                createSelectionMenuOption('annonce', 'Channel Annonce', `Seul le Head Staff peut envoyer des messages`, '<:triangle:1137394274816753695>'),
+                createSelectionMenuOption('discussion', 'Channel Discussion', `Tout le monde peut parler`, '<:messagecircle:1137423168080973874>'),
+                createSelectionMenuOption('interpole', 'Channel Inter-Team', `Seul la team peut parler, pas les rôles/utilisateurs additionnels`, '<:share:1137426868971245630>'),
+                createSelectionMenuOption('documents', 'Channel Documents', `Seul vous pouvez parler`, '<:folder:1137426389793001572>'),
 
-        ], 1, 1) 
-        : selectionMenuInteraction.values[0] === 'GUILD_VOICE' ? createSelectionMenu('selectPermissionMenu', 'Veuillez sélectionner un modèle de permissions', [
-            createSelectionMenuOption('vocal', 'Channel Vocal', `Tout le monde peut parler`, '<:headphones:1137423170215886890>'),
-            createSelectionMenuOption('reunion', 'Channel Réunion', `Seul vous pouvez parler, vous aurez besoin de démute les autres`, '<:triangle:1137394274816753695>'),
-            createSelectionMenuOption('private', 'Channel privé', `Seulement vous pourrez vous connecter`, '<:lock:1137390640418803782>'),
-        ], 1, 1)
-        : undefined
+            ], 1, 1)
+            : selectionMenuInteraction.values[0] === 'GUILD_VOICE' ? createSelectionMenu('selectPermissionMenu', 'Veuillez sélectionner un modèle de permissions', [
+                    createSelectionMenuOption('vocal', 'Channel Vocal', `Tout le monde peut parler`, '<:headphones:1137423170215886890>'),
+                    createSelectionMenuOption('reunion', 'Channel Réunion', `Seul le staff pourra parler, vous aurez besoin de démute les autres`, '<:triangle:1137394274816753695>'),
+                    createSelectionMenuOption('private', 'Channel privé', `Seulement le staff esport pourra se connecter`, '<:lock:1137390640418803782>'),
+                ], 1, 1)
+                : undefined
 
-        
+
         if (permissionSelectorMenu) {
             const permissionSelectorMessage = await dmChannel.send({
                 embeds: [new MessageEmbed().setDescription('<:arrowdown:1137420436016214058> Veuillez sélectionner un type de permission <:arrowdown:1137420436016214058>').setColor('2b2d31')],
@@ -111,7 +111,7 @@ module.exports = class CreateBureauChannelButton extends BaseInteraction {
             permissionSelectorMenuInteraction.deferUpdate()
 
             const permOptions = permissionOptions[permissionSelectorMenuInteraction.values[0]]
-            channelPermissions.push({ id: "493708975313911838", allow: permOptions.linkedRole.allow, deny: permOptions.linkedRole.deny })
+            channelPermissions.push({ id: Team.linkedRoleId, allow: permOptions.linkedRole.allow, deny: permOptions.linkedRole.deny })
             channelPermissions.push({ id: interaction.guild.roles.everyone.id, allow: permOptions.everyoneRole.allow, deny: permOptions.everyoneRole.deny })
         }
 
@@ -122,15 +122,16 @@ module.exports = class CreateBureauChannelButton extends BaseInteraction {
         const newChannel = await interaction.guild.channels.create(`${emoji}┃${channelName}`, {
             permissionOverwrites: channelPermissions,
             type: selectionMenuInteraction.values[0],
-            reason: "Creation de channel par responsable",
-            parent: interaction.guild.channels.cache.get('741991095155556363')
+            reason: "Creation de channel par staff esport",
+            parent: interaction.guild.channels.cache.get(Team.linkedCategoryId)
         })
 
         tempMsg.edit(`**<:check:1137390614296678421> | **Channel crée avec succès !`)
 
         channelLogger.setLogData(`Name: ${newChannel.name}\nCategory: ${newChannel.parent.name}\nType: ${newChannel.type}`)
 
-        channelLogger.info(`<@!${interaction.user.id}> a crée un nouveau channel dans sa catégorie`)
+        channelLogger.info(`<@!${interaction.user.id}> a crée un nouveau channel dans son équipe`)
+
 
     }
 }

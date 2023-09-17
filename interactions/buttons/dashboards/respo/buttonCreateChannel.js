@@ -106,13 +106,13 @@ module.exports = class CreateChannelButtonInteraction extends BaseInteraction {
         const permissionSelectorMenu = selectionMenuInteraction.values[0] === 'GUILD_TEXT' ? createSelectionMenu('selectPermissionMenu', 'Veuillez sélectionner un modèle de permissions', [
             createSelectionMenuOption('annonce', 'Channel Annonce', `Seul le Head Staff peut envoyer des messages`, '<:triangle:1137394274816753695>'),
             createSelectionMenuOption('discussion', 'Channel Discussion', `Tout le monde peut parler`, '<:messagecircle:1137423168080973874>'),
-            createSelectionMenuOption('interpole', 'Channel Communication Inter-Pole', `Seul le votre pôle peut parler, pas les rôles/utilisateurs additionnels`, '<:share:1137426868971245630>'),
+            createSelectionMenuOption('interpole', 'Channel Communication Inter-Pole', `Seul votre pôle peut parler, pas les rôles/utilisateurs additionnels`, '<:share:1137426868971245630>'),
             createSelectionMenuOption('documents', 'Channel Documents', `Seul vous pouvez parler`, '<:folder:1137426389793001572>'),
 
         ], 1, 1) 
         : selectionMenuInteraction.values[0] === 'GUILD_VOICE' ? createSelectionMenu('selectPermissionMenu', 'Veuillez sélectionner un modèle de permissions', [
             createSelectionMenuOption('vocal', 'Channel Vocal', `Tout le monde peut parler`, '<:headphones:1137423170215886890>'),
-            createSelectionMenuOption('reunion', 'Channel .Réunion', `Seul vous pouvez parler, vous aurez besoin de démute les autres`, '<:triangle:1137394274816753695>'),
+            createSelectionMenuOption('reunion', 'Channel Réunion', `Seul vous pouvez parler, vous aurez besoin de démute les autres`, '<:triangle:1137394274816753695>'),
             createSelectionMenuOption('private', 'Channel privé', `Seulement vous pourrez vous connecter`, '<:lock:1137390640418803782>'),
         ], 1, 1)
         : undefined

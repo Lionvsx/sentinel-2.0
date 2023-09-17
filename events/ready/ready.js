@@ -6,6 +6,9 @@ const { showCommandLoad } = require('../../utils/register')
 
 const DiscordLogger = require('../../utils/services/discordLoggerService')
 
+const { scheduleTeamTask, stopTask } = require('../../scheduler/askAutoPlanning');
+
+
 require('dotenv').config
 
 module.exports = class ReadyEvent extends BaseEvent {
@@ -88,8 +91,8 @@ module.exports = class ReadyEvent extends BaseEvent {
         sentinelLogger.setLogData(logData.join('\n'))
         sentinelLogger.info(`Bot <@!${client.user.id}> Ready :`)
 
-        
 
-        
+        scheduleTeamTask(ldvGuild)
+        this.log('Smart Manager scheduler online')
     }
 }
