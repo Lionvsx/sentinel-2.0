@@ -5,6 +5,7 @@ const {
     createButtonActionRow,
     createEmojiButton
 } = require("./messageComponents");
+const {minutesToHHMM} = require("./systemFunctions");
 
 async function updateTeamChannels(guild, teamCategory, role, staffPermissions) {
     let childChannels = teamCategory.children
@@ -181,6 +182,73 @@ async function updateTeamChannels(guild, teamCategory, role, staffPermissions) {
     }
 }
 
+function updateEventEmbed(event) {
+    let playerYes = event.rsvps.filter(rsvp => rsvp.attending === "yes");
+    let playerMaybe = event.rsvps.filter(rsvp => rsvp.attending === "maybe");
+    let playerNo = event.rsvps.filter(rsvp => rsvp.attending === "no");
+
+    let embedDescription = `<:calendar:1137424147056689293> \` DATE \` <t:${event.discordTimestamp}:F>\n<:clock:1139536765837901916> \` DURÉE \` ${minutesToHHMM(event.duration)}\n`
+
+    if (event.type !== 'review' && event.type !== 'team-building' && event.type !== 'tournament') {
+        embedDescription += `<:arrowrightcircle:1137421115766083726> \` GAMES \` ${event.nbGames}\n`
+    }
+    embedDescription += `<:pluscircle:1137390650690650172> \` JOINED \` ${playerYes.length}/${event.slots}`
+
+    if (event.trackerLink) {
+        let trackerLinkDomain = event.trackerLink.split('/')[2]
+        trackerLinkDomain = trackerLinkDomain.replace('www.', '')
+        embedDescription += `\n<:link:1137424150764474388> \` TRACKER \` [${trackerLinkDomain.toUpperCase()}](${event.trackerLink})`
+    }
+
+    if (event.description) {
+        embedDescription += `\n<:messagesquare:1137390645972049970> \` INFOS \`\n${event.description}\n`
+    }
+
+    return new MessageEmbed()
+        .setTitle(event.name)
+        .setColor('#2b2d31')
+        .setDescription(embedDescription)
+        .addFields([
+            {
+                name: '<:check:1137390614296678421> ` CONFIRMES `',
+                value: playerYes.length > 0 ? playerYes.map(player => `<@!${player.userId}>`).join('\n') : '\u200b',
+                inline: true
+            },
+            {
+                name: '<:users:1137390672194850887> ` PEUT-ÊTRE `',
+                value: playerMaybe.length > 0 ? playerMaybe.map(player => `<@!${player.userId}>`).join('\n') : '\u200b',
+                inline: true
+            },
+            {
+                name: '<:x_:1137419292946727042> ` INDISPONIBLES `',
+                value: playerNo.length > 0 ? playerNo.map(player => `<@!${player.userId}>`).join('\n') : '\u200b',
+                inline: true
+            }
+        ])
+}
+
+function updatePastEventEmbed(event) {
+    let title = `<:checkcircle:1137390611213865030> \` ${event.type.toUpperCase()} TERMINE \``
+    let embedDescription = `<:calendar:1137424147056689293> \` DATE \` <t:${event.discordTimestamp}:F>\n`
+    if (event.type !== 'review' && event.type !== 'team-building' && event.type !== 'tournament') {
+        embedDescription += `<:arrowrightcircle:1137421115766083726> \` GAMES \` ${event.nbGames}\n`
+    }
+    if (event.trackerLink) {
+        let trackerLinkDomain = event.trackerLink.split('/')[2]
+        trackerLinkDomain = trackerLinkDomain.replace('www.', '')
+        embedDescription += `\n<:link:1137424150764474388> \` TRACKER \` [${trackerLinkDomain.toUpperCase()}](${event.trackerLink})`
+    }
+
+    if (event.description) {
+        embedDescription += `\n<:messagesquare:1137390645972049970> \` INFOS \`\n${event.description}\n`
+    }
+
+    return new MessageEmbed()
+        .setTitle(title)
+        .setColor('#2b2d31')
+        .setDescription(embedDescription)
+}
+
 async function cleanTeams(guild) {
     let allDBTeams = await Teams.find()
 
@@ -258,11 +326,9 @@ async function getTeamMembers(teamNotionPage) {
 async function sendTeamsDashboard(channel) {
     const DashBoardTeam = new MessageEmbed()
         .setColor('#2b2d31')
-        .setTitle(`<:activity:1137390592314331176> \` SMART MANAGER \``)
-        .setThumbnail('https://cdn.discordapp.com/attachments/1134540725816664177/1138453394915328010/cpu.png')
-        .setDescription(`\n<:toggleleft:1138440738649149472> \` STATUS : OFF\``)
+        .setTitle(`<:toggleleft:1138440738649149472> \` SMART MANAGER : OFF\``)
+        .setDescription(`Bienvenue dans l'interface de gestion d'équipe de Sentinel.\nLe smart manager est une feature qui permet de gérer automatiquement les évènements de votre équipe.\nIl est désactivé par défaut, vous pouvez l'activer en cliquant sur le bouton ci-dessous.`)
         .addFields(
-            { name: '\u200B', value: '\u200B' },
             { name: '<:pluscircle:1137390650690650172> | ` CREATE CHANNEL `', value: "Crée un salon", inline: false },
             { name: '<:minuscircle:1137390648262135951> | ` DELETE CHANNEL `', value: "Supprime un salon", inline: false },
             { name: '<:userplus:1137394694972788837> | ` ADD SUB `', value: 'Donne des accès temporaires à l\'équipe', inline: false },
@@ -286,18 +352,17 @@ async function updateTeamsDashboard(channel, smState) {
     let messages = await channel.messages.fetch({ limit: 10 })
     let dashboardMessage = messages.find(m => m.author.id === channel.client.user.id)
 
-    let embedDescription = smState ? "<:toggleright:1138440735230804018> \` STATUS : ON\`" : "<:toggleleft:1138440738649149472> \` STATUS : OFF\`"
+    let title = smState ? "<:toggleright:1138440735230804018> \` SMART MANAGER : ON\`" : "<:toggleleft:1138440738649149472> \` SMART MANAGER : OFF\`"
 
     const DashboardTeam = new MessageEmbed()
         .setColor('#2b2d31')
-        .setTitle(`<:activity:1137390592314331176> \` SMART MANAGER \``)
-        .setDescription(embedDescription + "\n")
+        .setTitle(title)
         .addFields(
             { name: '<:pluscircle:1137390650690650172> | ` CREATE CHANNEL `', value: "Crée un salon", inline: false },
             { name: '<:minuscircle:1137390648262135951> | ` DELETE CHANNEL `', value: "Supprime un salon", inline: false },
             { name: '<:userplus:1137394694972788837> | ` ADD SUB `', value: 'Donne des accès temporaires à l\'équipe', inline: false },
             { name: '<:userminus:1137394849025359992> | ` REMOVE SUB `', value: 'Retire des accès temporaires à l\'équipe', inline: false },
-            { name: '<:settings:1137410884432564404> | ` SMART MANAGER `', value: "Reconfigure le smart manager", inline: false },
+            { name: '<:settings:1137410884432564404> | ` SMART MANAGER `', value: "Reconfigure et reset le smart manager", inline: false },
             { name: '<:calendar:1137424147056689293> | ` ASK PLAYER CALENDAR `', value: "Rappel aux joueurs de remplir leurs dispos", inline: false },
             { name: '<:eye:1137390637323403394> | ` SHOW CALENDAR `', value: "Affiche les dispos des joueurs", inline: false },
         )
@@ -436,6 +501,46 @@ async function createTeamChannels(guild, teamCategory, role, staffPermissions) {
     })
 }
 
+async function cancelEvent(client, Team, eventID) {
+    let event = Team.events.find(event => String(event._id) === eventID)
+    if (!event) return "Event not found"
+
+    // Send message to all event participants
+    let eventParticipants = event.rsvps.map(rsvp => rsvp.userId)
+    for (const participant of eventParticipants) {
+        let user = await client.users.fetch(participant)
+        let dmChannel = await user.createDM()
+        dmChannel.send({
+            embeds: [
+                new MessageEmbed()
+                    .setDescription(`<:trash:1137390663797841991> L'événement ${event.name} qui débutait <t:${event.discordTimestamp}:R> a été annulé`)
+                    .setColor("#2b2d31")
+            ]
+        })
+    }
+
+    let parentChannel = client.channels.cache.get(Team.linkedCategoryId)
+    let organisationChannel = parentChannel.children.find(channel => channel.name.includes('organisation'))
+    let staffChannel = parentChannel.children.find(channel => channel.name.includes('staff'))
+    let messages = await organisationChannel.messages.fetch({ limit: 10 })
+    let eventMessage = messages.find(message => message.id === event.messageId)
+
+    staffChannel.send({
+        content: "<@&624715536693198888>",
+        embeds: [
+            new MessageEmbed()
+                .setDescription(`<:trash:1137390663797841991> L'événement ${event.name} qui débutait <t:${event.discordTimestamp}:R> a été annulé`)
+                .setColor("#2b2d31")
+        ]
+    })
+
+    eventMessage.delete()
+    Team.events = Team.events.filter(event => String(event._id) !== eventID)
+    await Team.save()
+
+    return `Event ${event.name} with ID ${event._id} has been cancelled`
+}
+
 module.exports = {
     getTeamStaff,
     getTeamMembers,
@@ -443,5 +548,8 @@ module.exports = {
     createTeamChannels,
     updateTeamChannels,
     cleanTeams,
-    updateTeamsDashboard
+    updateTeamsDashboard,
+    updateEventEmbed,
+    updatePastEventEmbed,
+    cancelEvent
 }

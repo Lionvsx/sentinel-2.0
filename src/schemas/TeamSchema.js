@@ -1,7 +1,10 @@
 const mongoose = require('mongoose');
 
 const RSVPSchema = new mongoose.Schema({
-    userId: String,
+    userId: {
+        type: String,
+        required: true
+    },
     attending: {
         type: String,
         enum: ["yes", "no", "maybe"],
@@ -12,21 +15,27 @@ const RSVPSchema = new mongoose.Schema({
 const EventSchema = new mongoose.Schema({
     name: String,
     description: String,
-    startTime: Date,
-    endTime: Date,
+    discordTimestamp: Number,
+    nbGames: Number,
+    duration: Number,
+    trackerLink: String,
     type: {
         type: String,
-        enum: ["match", "training", "tournament", "other"],
+        enum: ["match", "training", "tournament", "other", "review", "meeting", "team-building", "scrim", "pracc"],
         default: "other",
         required: true
     },
     attendance: {
-        type: String,
-        enum: ["required", "optional"],
-        default: "optional",
+        type: Boolean,
         required: true
     },
-    rsvps: [RSVPSchema]
+    rsvps: [RSVPSchema],
+    slots: Number,
+    messageId: String,
+    archived: {
+        type: Boolean,
+        default: false
+    }
 });
 
 
@@ -83,11 +92,13 @@ const TeamSchema = new mongoose.Schema({
     availabilities: [AvailabilitySchema],
     availabilitiesAnswered: Number,
     playersAnswered: [String],
+    planningSent: Boolean,
     minPlayers: Number,
     trainTags: [String],
     sport: Boolean,
     trainingTime: Number,
     dashboardChannelId: String,
+    customPrompt: String,
 });
 
 module.exports = mongoose.model('Team', TeamSchema);

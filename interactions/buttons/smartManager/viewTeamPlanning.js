@@ -1,6 +1,7 @@
 const { MessageEmbed } = require('discord.js');
 const BaseInteraction = require('../../../utils/structures/BaseInteraction');
 const Teams = require("../../../src/schemas/TeamSchema");
+const {getDateOfCurrentWeek} = require("../../../utils/functions/systemFunctions");
 
 module.exports = class ViewTeamPlanning extends BaseInteraction {
     constructor() {
@@ -19,37 +20,57 @@ module.exports = class ViewTeamPlanning extends BaseInteraction {
 
         let availabilities = Team.availabilities;
 
+        // Sort by day
+        function customSortDays(a, b) {
+            return getDateOfCurrentWeek(a.day) - getDateOfCurrentWeek(b.day);
+        }
+
+        availabilities.sort(customSortDays);
+
         // Regrouper par jour
-        const groupedByDay = {};
+        const groupedByDay = new Map();
         availabilities.forEach(av => {
-            if (!groupedByDay[av.day]) {
-                groupedByDay[av.day] = [];
+            if (!groupedByDay.get(av.day)) {
+                groupedByDay.set(av.day, []);
             }
-            groupedByDay[av.day].push(av);
+            groupedByDay.get(av.day).push(av);
         });
 
         const embed = new MessageEmbed()
             .setTitle(`<:calendar:1137424147056689293> Planning de l'équipe`)
             .setColor('#3498db');
 
-        for (let [day, avail] of Object.entries(groupedByDay)) {
+
+
+
+
+        for (let [day, avail] of groupedByDay.entries()) {
+            function customSortHours(a, b) {
+                if (a.hour >= 0 && a.hour < 6) {
+                    return (b.hour >= 0 && b.hour < 6) ? a.hour - b.hour : 1;
+                }
+                if (b.hour >= 0 && b.hour < 6) {
+                    return -1;
+                }
+                return a.hour - b.hour;
+            }
             // Trier par heure pour chaque jour
-            avail.sort((a, b) => a.hour - b.hour);
+            avail.sort(customSortHours);
 
             let dayDescription = '';
 
             const FULL_TEAM_COUNT = Team.minPlayers;
 
             // Group by hour to count available players per hour
-            const groupedByHour = {};
+            const groupedByHour = new Map();
             avail.forEach(av => {
-                if (!groupedByHour[av.hour]) {
-                    groupedByHour[av.hour] = [];
+                if (!groupedByHour.get(av.hour)) {
+                    groupedByHour.set(av.hour, []);
                 }
-                groupedByHour[av.hour].push(av);
+                groupedByHour.get(av.hour).push(av);
             });
 
-            for (let [hour, hourAvail] of Object.entries(groupedByHour)) {
+            for (let [hour, hourAvail] of groupedByHour.entries()) {
                 let availableCount = hourAvail.filter(a => a.availability === 'available').length;
                 let missingPlayers = FULL_TEAM_COUNT - availableCount;
 
@@ -70,7 +91,11 @@ module.exports = class ViewTeamPlanning extends BaseInteraction {
                 dayDescription += `${emoji} ${hour}h (${usernames})\n`;
             }
 
-            embed.addField(day, dayDescription, true);
+            embed.addFields({
+                name: day,
+                value: dayDescription,
+                inline: true
+            });
         }
 
         interaction.reply({ embeds: [embed], ephemeral: true});
