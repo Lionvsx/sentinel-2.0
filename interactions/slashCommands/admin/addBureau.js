@@ -1,10 +1,9 @@
 const BaseInteraction = require('../../../utils/structures/BaseInteraction');
-const mongoose = require('mongoose');
 const { updateGuildMemberCache } = require('../../../utils/functions/utilitaryFunctions');
 const { isMember } = require('../../../utils/functions/dbFunctions');
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { MessageEmbed, Permissions } = require('discord.js');
-const { createButtonActionRow, createButton, createEmojiButton } = require('../../../utils/functions/messageComponents')
+const { MessageEmbed} = require('discord.js');
+const { createButtonActionRow, createEmojiButton } = require('../../../utils/functions/messageComponents')
 const Users = require("../../../src/schemas/UserSchema");
 
 module.exports = class PrefixInteraction extends BaseInteraction {

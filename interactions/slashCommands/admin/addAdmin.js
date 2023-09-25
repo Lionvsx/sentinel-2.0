@@ -1,5 +1,4 @@
 const BaseInteraction = require('../../../utils/structures/BaseInteraction');
-const mongoose = require('mongoose');
 const { updateGuildMemberCache } = require('../../../utils/functions/utilitaryFunctions');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { Permissions } = require('discord.js');
