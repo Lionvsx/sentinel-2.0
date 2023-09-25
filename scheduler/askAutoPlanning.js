@@ -23,6 +23,7 @@ module.exports = {
                 Team.availabilitiesAnswered = 0
                 Team.playersAnswered = []
                 Team.availabilities = [];
+                Team.planningSent = false
                 await Team.save()
 
                 let notionTeam = await getNotionPageById(Team.linkedNotionPageId)
@@ -81,7 +82,17 @@ module.exports = {
                         ],
                         components: [
                             createMessageActionRow([saturdayMenu]),
-                            createMessageActionRow([sundayMenu]),
+                            createMessageActionRow([sundayMenu])
+                        ]
+                    })
+
+                    await playerDM.send({
+                        embeds: [
+                            new MessageEmbed()
+                                .setDescription('<:arrowdown:1137420436016214058> Une fois vos disponibilités remplies, veuillez les confirmer <:arrowdown:1137420436016214058>')
+                                .setColor('#2b2d31')
+                        ],
+                        components: [
                             createMessageActionRow([
                                 createEmojiButton(`validateAvailabilities|${Team.linkedCategoryId}`, 'Je confirme mes disponibilités', 'SECONDARY', '<:check:1137390614296678421>')
                             ])

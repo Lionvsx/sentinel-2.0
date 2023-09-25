@@ -2,9 +2,6 @@ const BaseInteraction = require('../../../utils/structures/BaseInteraction');
 const Teams = require("../../../src/schemas/TeamSchema");
 const {getNotionPageById} = require("../../../utils/functions/notionFunctions");
 const {getTeamMembers} = require("../../../utils/functions/teamsFunctions");
-const {createSelectionMenuOption, createSelectionMenu, createMessageActionRow,
-    createEmojiButton
-} = require("../../../utils/functions/messageComponents");
 const {MessageEmbed} = require("discord.js");
 
 
@@ -31,6 +28,10 @@ module.exports = class AskTeamPlanning extends BaseInteraction {
             return
         }
 
+        interaction.deferReply({
+            ephemeral: true
+        })
+
         let notionTeam = await getNotionPageById(Team.linkedNotionPageId)
 
         let players = await getTeamMembers(notionTeam)
@@ -52,7 +53,7 @@ module.exports = class AskTeamPlanning extends BaseInteraction {
 
         let playersNotAnswered = players.filter(player => !Team.playersAnswered.includes(player))
 
-        interaction.reply({
+        interaction.editReply({
             content: '<:check:1137387353846063184> Les joueurs n\'ayant pas encore répondu ont été notifiés: \n' + playersNotAnswered.map(player => `<@!${player}>`).join('\n'),
             ephemeral: true
         })
