@@ -160,6 +160,11 @@ module.exports = class SyncDatabaseButton extends BaseInteraction {
                             "name": "Esport"
                         })
                         break;
+                    case "staff-esport":
+                        poles.push({
+                            "name": "Esport"
+                        })
+                        break;
                     case "webtv":
                         poles.push({
                             "name": "Web TV"

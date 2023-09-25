@@ -77,9 +77,9 @@ module.exports = class CreateChannelTeams extends BaseInteraction {
         if (!userAndRolesToAdd) return;
 
         let audience = undefined
-        if (userAndRolesToAdd.toLowerCase() != 'aucun') {
+        if (userAndRolesToAdd.toLowerCase() !== 'aucun') {
             audience = await getUsersAndRolesFromString(interaction.guild, userAndRolesToAdd.split(/\s*,\s*/))
-            if (audience.length === 0) return
+            if (audience.length === 0) return dmChannel.send(`**<:x_:1137419292946727042> | **Aucun utilisateur ou rôle valide trouvé !`)
             for (const element of audience) {
                 channelPermissions.push({ id: element.id, allow: [Permissions.FLAGS.VIEW_CHANNEL]})
             }

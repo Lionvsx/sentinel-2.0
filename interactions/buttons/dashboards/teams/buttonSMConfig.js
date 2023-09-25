@@ -1,17 +1,16 @@
 const BaseInteraction = require('../../../../utils/structures/BaseInteraction')
-const {Permissions, MessageEmbed} = require("discord.js");
+const {MessageEmbed} = require("discord.js");
 const Teams = require('../../../../src/schemas/TeamSchema');
 const {createSelectionMenu, createSelectionMenuOption, createMessageActionRow,
     createEmojiButton
 } = require("../../../../utils/functions/messageComponents");
 const {menuInteraction} = require("../../../../utils/functions/awaitFunctions");
 const {updateTeamsDashboard, getTeamMembers} = require("../../../../utils/functions/teamsFunctions");
-const cron = require('node-cron');
 const {getNotionPageById} = require("../../../../utils/functions/notionFunctions");
 module.exports = class ButtonSMConfig extends BaseInteraction {
     constructor() {
         super('buttonSMConfig', 'teams', 'button', {
-            userPermissions: [Permissions.FLAGS.ADMINISTRATOR],
+            userPermissions: [],
             clientPermissions: [],
         })
     }
@@ -45,15 +44,15 @@ module.exports = class ButtonSMConfig extends BaseInteraction {
         sportObligatoryInteraction.deferUpdate();
 
         // Ask for training keywords with a select menu
-        const trainingKeywordsMenu = createSelectionMenu('trainingKeywordsSelect', 'Quels mots clés pour les entrainements?', [
+        const trainingKeywordsMenu = createSelectionMenu('trainingKeywordsSelect', 'Quel mot clé pour les entrainements?', [
             createSelectionMenuOption('training', 'Training'),
             createSelectionMenuOption('scrim', 'Scrim'),
             createSelectionMenuOption('pracc', 'Pracc'),
             createSelectionMenuOption('entrainement', 'Entrainement'),
-        ], 1, 4);
+        ], 1, 1);
 
         let trainingKeywordsMessage = await dmChannel.send({
-            embeds: [new MessageEmbed().setDescription('<:arrowdown:1137420436016214058> Mots clés pour les entrainements: <:arrowdown:1137420436016214058>').setColor('#2b2d31')],
+            embeds: [new MessageEmbed().setDescription('<:arrowdown:1137420436016214058> Mot clé pour les entrainements: <:arrowdown:1137420436016214058>').setColor('#2b2d31')],
             components: [createMessageActionRow([trainingKeywordsMenu])]
         });
 
@@ -97,6 +96,14 @@ module.exports = class ButtonSMConfig extends BaseInteraction {
         let trainingTime = trainingTimeInteraction.values[0];
         trainingTimeInteraction.deferUpdate();
 
+        // Delete every event message on discord
+        let teamCategory = await interaction.guild.channels.fetch(Team.linkedCategoryId)
+        let organisationChannel = teamCategory.children.find(channel => channel.name.includes('organisation'))
+        let messages = await organisationChannel.messages.fetch()
+        for (const event of Team.events) {
+            let eventMessage = messages.find(message => message.id === event.messageId)
+            await eventMessage.delete()
+        }
 
         Team.sport = sportObligatory;
         Team.trainTags = trainingKeywords;
@@ -107,6 +114,8 @@ module.exports = class ButtonSMConfig extends BaseInteraction {
         Team.availabilitiesAnswered = 0;
         Team.playersAnswered = [];
         Team.availabilities = [];
+        Team.events = [];
+        Team.planningSent = false;
         await Team.save();
 
         await dmChannel.send({
@@ -118,6 +127,33 @@ module.exports = class ButtonSMConfig extends BaseInteraction {
         await updateTeamsDashboard(interaction.channel, true);
 
         await sendAvailabilitiesForm(interaction, Team)
+
+        let staffChannel = teamCategory.children.find(channel => channel.name.includes('🔗┃staff'))
+        let discussionChannel = teamCategory.children.find(channel => channel.name.includes('💬┃discussion'))
+
+        await staffChannel.send({
+            embeds: [
+                new MessageEmbed()
+                    .setDescription('<:info:1137425479914242178> ` SMART MANAGER STAFF ACTIVE `\n\n' +
+                        'Vous pouvez me mentionner dans organisation pour créer un ou plusieurs events selon vos critères.\n\n' +
+                        'A savoir que je fonctionne grace à une intelligence artificielle, donc la formulation importe peu tant que vous me fournissez les détails nécessaires à la création de votre évenement.\n\n' +
+                        'Vous pouvez me demander de créer un scrim, un team building ou encore planifier un tournoi.\n\n' +
+                        'Les joueurs pourront me tag dans les channels de discussion si ils ont un empêchement, j\'essayerai de replanifier l\'évenement si possible')
+                    .setColor('#2b2d31')
+
+            ]
+        })
+
+        await discussionChannel.send({
+            embeds: [
+                new MessageEmbed()
+                    .setDescription('<:info:1137425479914242178> ` SMART MANAGER ACTIVE `\n\n' +
+                        'Bonjour à tous, je suis le manager de cette équipe.\n\n' +
+                        'Vous pouvez me mentionner dans discussion si vous avez un empêchement avec un évenement et j\'essayerai de le replanifier !\n\n' +
+                        'A savoir que je fonctionne grace à une intelligence artificielle, donc la formulation importe peu tant que vous me fournissez les détails nécessaires.')
+                    .setColor('#2b2d31')
+            ]
+        })
     }
 }
 
@@ -178,7 +214,17 @@ async function sendAvailabilitiesForm(interaction, Team) {
             ],
             components: [
                 createMessageActionRow([saturdayMenu]),
-                createMessageActionRow([sundayMenu]),
+                createMessageActionRow([sundayMenu])
+            ]
+        })
+
+        await playerDM.send({
+            embeds: [
+                new MessageEmbed()
+                    .setDescription('<:arrowdown:1137420436016214058> Une fois vos disponibilités remplies, veuillez les confirmer <:arrowdown:1137420436016214058>')
+                    .setColor('#2b2d31')
+            ],
+            components: [
                 createMessageActionRow([
                     createEmojiButton(`validateAvailabilities|${Team.linkedCategoryId}`, 'Je confirme mes disponibilités', 'SECONDARY', '<:check:1137390614296678421>')
                 ])

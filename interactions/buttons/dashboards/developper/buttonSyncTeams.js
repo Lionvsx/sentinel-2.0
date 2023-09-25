@@ -62,7 +62,7 @@ module.exports = class ButtonSyncTeams extends BaseInteraction {
                     emoji: teamEmoji,
                     game: team.properties["Jeu"]?.select?.name ?? undefined,
                     linkedRoleId: teamRole.id,
-                    linkedCategoryId: teamCategory.id
+                    linkedCategoryId: teamCategory.id,
                 })
 
                 let staffPermissions = [{
@@ -154,6 +154,9 @@ module.exports = class ButtonSyncTeams extends BaseInteraction {
                     let rolesToAddPlayer = allRoles.filter(role => (role.id === "744234937535955045" || role.id === "679422903346790411" || role.id === teamRole.id) && !playerUser.roles.cache.has(role.id))
                     playerUser.roles.add(rolesToAddPlayer)
                 }
+
+                dbTeam.game = team.properties["Jeu"]?.select?.name ?? undefined
+                await dbTeam.save()
 
                 await updateTeamChannels(interaction.guild, teamCategory, teamRole, staffPermissions)
 
