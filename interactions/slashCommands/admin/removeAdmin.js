@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const { updateGuildMemberCache } = require('../../../utils/functions/utilitaryFunctions');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { Permissions } = require('discord.js');
+const Users = require("../../../src/schemas/UserSchema");
 
 module.exports = class PrefixInteraction extends BaseInteraction {
     constructor() {
@@ -26,10 +27,10 @@ module.exports = class PrefixInteraction extends BaseInteraction {
         const user = interaction.options.get('user').user.username
 
         let guildMember = allMembers.find(m => m.user.tag.toLowerCase().includes(user.toLowerCase()));
+        let userDB = await Users.findOne({ discordId: interaction.user.id, onServer: true });
+        if (!userDB.isAdmin) return interaction.reply(`**<:x_:1137419292946727042> | **Vous n'avez pas la permission d'executer cette commande`)
 
         if (guildMember) {
-            const userId = guildMember.user.id;
-            const userDB = await mongoose.model('User').findOne({ discordId: userId, onServer: true });
             if (userDB && userDB.id) {
                 if (userDB.isAdmin) {
                     userDB.isAdmin = false;
