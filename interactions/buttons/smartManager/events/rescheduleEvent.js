@@ -1,9 +1,10 @@
 const BaseInteraction = require('../../../../utils/structures/BaseInteraction');
 const Teams = require("../../../../src/schemas/TeamSchema");
-const {alertEvent} = require("../../../../utils/functions/teamsFunctions");
-module.exports = class AlertEvent extends BaseInteraction {
+const SmartAIRescheduler = require("../../../../ai/SmartAIRescheduler");
+const {editEvent} = require("../../../../utils/functions/teamsFunctions");
+module.exports = class RescheduleEvent extends BaseInteraction {
     constructor() {
-        super('alertEvent', 'smartManager', 'button', {
+        super('rescheduleEvent', 'smartManager', 'button', {
             userPermissions: [],
             clientPermissions: [],
         });
@@ -28,19 +29,27 @@ module.exports = class AlertEvent extends BaseInteraction {
             ephemeral: true
         });
 
-        await alertEvent(interaction.guild, event)
-
-        if (interaction.message.components[1]) {
-            interaction.message.components.splice(1, 1)
-        }
-
-        interaction.reply({
-            content: '<:check:1137387353846063184> J\'ai envoyé une notification à tous les participants',
+        await interaction.deferReply({
             ephemeral: true
         })
 
-        await interaction.message.edit({
-            components: interaction.message.components
-        })
+
+        const SmartRescheduler = new SmartAIRescheduler(client)
+        let response = await SmartRescheduler.rescheduleEvent(client, Team, event.id)
+
+        if (response.finish_reason === "function_call") {
+            let args = JSON.parse(response.message.function_call.arguments)
+            let cancelEventResponse = await editEvent(interaction.guild, Team, args)
+            let functionResponse = await SmartRescheduler.functionInput(cancelEventResponse, 'edit-event')
+            await interaction.editReply({
+                content: functionResponse.message.content,
+                ephemeral: true
+            })
+        } else {
+            await interaction.editReply({
+                content: response.message.content,
+                ephemeral: true
+            })
+        }
     }
 }

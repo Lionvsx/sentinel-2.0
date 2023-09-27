@@ -25,7 +25,9 @@ module.exports = class MessageCreateSmartManagerEvent extends BaseEvent {
 
         if (!Team || !Team.smartManager) return;
 
-        const currentDate = new Date(Date.now());
+        // Add UTC Offset to date
+        let offset = getParisUTCOffset() // offset in hours between UTC and paris
+        const currentDate = new Date(Date.now() + (offset * 3600 * 1000));
         const options = { weekday: 'long' };
         const day = currentDate.toLocaleDateString('en-US', options);
 
@@ -81,8 +83,10 @@ module.exports = class MessageCreateSmartManagerEvent extends BaseEvent {
 
         if (response.finish_reason !== "function_call") {
             message.reply({
-                content: `<:x_:1137419292946727042> Erreur : ${response.message.content}`
+                content: `<:x_:1137419292946727042> Erreur : ${response.message.content}`,
+                ephemeral: true
             })
+            await message.delete()
             return;
         }
 
@@ -114,8 +118,7 @@ module.exports = class MessageCreateSmartManagerEvent extends BaseEvent {
                     title = '<:calendar:1137424147056689293> ` EVENT `'
                     break
             }
-            let offset = getParisUTCOffset() // offset in hours between UTC and paris
-            const unixTimestamp = Math.floor(new Date(event.date).getTime() / 1000) - (offset * 3600);
+            const unixTimestamp = Math.floor(new Date(event.date).getTime() / 1000 - (offset * 3600));
 
             let embedDescription = `<:calendar:1137424147056689293> \` DATE \` <t:${unixTimestamp}:F>\n<:clock:1139536765837901916> \` DURÉE \` ${minutesToHHMM(event.duration)}\n`
 

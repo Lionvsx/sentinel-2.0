@@ -5,8 +5,10 @@ const {
     createButtonActionRow,
     createEmojiButton
 } = require("./messageComponents");
-const {minutesToHHMM} = require("./systemFunctions");
-
+const {minutesToHHMM, getParisUTCOffset, getCurrentWeekNumber,
+    getDateOfCurrentWeek,
+    getDateOfToday
+} = require("./systemFunctions");
 async function updateTeamChannels(guild, teamCategory, role, staffPermissions) {
     let childChannels = teamCategory.children
     let organisationChannel = childChannels.find(channel => channel.name === "📌┃organisation")
@@ -228,10 +230,10 @@ function updateEventEmbed(event) {
 }
 
 function updatePastEventEmbed(event) {
-    let title = `<:checkcircle:1137390611213865030> \` ${event.type.toUpperCase()} TERMINE \``
-    let embedDescription = `<:calendar:1137424147056689293> \` DATE \` <t:${event.discordTimestamp}:F>\n`
+    let title = `<:checkcircle:1137390611213865030> \` ${event.type.toUpperCase()} FINISHED \``
+    let embedDescription = `<:calendar:1137424147056689293> \` DATE \` <t:${event.discordTimestamp}:F>`
     if (event.type !== 'review' && event.type !== 'team-building' && event.type !== 'tournament') {
-        embedDescription += `<:arrowrightcircle:1137421115766083726> \` GAMES \` ${event.nbGames}\n`
+        embedDescription += `\n<:arrowrightcircle:1137421115766083726> \` GAMES \` ${event.nbGames}`
     }
     if (event.trackerLink) {
         let trackerLinkDomain = event.trackerLink.split('/')[2]
@@ -239,9 +241,19 @@ function updatePastEventEmbed(event) {
         embedDescription += `\n<:link:1137424150764474388> \` TRACKER \` [${trackerLinkDomain.toUpperCase()}](${event.trackerLink})`
     }
 
+    if (event.score) {
+        embedDescription += `\n<:crosshair:1137436482248904846> \` SCORE \` ${event.score}`
+    }
+
+    if (event.result) {
+        embedDescription += `\n<:flag:1153289152536772659> \` RESULTAT \` ${event.result}`
+    }
+
     if (event.description) {
         embedDescription += `\n<:messagesquare:1137390645972049970> \` INFOS \`\n${event.description}\n`
     }
+
+
 
     return new MessageEmbed()
         .setTitle(title)
@@ -275,7 +287,7 @@ async function cleanTeams(guild) {
 
 /**
  *
- * @param teamNotionPage}
+ * @param teamNotionPage
  * @returns {Promise<*[][]>}
  */
 async function getTeamStaff(teamNotionPage) {
@@ -501,14 +513,14 @@ async function createTeamChannels(guild, teamCategory, role, staffPermissions) {
     })
 }
 
-async function cancelEvent(client, Team, eventID) {
+async function cancelEvent(guild, Team, eventID) {
     let event = Team.events.find(event => String(event._id) === eventID)
     if (!event) return "Event not found"
 
     // Send message to all event participants
     let eventParticipants = event.rsvps.map(rsvp => rsvp.userId)
     for (const participant of eventParticipants) {
-        let user = await client.users.fetch(participant)
+        let user = await guild.members.fetch(participant)
         let dmChannel = await user.createDM()
         dmChannel.send({
             embeds: [
@@ -519,11 +531,10 @@ async function cancelEvent(client, Team, eventID) {
         })
     }
 
-    let parentChannel = client.channels.cache.get(Team.linkedCategoryId)
+    let parentChannel = guild.channels.cache.get(Team.linkedCategoryId)
     let organisationChannel = parentChannel.children.find(channel => channel.name.includes('organisation'))
     let staffChannel = parentChannel.children.find(channel => channel.name.includes('staff'))
-    let messages = await organisationChannel.messages.fetch({ limit: 10 })
-    let eventMessage = messages.find(message => message.id === event.messageId)
+    let eventMessage = await organisationChannel.messages.fetch(event.messageId)
 
     staffChannel.send({
         content: "<@&624715536693198888>",
@@ -541,6 +552,263 @@ async function cancelEvent(client, Team, eventID) {
     return `Event ${event.name} with ID ${event._id} has been cancelled`
 }
 
+async function alertEvent(guild, event) {
+
+    let participantRSVPs = event.rsvps.filter(rsvp => rsvp.attending === "yes")
+    let participantDiscord = participantRSVPs.map(rsvp => guild.members.cache.get(rsvp.userId))
+
+    for (const participant of participantDiscord) {
+        let DMChannel = await participant.createDM()
+        await DMChannel.send({
+            embeds: [
+                new MessageEmbed().setDescription(`<:bell:1153604390356271124> L'événement ${event.name} va commencer dans <t:${event.discordTimestamp}:R>`).setColor("#2b2d31")
+            ]
+        })
+    }
+}
+
+async function alertTeamMembers(guild, Team, event) {
+    let notionTeam = await getNotionPageById(Team.linkedNotionPageId)
+    let teamMembers = await getTeamMembers(notionTeam)
+
+    // Alert all teamMembers that have not RSVPed yet
+    for (const member of teamMembers) {
+        if (!event.find(rsvp => rsvp.userId === member)) {
+            let user = await guild.members.fetch(member)
+            let dmChannel = await user.createDM()
+            await dmChannel.send({
+                embeds: [
+                    new MessageEmbed().setDescription(`<:bell:1153604390356271124> Vous n'avez pas encore répondu à l'événement ${event.name} qui va commencer dans <t:${event.discordTimestamp}:R>. Merci de le faire au plus vite`).setColor("#2b2d31")
+                ]
+            })
+        }
+    }
+}
+
+async function addAvailability(guild, Team, functionArgs, userId) {
+    try {
+        let returnMessage = []
+        for (const avail of functionArgs.availabilities) {
+            const { slotStartTime, slotDuration, availability } = avail;
+
+            if (!slotStartTime || !slotDuration || !availability || !userId) {
+                return "Missing arguments"
+            }
+
+            const startTime = new Date(slotStartTime);
+            const endTime = new Date(startTime.getTime() + slotDuration * 60000); // converting duration to milliseconds
+
+
+            if (!Team) {
+                return "Team not found"
+            }
+
+            let guildMember = await guild.members.fetch(userId)
+
+            let offset = getParisUTCOffset();
+            const overlappingEvents = Team.events.filter(event => {
+                const eventStartTime = new Date(event.discordTimestamp * 1000 + offset * 3600000);
+                const eventEndTime = new Date(eventStartTime.getTime() + event.duration * 60000); // converting duration to milliseconds
+                return (startTime <= eventEndTime && endTime >= eventStartTime) && event.attendance;
+            });
+
+            if (availability === 'unavailable' && overlappingEvents.length > 0) {
+                for (const event of overlappingEvents) {
+                    sendPlanningConflictMessage(guild, Team, event, guildMember.user.username);
+                }
+            }
+
+            const day = startTime.toLocaleDateString('en-US', { weekday: 'long' });
+            const startHour = startTime.getUTCHours();
+            const endHour = startTime.getUTCHours() + slotDuration / 60
+            const weekNumber = getCurrentWeekNumber(startTime);
+
+            for (let hour = startHour; hour <= endHour; hour++) {
+                let relativeHour = hour % 24;
+                const existingAvailabilityIndex = Team.availabilities.findIndex(avail =>
+                    avail.discordId === userId &&
+                    avail.hour === relativeHour &&
+                    avail.day === day &&
+                    avail.weekNumber === weekNumber
+                );
+
+                const newAvailability = {
+                    day: day,
+                    hour: relativeHour,
+                    weekNumber: weekNumber,
+                    discordId: userId,
+                    availability: availability
+                };
+
+                if (existingAvailabilityIndex !== -1) {
+                    Team.availabilities[existingAvailabilityIndex] = newAvailability;
+                } else {
+                    Team.availabilities.push(newAvailability);
+                }
+            }
+
+            await Team.save();
+            returnMessage.push("User availabilities updated successfully from " + startTime.toLocaleString() + " to " + endTime.toLocaleString() + " with status " + availability);
+        }
+        return returnMessage.join('\n');
+    } catch (error) {
+        console.error(error);
+        return "Error while adding availability"
+    }
+}
+
+function sendPlanningConflictMessage(guild, Team, event, displayName) {
+    let staffChannel = guild.channels.cache.get(Team.linkedCategoryId).children.find(channel => channel.name.includes('staff'))
+
+    let findSubButton = createEmojiButton(`findSub|${event.id}`, 'Find Sub', 'SECONDARY', '<:usersub:1139216889231462471>')
+    let cancelEventButton = createEmojiButton(`cancelEvent|${event.id}`, 'Cancel', 'SECONDARY', '<:trash:1137390663797841991>')
+    let rescheduleEventButton = createEmojiButton(`rescheduleEvent|${event.id}`, 'Auto Reschedule', 'SECONDARY', '<:repeat:1156640382210289734>')
+
+    let decisionEmbed = new MessageEmbed()
+        .setTitle(`<:alerttriangleyellow:1137390607069888593> \` CONFLIT DE PLANNING \``)
+        .setDescription(`Le joueur ${displayName} est indisponible pour l'événement ${event.name} qui débute <t:${event.discordTimestamp}:R>`)
+        .setColor('#2b2d31')
+
+    staffChannel.send({
+        content: "<@&624715536693198888>",
+        embeds: [decisionEmbed],
+        components: [createButtonActionRow([findSubButton, cancelEventButton, rescheduleEventButton])]
+    })
+}
+
+function getCurrentPlayerAvailability(Team, userId) {
+    const weekNumber = getCurrentWeekNumber();
+
+
+    const availabilities = Team.availabilities.filter(avail =>
+        avail.discordId === userId &&
+        avail.weekNumber === weekNumber &&
+        avail.availability === 'available'
+    );
+
+    const groupedByDay = {};
+    availabilities.forEach(av => {
+        if (!groupedByDay[av.day]) {
+            groupedByDay[av.day] = [];
+        }
+        groupedByDay[av.day].push(av);
+    });
+
+    let formattedSlots = [];
+    let offset = getParisUTCOffset();
+
+    for (let [day, avail] of Object.entries(groupedByDay)) {
+
+        if (getDateOfCurrentWeek(day) < getDateOfToday()) continue;
+
+        function customSortHours(a, b) {
+            if (a.hour >= 0 && a.hour < 6) {
+                return (b.hour >= 0 && b.hour < 6) ? a.hour - b.hour : 1;
+            }
+            if (b.hour >= 0 && b.hour < 6) {
+                return -1;
+            }
+            return a.hour - b.hour;
+        }
+        // Trier par heure pour chaque jour
+        avail.sort(customSortHours);
+
+        // Group by hour
+        const groupedByHour = new Map();
+        avail.forEach(av => {
+            if (!groupedByHour.get(av.hour)) {
+                groupedByHour.set(av.hour, []);
+            }
+            groupedByHour.get(av.hour).push(av);
+        });
+
+        let currentSlot = null;
+        let previousHour = null;
+
+        for (let [hour, hourAvail] of groupedByHour.entries()) {
+            // If this is the start of a new slot or a non-consecutive hour
+            if (!currentSlot || (previousHour !== null && previousHour + 1 !== hour)) {
+                if (currentSlot) {
+                    formattedSlots.push(`${currentSlot.day}-${getDateOfCurrentWeek(currentSlot.day)} from ${(currentSlot.startHour - offset) % 24}h to ${(currentSlot.endHour - offset) % 24}h`);
+                }
+                currentSlot = {
+                    day: day,
+                    startHour: hour,
+                    endHour: hour + 1
+                };
+            } else {
+                currentSlot.endHour++;
+            }
+
+            previousHour = hour;
+        }
+
+        // Handle the final slot if any
+        if (currentSlot) {
+            formattedSlots.push(`${currentSlot.day}-${getDateOfCurrentWeek(currentSlot.day)} from ${(currentSlot.startHour - offset) % 24}h to ${(currentSlot.endHour - offset) % 24}h`);
+        }
+    }
+
+    if (availabilities.length === 0) {
+        return "No availability found for the current week for this user";
+    }
+
+    return "User is available at the following times:\n" + formattedSlots.join('\n');
+}
+
+async function editEvent(guild, Team, functionArgs) {
+    let event = Team.events.find(event => String(event._id) === functionArgs.eventID)
+    if (!event) return "Event not found"
+
+    let newDate = new Date(functionArgs.newDate)
+    let newDuration = functionArgs.newDuration
+    let newNumberOfGames = functionArgs.newNumberOfGames
+
+    let offset = getParisUTCOffset()
+    let unixTimestamp = newDate.getTime() / 1000 - (offset * 3600)
+
+    // Send message to all event participants
+    let eventParticipants = event.rsvps.map(rsvp => rsvp.userId)
+    for (const participant of eventParticipants) {
+        let user = await guild.members.fetch(participant)
+        let dmChannel = await user.createDM()
+        dmChannel.send({
+            embeds: [
+                new MessageEmbed()
+                    .setDescription(`<:editpen:1137390632445431950> L'événement ${event.name} qui débutait <t:${event.discordTimestamp}:R> a été modifié et commence maintenant <t:${unixTimestamp}:R>`)
+                    .setColor("#2b2d31")
+            ]
+        })
+    }
+
+    let parentChannel = guild.channels.cache.get(Team.linkedCategoryId)
+    let organisationChannel = parentChannel.children.find(channel => channel.name.includes('organisation'))
+    let staffChannel = parentChannel.children.find(channel => channel.name.includes('staff'))
+    let eventMessage = await organisationChannel.messages.fetch(event.messageId)
+
+    staffChannel.send({
+        content: "<@&624715536693198888>",
+        embeds: [
+            new MessageEmbed()
+                .setDescription(`<:editpen:1137390632445431950> L'événement ${event.name} qui débutait <t:${event.discordTimestamp}:F> a été modifié et commence maintenant <t:${unixTimestamp}:F>`)
+                .setColor("#2b2d31")
+        ]
+    })
+
+
+    event.discordTimestamp = unixTimestamp
+    event.duration = newDuration
+    event.nbGames = newNumberOfGames
+    await Team.save()
+
+    let eventEmbed = updateEventEmbed(event)
+    eventMessage.edit({
+        embeds: [eventEmbed]
+    })
+
+    return `Event ${event.name} has been edited to start at <t:${unixTimestamp}:R>`
+}
+
 module.exports = {
     getTeamStaff,
     getTeamMembers,
@@ -551,5 +819,10 @@ module.exports = {
     updateTeamsDashboard,
     updateEventEmbed,
     updatePastEventEmbed,
-    cancelEvent
+    cancelEvent,
+    alertEvent,
+    editEvent,
+    alertTeamMembers,
+    addAvailability,
+    getCurrentPlayerAvailability
 }

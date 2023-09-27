@@ -1,5 +1,6 @@
 const BaseInteraction = require('../../../utils/structures/BaseInteraction');
 const Teams = require('../../../src/schemas/TeamSchema');
+const {getCurrentWeekNumber} = require("../../../utils/functions/systemFunctions");
 
 module.exports = class AskPlayerPlanning extends BaseInteraction {
     constructor() {
@@ -30,12 +31,7 @@ module.exports = class AskPlayerPlanning extends BaseInteraction {
         // Remove all availabilities of this user for the specified day
         Team.availabilities = Team.availabilities.filter(a => !(a.day === day && a.discordId === userId));
 
-        // Get week number of today within the year
-        const today = new Date();
-        const firstDayOfYear = new Date(today.getFullYear(), 0, 1);
-        const pastDaysOfYear = (today - firstDayOfYear) / 86400000;
-        const weekNumber = Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
-
+        let weekNumber = getCurrentWeekNumber()
 
         // Add new availabilities
         hoursSelected.forEach(hour => {

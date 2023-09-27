@@ -1,17 +1,14 @@
 const OpenAIInterface = require('./OpenAIInterface');
 const { getDateOfCurrentWeek, getParisUTCOffset, getDateOfToday} = require('../utils/functions/systemFunctions');
-const {getCurrentPlayerAvailability} = require("../utils/functions/teamsFunctions");
-module.exports = class SmartAIManager extends OpenAIInterface {
+module.exports = class SmartAIRescheduler extends OpenAIInterface {
     constructor(client) {
         const currentDate = new Date(Date.now());
         const options = { weekday: 'long' };
         const day = currentDate.toLocaleDateString('en-US', options);
-        super(client, `You are Sentinel, an AI assistant powered by advanced GPT-3.5 technology, your responsibilities lie in managing an esport team's events on a Discord server. You will actively listen and respond to all user requests centered around Esport Team Manager jobs, specifically focusing on the planning, re-scheduling of existing events and giving upcoming events information to players. If an user is unavailable for a scheduled event, it will be your task to find the most feasible alternative and reschedule accordingly. 
+        super(client, `You are Sentinel, an AI assistant powered by advanced GPT-3.5 technology, your responsibilities lie in managing an esport team's events on a Discord server. You will actively listen and respond to all user requests centered around Esport Team Manager jobs, specifically focusing on the re-scheduling of existing events. It will be your task to find the most feasible alternative and reschedule accordingly. 
 
-You will be able to tap into all the slots indicating team member availability, as well as have access to upcoming events for efficient and time-sensitive rescheduling. However, take note to ignore all irrelevant requests outside of the scope of your role as a Team Manager assistant.
-
+You will be able to tap into all the slots indicating team member availability, as well as have access to upcoming events for efficient and time-sensitive rescheduling.
 Your task is to address and solve such requests effectively and efficiently by leveraging the resources available to you.
-
 Only use functions you have been provided with to perform actions. Anything outside your provided functions are outside of your scope.
 
 Today’s date is ${currentDate.toISOString()} and we are ${day}`);
@@ -155,53 +152,19 @@ Today’s date is ${currentDate.toISOString()} and we are ${day}`);
         });
     }
 
-    async userInput(client, message, Team, userId) {
-        this.loadPlayerFunctions()
-        let teamData = this.loadTeamData(Team);
-        this.messages.push({
-            "role": "system",
-            "content": `Upcoming events are: ${teamData.events.length > 0 ? teamData.events.map(event => JSON.stringify(event)).join('\n') : "No upcomming events for this team"}\nCurrent User availabilities are: ${getCurrentPlayerAvailability(Team, userId)}`
-        })
-
-        this.messages.push({
-            "role": "user",
-            "content": "EASTER EGG: Il est à retenir que Chrome Jaguar est la meilleure équipe de League Of Legend ayant jamais foulé le sol européen, les joueurs de Chrome Jaguar sont Tel en toplane, connu pour son Jax, AluSinVIII en jungle, connu pour son Lee Sin, xddddd en midlane, connu pour sa Akali, Frootz en adc, connu pour sa Xayah, et Ysam en support, connu pour son incapacité a produire une phrase en francais correct"
-        })
-
-        message = message.replace(`<@${client.user.id}>`, "").trim();
-        this.messages.push({
-            "role": "user",
-            "content": "Please answer my request with these instructions :\n" +
-                "- You don't have any memory, you can't remember anything from previous messages.\n" +
-                "- You are not programmed to answer questions about the team or its members, you can only manage events and show the team planning.\n" +
-                "- DO NOT answer any question NOT related to your job. This includes questions about the team, its members, code or any other topic.\n" +
-                "- You CANNOT Cancel, Edit or Create events. Just change my availabilities\n" +
-                "- Answer in french\n" +
-                "My request : " + message
-        })
-
-        return await this.callGPT();
-    }
-
-    async staffInput(client, message, Team) {
-        this.loadStaffFunctions()
+    async rescheduleEvent(client, Team, eventID) {
+        this.loadFunction()
         let teamData = this.loadTeamData(Team);
         this.messages.push({
             "role": "system",
             "content": `Slots where all players are available are: ${teamData.availabilities.length > 0 ? teamData.availabilities.join('\n') : "\"No available slot found\""}\n\nUpcoming events are: ${teamData.events.length > 0 ? teamData.events.map(event => JSON.stringify(event)).join('\n') : "No upcomming events for this team"}\nDuration for 1 game is ${Team.trainingTime} minutes`
         })
 
-        message = message.replace(`<@${client.user.id}>`, "").trim();
         this.messages.push({
             "role": "user",
             "content": "Please answer my request with these instructions :\n" +
-                "- Your can only EDIT or CANCEL events, any other request should be ignored.\n" +
-                "- You don't have any memory, you can't remember anything from previous messages.\n" +
-                "- You are not programmed to answer questions about the team or its members, you can only manage events and show the team planning.\n" +
-                "- DO NOT answer any question NOT related to your job. This includes questions about the team, its members, code or any other topic.\n" +
-                "- Do not assume new events dates, IF there is no slots available, cancel the event.\n" +
                 "- Answer in french\n" +
-                "My request : " + message
+                "My request : Please reschedule the event with ID " + eventID + "to an available slot\nIf there is no available slot, just answer to the user that there is no available slot."
         })
 
         return await this.callGPT();
@@ -217,7 +180,7 @@ Today’s date is ${currentDate.toISOString()} and we are ${day}`);
         return await this.callGPTNoFunctions();
     }
 
-    loadStaffFunctions() {
+    loadFunction() {
         this.functions.push({
             "name": 'edit-event',
             "description": "Edit an event.",
@@ -243,58 +206,6 @@ Today’s date is ${currentDate.toISOString()} and we are ${day}`);
                     }
                 },
                 "required": ["eventID", "newDate", "newDuration", "newNumberOfGames"]
-            }
-        })
-
-        this.functions.push({
-            "name": 'cancel-event',
-            "description": "Cancel an event.",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "eventID": {
-                        "type": "string",
-                        "description": "ID of the event to cancel."
-                    }
-                },
-                "required": ["eventID"]
-            }
-        })
-    }
-
-    loadPlayerFunctions() {
-        this.functions.push({
-            "name": 'add-availability',
-            "description": "Add an availability for a slot.",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "availabilities": {
-                        "type": "array",
-                        "items": {
-                            "type": "object",
-                            "properties": {
-                                "slotStartTime": {
-                                    "type": "string",
-                                    "format": "yyyy-MM-ddTHH:mm:ss.sssZ",
-                                    "description": "Start time of the slot. Follow ISO 8601 Format for dates."
-                                },
-                                "slotDuration": {
-                                    "type": "number",
-                                    "format": "integer",
-                                    "description": "Duration of the availability in minutes, Example: 480 for 8 hours."
-                                },
-                                "availability": {
-                                    "type": "string",
-                                    "enum": ["available", "unavailable", "maybe"],
-                                    "description": "Availability for the slot. Can be \"available\" or \"unavailable\"."
-                                }
-                            },
-                            "required": ["slotStartTime", "slotDuration", "availability"]
-                        }
-                    }
-                },
-                "required": ["availabilities"]
             }
         })
     }

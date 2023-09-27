@@ -1,9 +1,10 @@
 const BaseInteraction = require('../../../../utils/structures/BaseInteraction');
 const Teams = require("../../../../src/schemas/TeamSchema");
-const {alertEvent} = require("../../../../utils/functions/teamsFunctions");
-module.exports = class AlertEvent extends BaseInteraction {
+const {cancelEvent} = require("../../../../utils/functions/teamsFunctions");
+const {MessageEmbed} = require("discord.js");
+module.exports = class CancelEvent extends BaseInteraction {
     constructor() {
-        super('alertEvent', 'smartManager', 'button', {
+        super('cancelEvent', 'smartManager', 'button', {
             userPermissions: [],
             clientPermissions: [],
         });
@@ -28,19 +29,16 @@ module.exports = class AlertEvent extends BaseInteraction {
             ephemeral: true
         });
 
-        await alertEvent(interaction.guild, event)
+        await cancelEvent(interaction.guild, Team, event.id)
 
-        if (interaction.message.components[1]) {
-            interaction.message.components.splice(1, 1)
-        }
-
-        interaction.reply({
-            content: '<:check:1137387353846063184> J\'ai envoyé une notification à tous les participants',
-            ephemeral: true
-        })
-
-        await interaction.message.edit({
-            components: interaction.message.components
+        await interaction.update({
+            embeds: [
+                new MessageEmbed()
+                    .setColor('#2b2d31')
+                    .setTitle('<:lock:1137390640418803782> ` DECISION ` Annulation de l\'évènement')
+                    .setDescription(`L'évènement a été annulé par ${interaction.user.displayName}`)
+            ],
+            components: []
         })
     }
 }

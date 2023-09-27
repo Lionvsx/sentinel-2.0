@@ -35,7 +35,9 @@ const EventSchema = new mongoose.Schema({
     archived: {
         type: Boolean,
         default: false
-    }
+    },
+    score: String,
+    result: String,
 });
 
 
