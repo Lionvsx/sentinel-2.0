@@ -1,6 +1,6 @@
 const BaseInteraction = require('../../../../utils/structures/BaseInteraction');
 const {queryDatabaseFilter, updateSelectionUser,
-    selectionUserSwitch, getNotionPage
+    selectionUserSwitch
 } = require("../../../../utils/functions/notionFunctions");
 const {updateGuildMemberCache} = require("../../../../utils/functions/utilitaryFunctions");
 const User = require("../../../../src/schemas/UserSchema");
@@ -8,7 +8,6 @@ const { onlyUnique } = require("../../../../utils/functions/utilitaryFunctions")
 const {isMember} = require("../../../../utils/functions/dbFunctions");
 const {
     createButtonActionRow,
-    createButton,
     createEmojiButton
 } = require("../../../../utils/functions/messageComponents");
 const {MessageEmbed} = require("discord.js");
@@ -29,7 +28,7 @@ const poleIds = {
 
 module.exports = class ButtonCommitSwitch extends BaseInteraction {
     constructor() {
-        super('buttonCommitSwitch', 'buttons', 'button', {
+        super('buttonCommitSwitch', 'dashboards', 'button', {
             userPermissions: [],
             clientPermissions: []
         });
@@ -208,7 +207,7 @@ module.exports = class ButtonCommitSwitch extends BaseInteraction {
             const embed = new MessageEmbed()
                 .setTitle(`**BIENVENUE CHEZ LDV ESPORT**`)
                 .setDescription(`Afin de finaliser ton inscription en tant que membre de LDV Esport, nous aurions besoin de quelques informations sur toi.\nClique sur le bouton juste en dessous une fois que tu es prêt à remplir ce formulaire !`)
-                .setColor('2b2d31')
+                .setColor('#2b2d31')
             try {
                 await dmChannel.send({
                     embeds: [embed],
@@ -246,11 +245,11 @@ module.exports = class ButtonCommitSwitch extends BaseInteraction {
         }
 
         const summaryEmbed = new MessageEmbed()
-            .setTitle('COMPTE RENDU')
+            .setTitle('` COMPTE RENDU `')
             .setDescription(`Compte rendu final de l'opération d'ajout de membres en tant que membres associatifs :\n*(Vous pouvez recopier les champs d'erreur pour les re-envoyer au bot lors d'une prochaine commande)*\n\n**<:check:1137390614296678421> UTILISATEURS AJOUTES**\n\`\`\`${success.length > 0 ? success.join('\n'): 'Aucun'}\`\`\``)
             .addField('<:info:1137425479914242178> UTILISATEURS DEJA ENREGISTRES', `\`\`\`${presence.length > 0 ? presence.join('\n'): 'Aucun'}\`\`\``, false)
             .addField(`<:mail:1137430731925241996> UTILISATEURS INJOIGNABLES EN DM`, `\`\`\`${errors.length > 0 ? errors.join(',\n') : 'Aucun'}\`\`\``, false)
-            .setColor('2b2d31')
+            .setColor('#2b2d31')
 
         await authorDmChannel.send({
             embeds: [summaryEmbed]

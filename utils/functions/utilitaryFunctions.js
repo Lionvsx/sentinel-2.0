@@ -27,7 +27,7 @@ function getEmoji (string) {
 }
 
 function removeDivider (string) {
-    var regex = /『|』|┃|┋|︙/g
+    var regex = /[『』┃┋︙]/g
 
     return string?.replace(regex, '');
 }
@@ -85,7 +85,7 @@ const sleep = (ms) => {
  * 
  * @param {object} guild discord guild object
  * @param {string[]} searchArgs arguments array
- * @returns {object[]} array of user objects
+ * @returns {Promise<unknown>} array of user objects
  */
 const getUsersFromString = (guild, searchArgs) => {
     return new Promise(async (resolve) => {
@@ -96,7 +96,7 @@ const getUsersFromString = (guild, searchArgs) => {
             const userMatch = guild.members.cache.find(m => m.user.tag.toLowerCase().includes(arg.toLowerCase()))
             if (roleMatch) {
                 const userMatchingRole = guild.members.cache.filter(m => m.roles.cache.has(roleMatch.id))
-                for (const [key, member] of userMatchingRole) {
+                for (const [, member] of userMatchingRole) {
                     userArray.push(member)
                 }
             } else if (userMatch) {
@@ -111,7 +111,7 @@ const getUsersFromString = (guild, searchArgs) => {
  * 
  * @param {object} guild discord guild object
  * @param {string[]} searchArgs arguments array
- * @returns {object[]} array of user objects
+ * @returns {Promise<unknown>} array of user objects
  */
  const getUsersAndRolesFromString = (guild, searchArgs) => {
     return new Promise(async (resolve) => {
@@ -175,10 +175,10 @@ const updateGuildChannelCache = async (guild) => {
     await guild.channels.fetch()
     const cachedChannelsAfter = guildChannelsCache ? guildChannelsCache.size : undefined
     envLogger.setLogData(`CACHED CHANNELS: ${cachedChannelsBefore}\nCHANNELS ON SERVER: ${cachedChannelsAfter}\nUNCACHED CHANNELS: ${cachedChannelsAfter - cachedChannelsBefore}`)
-    if (cachedChannelsAfter != cachedChannelsBefore) {
-        envLogger.warning(`Le cache des channels du serveur \`${guild.name}\` était incomplet\nProcédure de remise en cache :`)
+    if (cachedChannelsAfter !== cachedChannelsBefore) {
+        await envLogger.warning(`Le cache des channels du serveur \`${guild.name}\` était incomplet\nProcédure de remise en cache :`)
     } else {
-        envLogger.info(`Demande de mise à jour du cache des channels effectué pour le serveur \`${guild.name}\`\nCache à jour :`)
+        await envLogger.info(`Demande de mise à jour du cache des channels effectué pour le serveur \`${guild.name}\`\nCache à jour :`)
     }
     return guild.channels.cache
 }
@@ -213,7 +213,7 @@ function chunkArray(arr, chunkSize) {
  * @returns Array with duplicates
  */
 function getDuplicates(array) {
-    return array.filter((value, index) => data.indexOf(value) != index) 
+    return array.filter((value, index) => data.indexOf(value) !== index)
 }
 
 
@@ -226,14 +226,14 @@ function getDuplicates(array) {
 const substractArrays = (array1, array2) => {
     array1.filter((e) => {
         let i = array2.indexOf(e)
-        return i == -1 ? true : (array2.splice(i, 1), false)
+        return i === -1 ? true : (array2.splice(i, 1), false)
     })
 }
 
 /**
  *
  * @param {String} str
- * @returns {Void}
+ * @returns {string}
  */
 function fetchEmoji(str) {
     let i = 0
@@ -260,13 +260,13 @@ function updateSelectionMenu(interaction, arrayOfCategoryIds, index, categoriesM
     index = ((index%categoriesMap.length) + categoriesMap.length)%categoriesMap.length
 
     const selectMenu = createMessageActionRow([createSelectionMenu(`catMenu`, `Page ${index + 1}`, categoriesMap[index], 1, categoriesMap[index].length)])
-    const buttonRow = createButtonActionRow([createEmojiButton(`previous`, 'Page précédente', 'SECONDARY', '<:arrowleftcircle:1137421111378837585>'), createEmojiButton(`valid`, 'Valider', 'SUCCESS', '<:check:1137390614296678421>'), createEmojiButton(`next`, 'Page suivante', 'SECONDARY', '<:arrowrightcircle:1137421115766083726>')])
+    const buttonRow = createButtonActionRow([createEmojiButton(`previous`, '', 'SECONDARY', '<:arrowleftcircle:1137421111378837585>'), createEmojiButton(`valid`, '', 'SECONDARY', '<:check:1137390614296678421>'), createEmojiButton(`next`, '', 'SECONDARY', '<:arrowrightcircle:1137421115766083726>')])
 
 
     const selectedCategories = allChannels.filter(channel => channel.type === 'GUILD_CATEGORY' && arrayOfCategoryIds.includes(channel.id))
 
     let embedSelected = new MessageEmbed()
-        .setColor('2b2d31')
+        .setColor('#2b2d31')
         .setTitle('Catégories sélectionnées')
         .setDescription(`\`\`\`\n${selectedCategories?.size > 0 ? selectedCategories.map(chan => chan.name).join('\n'): 'Aucune'}\`\`\`\n\n<:arrowdown:1137420436016214058> Veuillez sélectionner une catégorie ci-dessous <:arrowdown:1137420436016214058>`)
 
@@ -287,7 +287,7 @@ function fillSelectMap(channels) {
     let tmpArr = []
     let map = []
 
-    for (const [key, chan] of channels) {
+    for (const [, chan] of channels) {
         if (i === 25) {
             i = 0
             map.push(tmpArr)

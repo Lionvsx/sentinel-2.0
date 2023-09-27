@@ -15,7 +15,7 @@ module.exports = class AnnonceButtonInteraction extends BaseInteraction {
     }
 
     async run(client, interaction, buttonArgs) {
-        interaction.deferUpdate()
+        await interaction.deferUpdate()
 
 
         const dmChannel = await interaction.user.createDM()
@@ -24,9 +24,9 @@ module.exports = class AnnonceButtonInteraction extends BaseInteraction {
         const allMembers = await updateGuildMemberCache(interaction.guild);
 
         const signatureEmbed = new MessageEmbed()
-            .setDescription(`Message d'annonce diffusé par le **Head Staff**\nAuteur : \`${interaction.user.tag}\``)
-            .setColor('2b2d31')
-            .setTimestamp()  
+            .setDescription(`<:mail:1137430731925241996>️ Message d'annonce diffusé par le **Head Staff**\nAuteur : \`${interaction.user.tag}\``)
+            .setColor('#2b2d31')
+            .setTimestamp()
         const annoucementMessage = await userResponse(dmChannel, "Veuillez écrire ci dessous le message que vous souhaitez diffuser !").catch(err => console.log(err))
         if (!annoucementMessage) return
         
@@ -51,12 +51,12 @@ module.exports = class AnnonceButtonInteraction extends BaseInteraction {
                 selectorReply(selectorInteraction, emoji, 'Diffusez votre message à plusieurs utilisateurs en message privé')
                 const searchTerm = await userResponse(dmChannel, "A quels utilisateurs voulez vous envoyer votre message? \`(everyone ou nom d'un rôle ou pseudo, séparées d'une virgule)\`").catch(err => console.log(err))
                 if (!searchTerm) return
-                if (searchTerm.content == 'everyone') {
+                if (searchTerm.content === 'everyone') {
                     let audience = allMembers.cache.filter(m => m.user.bot === false)
                     const confirmation = await askForConfirmation(dmChannel, `Etes vous sûrs de vouloir envoyer un message à **tout le serveur** : \`${audience.size}\` utilisateurs !`).catch(err => console.log(err))
                     
                     if (!confirmation) return
-                    broadcastMessage(client, dmChannel, audience, {
+                    await broadcastMessage(client, dmChannel, audience, {
                         content: annoucementMessage.content,
                         embeds: [signatureEmbed],
                         files: annoucementMessage.attachments
@@ -69,13 +69,12 @@ module.exports = class AnnonceButtonInteraction extends BaseInteraction {
                     
                     annonceLogger.setLogData(audience.map(member => member.user.tag).join('\n'))
                     if (!confirmation) return
-                    broadcastMessage(client, dmChannel, audience, annonceLogger, {
+                    await broadcastMessage(client, dmChannel, audience, annonceLogger, {
                         content: annoucementMessage.content,
                         embeds: [signatureEmbed],
                         files: annoucementMessage.attachments
                     })
                 }
-
                 break;
 
 
@@ -89,7 +88,7 @@ module.exports = class AnnonceButtonInteraction extends BaseInteraction {
                         { name: '<:link:1137424150764474388> ` CUSTOM `', value: "Envoyez dans un channel personnalisé", inline: false },
                         { name: '<:x_:1137419292946727042> ` CANCEL `', value: "Annulez la commande", inline: false },
                     )
-                    .setColor('2b2d31')
+                    .setColor('#2b2d31')
                 
                 const selectorChannelsInteraction = await reactionEmbedSelector(dmChannel, ['<:users:1137390672194850887>', '<:coffee:1137422686432272446>', '<:link:1137424150764474388>', '<:x_:1137419292946727042>'], embedChannels).catch(err => console.log(err))
                 if (!selectorChannelsInteraction) return
@@ -203,7 +202,7 @@ const broadcastMessage = (client, channel, audience, annonceLogger, message) => 
                     emoji = '<:check:1137390614296678421>'
                     annonceLogger.info(`Message d'annonce envoyé à \`${count}\` utilisateur(s) avec \`${errorsCount}\` erreur(s) !`)
                 } else annonceLogger.warning(`Message d'annonce envoyé à \`${count}\` utilisateur(s) avec \`${errorsCount}\` erreur(s) !\n**Erreurs :**\n${errorsDMS.join('\n')}`)
-                await tempMsg.edit(`**${emoji} |** Message envoyé avec succès à \`${count}\` utilisateur(s) avec \`${errorsCount}\` erreur(s) !\n**Erreurs :**\n\`${errorsDMS.join('\n')}\``)
+                await tempMsg.edit(`**${emoji} |** Message envoyé avec succès à \`${count}\` utilisateur(s) avec \`${errorsCount}\` erreur(s) !\n**Erreurs :**\n\`${errorsDMS.length > 0 ? errorsDMS.join('\n') : "Aucune"}\``)
                 resolve()
             }
         }
@@ -216,7 +215,7 @@ const broadcastMessageChannels = (client, channel, channelsAudience, annonceLogg
         const tempMsg = await channel.send(`**${loading} |** Début de l'envoi de votre message dans \`${channelsAudience.size}\` channels`)
         let count = 0
         let errorsCount = 0
-        for (const [channelId, channel] of channelsAudience) {
+        for (const [, channel] of channelsAudience) {
             try {
                 await channel.send(message)
                 count++;

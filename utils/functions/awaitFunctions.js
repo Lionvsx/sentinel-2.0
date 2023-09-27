@@ -15,7 +15,8 @@ module.exports = {
     reactionEmbedMultipleSelector,
     askYesOrNo,
     menuInteraction,
-    menuInteractionNoTimeout
+    menuInteractionNoTimeout,
+    modalInteraction
 }
 
 function userResponse(channel, displayMessage) {
@@ -76,6 +77,22 @@ function menuInteraction(message) {
     })
 }
 
+function modalInteraction(interaction, customId) {
+    return new Promise((resolve, reject) => {
+        interaction.awaitModalSubmit({
+            // Timeout after a minute of not receiving any valid Modals
+            time: 60000,
+            // Make sure we only accept Modals from the User who sent the original Interaction we're responding to
+            filter: i => i.user.id === interaction.user.id && i.customId === customId,
+        }).catch(error => {
+            // Catch any Errors that are thrown (e.g. if the awaitModalSubmit times out after 60000 ms)
+            reject("User Response Timed Out : Modal")
+        }).then(async modalInteraction => {
+            resolve(modalInteraction)
+        })
+    })
+}
+
 function menuInteractionNoTimeout(message) {
     return new Promise((resolve, reject) => {
         const filter = interaction => interaction.isSelectMenu() === true && interaction.user.bot === false && interaction.message.id === message.id;
@@ -87,7 +104,7 @@ function menuInteractionNoTimeout(message) {
     })
 }
 
-function createButtonInteractionCollector(channel, message, idSubmit, idCancel) {
+function createButtonInteractionCollector(channel, message) {
     return new Promise((resolve, reject) => {
         const filter = interaction => interaction.isButton() === true && interaction.user.bot === false && interaction.message.id === message.id;
         const collector = channel.createMessageComponentCollector({ filter, time: 60000 })
@@ -106,14 +123,13 @@ async function reactionEmbedSelector(channel, emojiArray, embed) {
         embeds: [embed],
         components: [createEmojiActionRow(emojiArray)] // 5 Buttons MAX !!
     })
-    const interaction = await buttonInteraction(channel, sentMessage).catch(errorMessage => {
+    return await buttonInteraction(channel, sentMessage).catch(errorMessage => {
         sentMessage.edit({
             embeds: [new MessageEmbed().setDescription(`**<:x_:1137419292946727042> Commande annulée : \`Timed Out\`**`).setColor('2b2d31')],
             components: []
         })
         throw errorMessage
     })
-    return interaction
 }
 
 async function reactionEmbedMultipleSelector(channel, emojiArray, embed) {
@@ -121,14 +137,13 @@ async function reactionEmbedMultipleSelector(channel, emojiArray, embed) {
         embeds: [embed],
         components: [createEmojiActionRow(emojiArray), createButtonActionRow([createButton('submit', 'Valider', 'SUCCESS'), createButton('cancel', 'Annuler', 'SECONDARY')])]
     })
-    const interactionCollector = await createButtonInteractionCollector(channel, sentMessage).catch(errorMessage => {
+    return await createButtonInteractionCollector(channel, sentMessage).catch(errorMessage => {
         sentMessage.edit({
             embeds: [new MessageEmbed().setDescription(`**<:x_:1137419292946727042> Commande annulée : \`Timed Out\`**`).setColor('2b2d31')],
             components: []
         })
         throw errorMessage
     })
-    return interactionCollector
 }
 
 function selectorReply(interaction, emoji, text) {
@@ -146,19 +161,19 @@ function selectorReply(interaction, emoji, text) {
 function askForConfirmation(channel, message) {
     return new Promise(async (resolve, reject) => {
         const interaction = await reactionEmbedSelector(channel, ['<:check:1137390614296678421>', '<:x_:1137419292946727042>'], new MessageEmbed()
-            .setTitle('<:alerttriangleyellow:1137390607069888593> Etes vous sûrs? <:alerttriangleyellow:1137390607069888593>')
+            .setTitle('<:alerttriangleyellow:1137390607069888593> ` Etes vous sûrs? ` <:alerttriangleyellow:1137390607069888593>')
             .setDescription(message)
-            .setColor('2b2d31'))
+            .setColor('#2b2d31'))
     
         if (interaction && interaction.customId === '<:check:1137390614296678421>') {
             interaction.update({
-                embeds: [new MessageEmbed().setDescription(`**<:check:1137390614296678421> Commande validée**`).setColor('2b2d31')],
+                embeds: [new MessageEmbed().setDescription(`<:check:1137390614296678421> \` Commande validée \``).setColor('#2b2d31')],
                 components: []
             })
             resolve(true)
         } else if (interaction) {
             interaction.update({
-                embeds: [new MessageEmbed().setDescription(`**<:x_:1137419292946727042> Commande annulée**`).setColor('2b2d31')],
+                embeds: [new MessageEmbed().setDescription(`<:x_:1137419292946727042> \` Commande annulée \``).setColor('#2b2d31')],
                 components: []
             })
             resolve(false)
@@ -171,18 +186,18 @@ function askYesOrNo(channel, message) {
     return new Promise(async (resolve, reject) => {
         const interaction = await reactionEmbedSelector(channel, ['<:check:1137390614296678421>', '<:x_:1137419292946727042>'], new MessageEmbed()
             .setDescription(message)
-            .setColor('2b2d31'))
+            .setColor('#2b2d31'))
 
         if (!interaction) return
         if (interaction.customId === '<:check:1137390614296678421>') {
             interaction.update({
-                embeds: [new MessageEmbed().setDescription(`**<:check:1137390614296678421> Oui**`).setColor('2b2d31')],
+                embeds: [new MessageEmbed().setDescription(`<:check:1137390614296678421> Oui`).setColor('2b2d31')],
                 components: []
             })
             resolve(true)
         } else {
             interaction.update({
-                embeds: [new MessageEmbed().setDescription(`**<:x_:1137419292946727042> Non**`).setColor('2b2d31')],
+                embeds: [new MessageEmbed().setDescription(`<:x_:1137419292946727042> Non`).setColor('2b2d31')],
                 components: []
             })
             resolve(false)

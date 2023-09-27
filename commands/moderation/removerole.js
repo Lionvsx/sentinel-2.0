@@ -46,10 +46,10 @@ module.exports = class RemoveRoleCommand extends BaseCommand {
         } else if (!args[1]) {
             message.react('<:check:1137390614296678421>')
             message.author.createDM().then(async (dmChannel) => {
-                let usersToRemove = userResponse(dmChannel, `Veuillez entrer les utilisateurs à selectionner \`(pseudos discord séparés d'une virgule)\` :`).catch(err => console.log(err))
+                let usersToRemove = await userResponse(dmChannel, `Veuillez entrer les utilisateurs à selectionner \`(pseudos discord séparés d'une virgule)\` :`).catch(err => console.log(err))
                 if (!usersToRemove) return
                 let usersArgs = usersToRemove.content.split(/\s*[,]\s*/)
-                let rolesToRemove = userResponse(dmChannel, `Veuillez entrer un/des role(s) à leur retirer \`(roles séparés d'une virgule)\` :`).catch(err => console.log(err))
+                let rolesToRemove = await userResponse(dmChannel, `Veuillez entrer un/des role(s) à leur retirer \`(roles séparés d'une virgule)\` :`).catch(err => console.log(err))
                 if (!rolesToRemove) return
                 let rolesArgs = rolesToRemove.content.split(/\s*[,]\s*/)
                 let tempMsg = await dmChannel.send(`**${loading} |** Suppression des roles en cours...`)

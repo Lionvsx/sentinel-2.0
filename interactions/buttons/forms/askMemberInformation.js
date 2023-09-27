@@ -1,7 +1,7 @@
 const BaseInteraction = require('../../../utils/structures/BaseInteraction')
 const { menuInteraction, userResponseContent } = require('../../../utils/functions/awaitFunctions')
 const { MessageEmbed } = require('discord.js')
-const { createMessageActionRow, createSelectionMenu, createButtonActionRow, createButton, createSelectionMenuOption, createEmojiButton } = require('../../../utils/functions/messageComponents')
+const { createMessageActionRow, createSelectionMenu, createButtonActionRow, createSelectionMenuOption, createEmojiButton } = require('../../../utils/functions/messageComponents')
 const mongoose = require('mongoose');
 
 const DiscordLogger = require('../../../utils/services/discordLoggerService');
@@ -39,14 +39,12 @@ module.exports = class MemberInformationFormButton extends BaseInteraction {
         }
 
         const allRoles = ldvGuild.roles.cache
-
-        let newInteraction = await interaction.update({
+        await interaction.update({
             embeds: [new MessageEmbed().setDescription(`<:arrowdown:1137420436016214058> Veuillez renseigner votre école ci dessous <:arrowdown:1137420436016214058>`).setColor('2b2d31')],
             components: [createMessageActionRow([
                 createSelectionMenu('schoolMenu', 'Veuillez selectionner une école', [createSelectionMenuOption('esilv', 'ESILV', undefined, '753798801457807442'), createSelectionMenuOption('iim', 'IIM', undefined, '753798801763991650'), createSelectionMenuOption('emlv', 'EMLV', undefined, '753798801919180913'), createSelectionMenuOption('externe', 'EXTERNE', undefined, '👤')], 1, 1)
             ])]
-        })
-
+        });
         const schoolMenu = await menuInteraction(interaction.message).catch(err => console.log(err))
         if (!schoolMenu) return restoreForm(dmChannel)
 
@@ -54,7 +52,7 @@ module.exports = class MemberInformationFormButton extends BaseInteraction {
         let year = 'EXTERNE'
 
         if (school !== 'EXTERNE') {
-            newInteraction = await schoolMenu.update({
+            await schoolMenu.update({
                 embeds: [new MessageEmbed().setDescription(`<:arrowdown:1137420436016214058> Veuillez renseigner votre année ci dessous <:arrowdown:1137420436016214058>\n\`\`\`ECOLE : ${school}\`\`\``).setColor('2b2d31')],
                 components: [createMessageActionRow([
                     createSelectionMenu('yearMenu', 'Veuillez selectionner une année', [createSelectionMenuOption('1', 'A1', undefined, '1️⃣'), createSelectionMenuOption('2', 'A2', undefined, '2️⃣'), createSelectionMenuOption('3', 'A3', undefined, '3️⃣'), createSelectionMenuOption('4', 'A4', undefined, '4️⃣'), createSelectionMenuOption('5', 'A5', undefined, '5️⃣')], 1, 1)
@@ -66,7 +64,7 @@ module.exports = class MemberInformationFormButton extends BaseInteraction {
         }
 
 
-        newInteraction = await interaction.message.edit({
+        await interaction.message.edit({
             embeds: [new MessageEmbed().setDescription(`Informations enregistrées :\n\`\`\`ECOLE: ${school}\nANNEE: ${year ? year.toUpperCase() : 'NON DEFINIE'}\`\`\``).setColor('2b2d31')],
             components: []
         })
@@ -126,7 +124,7 @@ module.exports = class MemberInformationFormButton extends BaseInteraction {
                 User.isMember = true
                 await User.save()
                 dmChannel.send({
-                    embeds: [new MessageEmbed().setTitle('MERCI').setColor('2b2d31')],
+                    embeds: [new MessageEmbed().setTitle('<:checksquare:1137390612543459398> ` MERCI `').setColor('#2b2d31')],
                 })
                 await databaseLogger.info(`Nouvelle entrée dans la base de données pour <@!${User.discordId}> :`)
             } catch (error) {
@@ -147,7 +145,7 @@ function restoreForm(dmChannel) {
     const embed = new MessageEmbed()
         .setTitle(`**BIENVENUE CHEZ LDV ESPORT**`)
         .setDescription(`Afin de finaliser ton inscription en tant que membre de LDV Esport, nous aurions besoin de quelques informations sur toi.\nClique sur le bouton juste en dessous une fois que tu es prêt à remplir ce formulaire !`)
-        .setColor('2b2d31')
+        .setColor('#2b2d31')
     dmChannel.send({
         embeds: [embed],
         components: [componentRow]

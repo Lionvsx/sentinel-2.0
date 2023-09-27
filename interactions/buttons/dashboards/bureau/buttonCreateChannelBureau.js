@@ -65,7 +65,7 @@ module.exports = class CreateBureauChannelButton extends BaseInteraction {
 
         const channelPermissions = [
             { id: interaction.guild.roles.everyone.id, deny: Permissions.FLAGS.VIEW_CHANNEL },
-            { id: interaction.user.id, allow: [Permissions.FLAGS.VIEW_CHANNEL, Permissions.FLAGS.CONNECT, Permissions.FLAGS.SEND_MESSAGES] }
+            { id: interaction.user.id, allow: [Permissions.FLAGS.VIEW_CHANNEL, Permissions.FLAGS.CONNECT, Permissions.FLAGS.SEND_MESSAGES] },
         ]
 
         const channelName = await userResponseContent(dmChannel, `Quel nom voulez vous donner à votre channel ?`).catch(err => console.log(err))
@@ -94,7 +94,7 @@ module.exports = class CreateBureauChannelButton extends BaseInteraction {
         ], 1, 1) 
         : selectionMenuInteraction.values[0] === 'GUILD_VOICE' ? createSelectionMenu('selectPermissionMenu', 'Veuillez sélectionner un modèle de permissions', [
             createSelectionMenuOption('vocal', 'Channel Vocal', `Tout le monde peut parler`, '<:headphones:1137423170215886890>'),
-            createSelectionMenuOption('reunion', 'Channel .Réunion', `Seul vous pouvez parler, vous aurez besoin de démute les autres`, '<:triangle:1137394274816753695>'),
+            createSelectionMenuOption('reunion', 'Channel Réunion', `Seul vous pouvez parler, vous aurez besoin de démute les autres`, '<:triangle:1137394274816753695>'),
             createSelectionMenuOption('private', 'Channel privé', `Seulement vous pourrez vous connecter`, '<:lock:1137390640418803782>'),
         ], 1, 1)
         : undefined
@@ -113,12 +113,10 @@ module.exports = class CreateBureauChannelButton extends BaseInteraction {
             const permOptions = permissionOptions[permissionSelectorMenuInteraction.values[0]]
             channelPermissions.push({ id: "493708975313911838", allow: permOptions.linkedRole.allow, deny: permOptions.linkedRole.deny })
             channelPermissions.push({ id: interaction.guild.roles.everyone.id, allow: permOptions.everyoneRole.allow, deny: permOptions.everyoneRole.deny })
-        } else {
-            channelPermissions.push({ id: element.id, allow: [Permissions.FLAGS.VIEW_CHANNEL]})
         }
 
         const emoji = getEmoji(channelEmoji)
-        if (!emoji) return dmChannel.send(`**<:x_:1137419292946727042> | **Emoji non valide !`)
+        if (!emoji || emoji.length > 2) return dmChannel.send(`**<:x_:1137419292946727042> | **Emoji non valide !`)
 
         const tempMsg = await dmChannel.send(`**${loading} | **Création du channel en cours ...`)
         const newChannel = await interaction.guild.channels.create(`${emoji}┃${channelName}`, {
@@ -133,7 +131,6 @@ module.exports = class CreateBureauChannelButton extends BaseInteraction {
         channelLogger.setLogData(`Name: ${newChannel.name}\nCategory: ${newChannel.parent.name}\nType: ${newChannel.type}`)
 
         channelLogger.info(`<@!${interaction.user.id}> a crée un nouveau channel dans sa catégorie`)
-
 
     }
 }

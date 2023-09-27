@@ -6,6 +6,10 @@ const { showCommandLoad } = require('../../utils/register')
 
 const DiscordLogger = require('../../utils/services/discordLoggerService')
 
+const { scheduleTeamTask} = require('../../scheduler/askAutoPlanning');
+const {scheduleEventTask} = require("../../scheduler/autoCheckEvents");
+
+
 require('dotenv').config
 
 module.exports = class ReadyEvent extends BaseEvent {
@@ -20,7 +24,7 @@ module.exports = class ReadyEvent extends BaseEvent {
 
         const commands = []
 
-        const sentinelLogger = new DiscordLogger('sentinel', '#23e5ec')
+        const sentinelLogger = new DiscordLogger('environnement', '#23e5ec')
         const ldvGuild = client.guilds.cache.get('227470914114158592')
         const logData = []
 
@@ -75,10 +79,6 @@ module.exports = class ReadyEvent extends BaseEvent {
         for (const user of Users) {
             client.allUsers.set(user.discordId, user)
         }
-        // const Tickets = await Tickets.find({ archive: false })
-        // for (const ticket of Tickets) {
-        //     client.allTickets.set(ticket.ticketChannelId, ticket)
-        // }
 
         console.log(`Cached Users on guild ${ldvGuild.name}: ${client.allUsers.size}`)
         logData.push(`Cached Users on guild ${ldvGuild.name}: ${client.allUsers.size}`)
@@ -88,8 +88,9 @@ module.exports = class ReadyEvent extends BaseEvent {
         sentinelLogger.setLogData(logData.join('\n'))
         sentinelLogger.info(`Bot <@!${client.user.id}> Ready :`)
 
-        
-
-        
+        scheduleTeamTask(ldvGuild)
+        this.log('Team scheduler online')
+        scheduleEventTask(ldvGuild)
+        this.log('Smart Manager scheduler online')
     }
 }

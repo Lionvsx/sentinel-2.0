@@ -28,6 +28,6 @@ module.exports = class BaseEvent {
      * @param logData {JSON}
      */
     warn(message, logData = undefined) {
-        logData ? this.consoleLogger.log(message, 'warn') : this.consoleLogger.log(message, 'warning', logData);
+        logData ? this.consoleLogger.log(message, 'warn') : this.consoleLogger.log(message, 'warn', logData);
     }
 }

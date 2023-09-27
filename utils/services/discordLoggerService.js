@@ -10,20 +10,43 @@ class LoggerService {
         this.guild = null;
         this.logChannel = null;
 
-        const createLogEmbed = (message, color, level) => {
+        this.createLogEmbed = (message, color, level) => {
             const logEmbed = new MessageEmbed()
-                .setColor('2b2d31')
+                .setColor('#2b2d31')
 
-            this.logData 
-                ? logEmbed.setDescription(`\`\`\`${getDateTime()} | ${level.toUpperCase()} | ${this.category.toUpperCase()}\`\`\`\n${message}\n\`\`\`\n${this.logData}\`\`\``) 
+            let emoji;
+            switch (this.category) {
+                case "environnement":
+                    emoji = '<:terminal:1137761058833051788> ` ENVIRONNEMENT `'
+                    break;
+                case "database":
+                    emoji = '<:database:1137761051144892559> ` DATABASE `'
+                    break;
+                case "annonces":
+                    emoji = '<:send:1137390655019171960> ` ANNONCES `'
+                    break;
+                case "tickets":
+                    emoji = '<:messagesquare:1137390645972049970> ` TICKETS `'
+                    break;
+                case "moderation":
+                    emoji = '<:shield:1137411685716611143> ` MODERATION `'
+                    break;
+                case "config":
+                    emoji = '<:settings:1137410884432564404> ` CONFIG `'
+                    break;
+                default:
+                    emoji = '<:activity:1137390592314331176> ` LOG `'
+                    break;
+            }
+
+            this.logData
+                ? logEmbed.setDescription(`\`\`\`${getDateTime()} | ${level.toUpperCase()} | ${this.category.toUpperCase()}\`\`\`\n${message}\n\`\`\`\n${this.logData}\`\`\``)
                 : logEmbed.setDescription(`\`\`\`${getDateTime()} | ${level.toUpperCase()} | ${this.category.toUpperCase()}\`\`\`\n${message}`);
             this.logMember
                 ? logEmbed.setAuthor(this.logMember.user.tag, this.logMember.user.displayAvatarURL())
                 : null;
-            return logEmbed
+            return logEmbed.setTitle(emoji)
         }
-
-        this.createLogEmbed = createLogEmbed
     }
 
     setLogData(logData) {

@@ -7,8 +7,7 @@ const User = require('../../../../src/schemas/UserSchema')
 const DiscordLogger = require('../../../../utils/services/discordLoggerService')
 
 const {
-    createButton,
-    createButtonActionRow
+    createButtonActionRow, createEmojiButton
 } = require('../../../../utils/functions/messageComponents');
 const { isMember } = require('../../../../utils/functions/dbFunctions')
 
@@ -80,12 +79,12 @@ function registerUsers(audience, tempMsg, loading) {
             }
 
             const componentRow = createButtonActionRow([
-                createButton('askMemberInformation', 'Je suis prêt à remplir le formulaire', 'SUCCESS')
+                createEmojiButton('askMemberInformation', 'Je suis prêt à remplir le formulaire', 'SECONDARY', '<:checksquare:1137390612543459398>')
             ])
             const embed = new MessageEmbed()
                 .setTitle(`**BIENVENUE CHEZ LDV ESPORT**`)
                 .setDescription(`Afin de finaliser ton inscription en tant que membre de LDV Esport, nous aurions besoin de quelques informations sur toi.\nClique sur le bouton juste en dessous une fois que tu es prêt à remplir ce formulaire !`)
-                .setColor('2b2d31')
+                .setColor('#2b2d31')
             try {
                 await dmChannel.send({
                     embeds: [embed],

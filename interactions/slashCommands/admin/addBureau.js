@@ -1,15 +1,15 @@
 const BaseInteraction = require('../../../utils/structures/BaseInteraction');
-const mongoose = require('mongoose');
 const { updateGuildMemberCache } = require('../../../utils/functions/utilitaryFunctions');
 const { isMember } = require('../../../utils/functions/dbFunctions');
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { MessageEmbed, Permissions } = require('discord.js');
-const { createButtonActionRow, createButton, createEmojiButton } = require('../../../utils/functions/messageComponents')
+const { MessageEmbed} = require('discord.js');
+const { createButtonActionRow, createEmojiButton } = require('../../../utils/functions/messageComponents')
+const Users = require("../../../src/schemas/UserSchema");
 
 module.exports = class PrefixInteraction extends BaseInteraction {
     constructor() {
         super('bureau-add', 'admin', 'slashCommand', {
-            userPermissions: [Permissions.FLAGS.ADMINISTRATOR],
+            userPermissions: [],
             clientPermissions: [],
             commandData: new SlashCommandBuilder()
                 .setName('bureau-add')
@@ -29,10 +29,10 @@ module.exports = class PrefixInteraction extends BaseInteraction {
         const allRoles = guild.roles.cache
 
         let guildMember = allMembers.find(m => m.user.tag.toLowerCase().includes(user.toLowerCase()));
+        let userDB = await Users.findOne({ discordId: interaction.user.id, onServer: true });
+        if (!userDB.isBureau) return interaction.reply(`**<:x_:1137419292946727042> | **Vous n'avez pas la permission d'executer cette commande`)
 
         if (guildMember) {
-            const userId = guildMember.user.id;
-            const userDB = await mongoose.model('User').findOne({ discordId: userId, onServer: true });
             const rolesToAdd = allRoles.filter(role => (role.id === '624715133251223572' || role.id === '493708975313911838' || role.id === '743988023859085332') && !guildMember.roles.cache.has(role.id))
             if (userDB && userDB.id) {
                 if (userDB.isBureau) {

@@ -108,3 +108,4 @@ files/transcripts/*
 
 #IntellijIdea files
 .idea
+.DS_Store

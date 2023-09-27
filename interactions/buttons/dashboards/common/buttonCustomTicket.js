@@ -51,7 +51,7 @@ module.exports = class CustomTicketButtonInteraction extends BaseInteraction {
             .setDescription(`<:globe:1137421999879229533> Nouveau ticket personnalisé crée par \`${interaction.user.username}\``)
             .setColor('2b2d31')
 
-        const newChannel = await interaction.guild.channels.create(`<:globe:1137421999879229533>┃${ticketName}`, {
+        const newChannel = await interaction.guild.channels.create(`🌐┃${ticketName}`, {
             type: 'GUILD_TEXT',
             position: 100,
             permissionOverwrites: ticketPermissions,

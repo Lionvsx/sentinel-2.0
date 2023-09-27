@@ -1,7 +1,9 @@
 const BaseInteraction = require('../../../../utils/structures/BaseInteraction')
 const { MessageEmbed, Permissions } = require('discord.js')
-const { updateGuildMemberCache, chunkArray, sleep} = require('../../../../utils/functions/utilitaryFunctions')
-const {queryDatabase, createSelectionUser, updateSelectionUser, getNotionPage} = require("../../../../utils/functions/notionFunctions");
+const { updateGuildMemberCache} = require('../../../../utils/functions/utilitaryFunctions')
+const {createSelectionUser, updateSelectionUser,
+    getNotionPageById
+} = require("../../../../utils/functions/notionFunctions");
 const {isMember} = require("../../../../utils/functions/dbFunctions");
 const Users = require("../../../../src/schemas/UserSchema");
 const SelectionUser = require("../../../../src/schemas/SelectionUserSchema");
@@ -19,21 +21,17 @@ module.exports = class SyncDatabaseButton extends BaseInteraction {
 
         const loading = client.emojis.cache.get('741276138319380583')
 
-        const allRoles = interaction.guild.roles.cache
         const cachedMembers = await updateGuildMemberCache(interaction.guild)
         const allMembers = cachedMembers.filter(member => !member.user.bot)
         const ldvGuild = client.guilds.cache.get('227470914114158592')
         const ldvGuildMembers = await updateGuildMemberCache(ldvGuild)
-        const ldvGuildRoles = ldvGuild.roles.cache
-
-        let notionUsers = await queryDatabase("fec4ef6d3b204c2b86a4c4cc2855d0e4")
 
         const dmChannel = await interaction.user.createDM()
         let msg = await dmChannel.send(`**${loading} | **Syncing DB...`)
 
         let count = 0;
 
-        for (const [key, member] of allMembers) {
+        for (const [, member] of allMembers) {
             let accepted = member.roles.cache.has("676720835393880075")
             let rejected = member.roles.cache.has("676720836853366784")
             let ldvMember = ldvGuildMembers.get(member.user.id)
@@ -51,7 +49,7 @@ module.exports = class SyncDatabaseButton extends BaseInteraction {
 
             if (member.roles.cache.has("754421243268300851")) poles.push({name: "Head Staff"})
 
-            for (const [key, toRole] of tryoutRoles) {
+            for (const [, toRole] of tryoutRoles) {
                 let roleSeparator = toRole.name.split('| ')
                 let toRoleArgs = roleSeparator[1].split(' ')
                 switch(toRoleArgs[1].toLowerCase()) {
@@ -164,6 +162,11 @@ module.exports = class SyncDatabaseButton extends BaseInteraction {
                             "name": "Esport"
                         })
                         break;
+                    case "staff-esport":
+                        poles.push({
+                            "name": "Esport"
+                        })
+                        break;
                     case "webtv":
                         poles.push({
                             "name": "Web TV"
@@ -191,59 +194,75 @@ module.exports = class SyncDatabaseButton extends BaseInteraction {
                 }
             }
             if (user && user.isOnNotion) {
-                let filter = {
-                        property: 'Discord ID',
-                        formula: {
-                            string: {
-                                equals: member.user.id,
-                            }
-                        }
-                    }
-                let notionPage = await getNotionPage("fec4ef6d3b204c2b86a4c4cc2855d0e4", filter)
-                let pageId = notionPage.id
-                if (!user.linkedNotionPageId) {
-                    user.linkedNotionPageId = pageId
+                let notionPage = undefined
+                try {
+                    notionPage = await getNotionPageById(user.linkedNotionPageId)
+                } catch (e) {
+                    this.error("Error while fetching Notion page for user " + member.user.username)
+                }
+                if (!notionPage) {
+                    user.isOnNotion = false
+                    user.linkedNotionPageId = undefined
                     await user.save()
+                    continue;
                 }
 
-                if (notionPage.properties['Server State'].select.name === "Switched") continue;
+
+                if (notionPage.properties['Server State'].select.name === "Switched" && notionPage.archived === false) continue;
 
                 let serverState = !ldvMember ? "Not on server" : "On server"
                 if (isLDVMember) serverState = "Switched"
                 else if (notionPage.properties['Etat'].select.name === 'Accepté' && serverState === 'On server') serverState = "Ready to commit"
-                if (notionPage.properties['Etat'].select.name === 'Accepté' && !ldvMember) {
+                if (notionPage.properties['Etat'].select.name === 'Accepté' && serverState === 'Not on server') {
                     await this.inviteUserToServer(member)
                     serverState = "Invited"
                 }
-                await updateSelectionUser(pageId, {
-                    avatarURL: member.user.displayAvatarURL(),
-                    discordTag: member.user.tag,
-                    state: accepted ? "Accepté" : rejected ? "Refusé" : notionPage.properties['Etat'].select.name,
-                    serverState: serverState,
-                    jeux: notionPage.properties['Etat'].select.name === 'Accepté' ? notionPage.properties['Jeu'].multi_select : jeux,
-                    poles: notionPage.properties['Etat'].select.name === 'Accepté' ? notionPage.properties['Pôles'].multi_select : poles,
-                })
+                try {
+                    await updateSelectionUser(user.linkedNotionPageId, {
+                        avatarURL: member.user.displayAvatarURL(),
+                        discordTag: member.user.tag,
+                        state: accepted ? "Accepté" : rejected ? "Refusé" : notionPage.properties['Etat'].select.name,
+                        serverState: serverState,
+                        jeux: notionPage.properties['Etat'].select.name === 'Accepté' ? notionPage.properties['Jeu'].multi_select : jeux,
+                        poles: notionPage.properties['Etat'].select.name === 'Accepté' ? notionPage.properties['Pôles'].multi_select : poles,
+                    })
+                } catch (e) {
+                    this.error("Error while updating Notion page for user " + member.user.username)
+                    continue;
+                }
                 this.log(`Updated Notion user ${member.user.tag}`)
-                await sleep(200)
                 count++
             } else {
-                await createSelectionUser({
-                    avatarURL: member.user.displayAvatarURL(),
-                    discordId: member.user.id,
-                    discordTag: member.user.tag,
-                    state: accepted ? "Accepté" : rejected ? "Refusé" : "En attente",
-                    serverState: !ldvMember ? "Not on server" : isLDVMember ? "Switched" : accepted ? "Ready to commit" : "On server",
-                    jeux: jeux,
-                    poles: poles
-                })
+                let page = undefined
+                try {
+                    page = await createSelectionUser({
+                        avatarURL: member.user.displayAvatarURL(),
+                        discordId: member.user.id,
+                        discordTag: member.user.tag,
+                        state: accepted ? "Accepté" : rejected ? "Refusé" : "En attente",
+                        serverState: !ldvMember ? "Not on server" : isLDVMember ? "Switched" : accepted ? "Ready to commit" : "On server",
+                        jeux: jeux,
+                        poles: poles
+                    })
+                } catch (e) {
+                    this.error("Error while creating Notion page for user " + member.user.username)
+                    continue;
+                }
                 this.log(`Created Notion user ${member.user.tag}`)
-                await SelectionUser.create({
-                    discordId: member.user.id,
-                    isOnNotion: true,
-                    userTag: member.user.tag,
-                    avatarURL: member.user.displayAvatarURL()
-                })
-                await sleep(200)
+                if (user) {
+                    user.userTag = member.user.tag
+                    user.avatarURL = member.user.displayAvatarURL()
+                    user.isOnNotion = true
+                    user.linkedNotionPageId = page.id
+                    await user.save()
+                } else {
+                    await SelectionUser.create({
+                        discordId: member.user.id,
+                        isOnNotion: true,
+                        userTag: member.user.tag,
+                        avatarURL: member.user.displayAvatarURL()
+                    })
+                }
                 count++
             }
 
@@ -254,7 +273,7 @@ module.exports = class SyncDatabaseButton extends BaseInteraction {
                 let bar = renderProgressBar(barProgress, 20)
                 let embed = new MessageEmbed()
                     .setDescription(`**${loading} | **Syncing with notion...\n\`\`\`${bar} ${percentage}% | ${count}/${allMembers.size}\`\`\``)
-                    .setColor('2b2d31')
+                    .setColor('#2b2d31')
                 await msg.edit({
                     embeds: [embed],
                     content: ` `
@@ -264,7 +283,7 @@ module.exports = class SyncDatabaseButton extends BaseInteraction {
 
         await msg.delete()
         let embed = new MessageEmbed()
-            .setColor('2b2d31')
+            .setColor('#2b2d31')
             .setDescription(`**<:check:1137390614296678421> | **Members synced !`)
         await dmChannel.send({
             embeds: [embed]
@@ -276,8 +295,8 @@ module.exports = class SyncDatabaseButton extends BaseInteraction {
         let dmChannel = await member.createDM()
         if (!dmChannel) this.error(`Could not create DM channel with ${member.user.tag}`)
         let embed = new MessageEmbed()
-            .setColor('2b2d31')
-            .setTitle(`Invitation au serveur LDV Esport !`)
+            .setColor('#2b2d31')
+            .setTitle(`\` Invitation au serveur LDV Esport ! \``)
             .setDescription(`Bonjour \`${member.user.username}\` !\n\nJe suis LDV Sentinel, le bot en charge de gérer tous les serveurs en relation avec LDV Esport !\nJ'ai remarqué que tu a été accepté chez LDV le semestre prochain mais tu n'es pas sur le serveur LDV !\nJe t'invite donc à rejoindre notre serveur Discord !\nPour cela, clique sur le lien suivant : https://discord.gg/ldvesport\n\nA bientôt !`)
         await dmChannel.send({
             embeds: [embed]
