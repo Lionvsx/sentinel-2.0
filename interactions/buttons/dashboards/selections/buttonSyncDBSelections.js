@@ -1,7 +1,9 @@
 const BaseInteraction = require('../../../../utils/structures/BaseInteraction')
 const { MessageEmbed, Permissions } = require('discord.js')
-const { updateGuildMemberCache, sleep} = require('../../../../utils/functions/utilitaryFunctions')
-const {createSelectionUser, updateSelectionUser, getNotionPage} = require("../../../../utils/functions/notionFunctions");
+const { updateGuildMemberCache} = require('../../../../utils/functions/utilitaryFunctions')
+const {createSelectionUser, updateSelectionUser,
+    getNotionPageById
+} = require("../../../../utils/functions/notionFunctions");
 const {isMember} = require("../../../../utils/functions/dbFunctions");
 const Users = require("../../../../src/schemas/UserSchema");
 const SelectionUser = require("../../../../src/schemas/SelectionUserSchema");
@@ -192,59 +194,60 @@ module.exports = class SyncDatabaseButton extends BaseInteraction {
                 }
             }
             if (user && user.isOnNotion) {
-                let filter = {
-                        property: 'Discord ID',
-                        formula: {
-                            string: {
-                                equals: member.user.id,
-                            }
-                        }
-                    }
-                let notionPage = await getNotionPage("fec4ef6d3b204c2b86a4c4cc2855d0e4", filter)
+                let notionPage = undefined
+                try {
+                    notionPage = await getNotionPageById(user.linkedNotionPageId)
+                } catch (e) {
+                    this.error("Error while fetching Notion page for user " + member.user.username)
+                }
                 if (!notionPage) {
                     user.isOnNotion = false
                     user.linkedNotionPageId = undefined
                     await user.save()
                     continue;
                 }
-                let pageId = notionPage.id
-                if (!user.linkedNotionPageId) {
-                    user.linkedNotionPageId = pageId
-                    await user.save()
 
 
-                }
-
-                if (notionPage.properties['Server State'].select.name === "Switched") continue;
+                if (notionPage.properties['Server State'].select.name === "Switched" && notionPage.archived === false) continue;
 
                 let serverState = !ldvMember ? "Not on server" : "On server"
                 if (isLDVMember) serverState = "Switched"
                 else if (notionPage.properties['Etat'].select.name === 'Accepté' && serverState === 'On server') serverState = "Ready to commit"
-                if (notionPage.properties['Etat'].select.name === 'Accepté' && !ldvMember) {
+                if (notionPage.properties['Etat'].select.name === 'Accepté' && serverState === 'Not on server') {
                     await this.inviteUserToServer(member)
                     serverState = "Invited"
                 }
-                await updateSelectionUser(pageId, {
-                    avatarURL: member.user.displayAvatarURL(),
-                    discordTag: member.user.tag,
-                    state: accepted ? "Accepté" : rejected ? "Refusé" : notionPage.properties['Etat'].select.name,
-                    serverState: serverState,
-                    jeux: notionPage.properties['Etat'].select.name === 'Accepté' ? notionPage.properties['Jeu'].multi_select : jeux,
-                    poles: notionPage.properties['Etat'].select.name === 'Accepté' ? notionPage.properties['Pôles'].multi_select : poles,
-                })
+                try {
+                    await updateSelectionUser(user.linkedNotionPageId, {
+                        avatarURL: member.user.displayAvatarURL(),
+                        discordTag: member.user.tag,
+                        state: accepted ? "Accepté" : rejected ? "Refusé" : notionPage.properties['Etat'].select.name,
+                        serverState: serverState,
+                        jeux: notionPage.properties['Etat'].select.name === 'Accepté' ? notionPage.properties['Jeu'].multi_select : jeux,
+                        poles: notionPage.properties['Etat'].select.name === 'Accepté' ? notionPage.properties['Pôles'].multi_select : poles,
+                    })
+                } catch (e) {
+                    this.error("Error while updating Notion page for user " + member.user.username)
+                    continue;
+                }
                 this.log(`Updated Notion user ${member.user.tag}`)
-                await sleep(200)
                 count++
             } else {
-                let page = await createSelectionUser({
-                    avatarURL: member.user.displayAvatarURL(),
-                    discordId: member.user.id,
-                    discordTag: member.user.tag,
-                    state: accepted ? "Accepté" : rejected ? "Refusé" : "En attente",
-                    serverState: !ldvMember ? "Not on server" : isLDVMember ? "Switched" : accepted ? "Ready to commit" : "On server",
-                    jeux: jeux,
-                    poles: poles
-                })
+                let page = undefined
+                try {
+                    page = await createSelectionUser({
+                        avatarURL: member.user.displayAvatarURL(),
+                        discordId: member.user.id,
+                        discordTag: member.user.tag,
+                        state: accepted ? "Accepté" : rejected ? "Refusé" : "En attente",
+                        serverState: !ldvMember ? "Not on server" : isLDVMember ? "Switched" : accepted ? "Ready to commit" : "On server",
+                        jeux: jeux,
+                        poles: poles
+                    })
+                } catch (e) {
+                    this.error("Error while creating Notion page for user " + member.user.username)
+                    continue;
+                }
                 this.log(`Created Notion user ${member.user.tag}`)
                 if (user) {
                     user.userTag = member.user.tag
@@ -260,7 +263,6 @@ module.exports = class SyncDatabaseButton extends BaseInteraction {
                         avatarURL: member.user.displayAvatarURL()
                     })
                 }
-                await sleep(200)
                 count++
             }
 

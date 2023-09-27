@@ -3,6 +3,7 @@ const {queryDatabaseFilter, deletePage} = require("../../../../utils/functions/n
 const {askForConfirmation} = require("../../../../utils/functions/awaitFunctions");
 const DiscordLogger = require("../../../../utils/services/discordLoggerService");
 const {MessageEmbed} = require("discord.js");
+const SelectionUsers = require("../../../../src/schemas/SelectionUserSchema");
 
 module.exports = class ButtonCleanMembers extends BaseInteraction {
     constructor() {
@@ -55,6 +56,10 @@ module.exports = class ButtonCleanMembers extends BaseInteraction {
             const discordTag = userPage.properties["Discord Tag"].title[0].text.content;
             const discordId = userPage.properties["Discord ID"].rich_text[0].text.content;
             const discordMember = interaction.guild.members.cache.get(discordId);
+            let SelectionUser = SelectionUsers.findOne({discordId: discordId})
+            if (SelectionUser) {
+                await SelectionUsers.deleteOne({discordId: discordId})
+            }
             if (discordMember) {
                 try {
                     await discordMember.kick("Kick automatique des membres de la sélection LDV")
