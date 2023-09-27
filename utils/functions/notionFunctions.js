@@ -176,6 +176,11 @@ async function getNotionPage(databaseId, filter) {
     return database.results[0]
 }
 
+async function getNotionPages(databaseId, filter) {
+    const database = await notion.databases.query({ database_id: databaseId, filter: filter })
+    return database.results
+}
+
 async function queryDatabaseFilter(databaseId, filter) {
     const database = await notion.databases.query({ database_id: databaseId, filter: filter })
     return database.results
@@ -319,5 +324,6 @@ module.exports = {
     selectionUserSwitch,
     getNotionPageById,
     updateUserPage,
-    restorePage
+    restorePage,
+    getNotionPages
 }
