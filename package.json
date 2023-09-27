@@ -1,6 +1,6 @@
 {
   "name": "sentinel-2.0",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "description": "",
   "main": "sentinel.js",
   "scripts": {

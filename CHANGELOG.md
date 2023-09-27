@@ -2,6 +2,103 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [3.0.0](https://github.com/Lionvsx/sentinel-2.0/compare/v2.0.0...v3.0.0) (2023-09-27)
+
+
+### ⚠ BREAKING CHANGES
+
+* Adding smart manager sub, planning and rescheduling intelligent features
+* Smart manager implementation for events
+
+### Features
+
+* add await keywords ([0a935f5](https://github.com/Lionvsx/sentinel-2.0/commit/0a935f55165c8c46d794fdbc56b88070ab2a5b31))
+* add config commands ([4fbb7aa](https://github.com/Lionvsx/sentinel-2.0/commit/4fbb7aa15c5b82e406f6d913667f8a46dcec4ab5))
+* add function restore archived page notion ([4ec3a46](https://github.com/Lionvsx/sentinel-2.0/commit/4ec3a46368e9e2e487f62c9eb0d817cfcc3e07bd))
+* add functions for smart manager implementation ([b3013a9](https://github.com/Lionvsx/sentinel-2.0/commit/b3013a9fe3724c8aa8ac4cf96b9d83b6f233e137))
+* add logging in structures ([4282806](https://github.com/Lionvsx/sentinel-2.0/commit/4282806c15ce31df8573ca97275cef426d095c75))
+* add notion db support ([f4a17e3](https://github.com/Lionvsx/sentinel-2.0/commit/f4a17e38e12c7a4ad4cb7ff5d47cdc32e02f95fb))
+* add notion function to search for multiple pages with filter ([7b54b99](https://github.com/Lionvsx/sentinel-2.0/commit/7b54b990a60e1f2d270cfa0c7d0771647b4ab38a))
+* add notion function to update page ([432c4bc](https://github.com/Lionvsx/sentinel-2.0/commit/432c4bce1fb5b90a0855c7edab19a63dcb4c2f44))
+* add notionhq client ([4bc1213](https://github.com/Lionvsx/sentinel-2.0/commit/4bc1213961d9b64e776b7f8e12fd6e0ab25f2549))
+* add npm scripts ([b43f3f9](https://github.com/Lionvsx/sentinel-2.0/commit/b43f3f967f420b6c3409a863bc39ce370e4ff979))
+* adding new packages ([ae01e43](https://github.com/Lionvsx/sentinel-2.0/commit/ae01e43b0dfdd980a25e0e54965209f8c862076c))
+* Adding smart manager sub, planning and rescheduling intelligent features ([145b139](https://github.com/Lionvsx/sentinel-2.0/commit/145b13968625321811a07f0aeb75dd8178dc8cb5))
+* auto check event scheduler ([01f101b](https://github.com/Lionvsx/sentinel-2.0/commit/01f101b2c8f6f4c37d29a91ffaa04ee7d2768439))
+* button kick members selections ([7572806](https://github.com/Lionvsx/sentinel-2.0/commit/75728066e6a43a4f2637933cea71c11473dca310))
+* change bot status ([aee5a0b](https://github.com/Lionvsx/sentinel-2.0/commit/aee5a0b553756db6c500dfb196a8ea9d990855b8))
+* clean permissions ([d9bac0e](https://github.com/Lionvsx/sentinel-2.0/commit/d9bac0e2be4aee45e98a7500c030dbd364a6ee80))
+* command clean DB ([dcdebaa](https://github.com/Lionvsx/sentinel-2.0/commit/dcdebaacfd515b081f96d51bce4bef5ae0bc3ab0))
+* complete redesign ([acad106](https://github.com/Lionvsx/sentinel-2.0/commit/acad10667e89dc4f2f26cd7484b38a8e451c1591))
+* create event command ([8b4be84](https://github.com/Lionvsx/sentinel-2.0/commit/8b4be844ea392894d36b832290859b4868765df9))
+* **dashboardTeam:** buttonInvitePlayers ([61c9a57](https://github.com/Lionvsx/sentinel-2.0/commit/61c9a57ea6a77c141f56085101bd09fc7cc11d00))
+* db sync notion ([4eca817](https://github.com/Lionvsx/sentinel-2.0/commit/4eca817ca677b688a7cf5ed877b5ca7e937300a6))
+* dev dashboard redesign ([be412c0](https://github.com/Lionvsx/sentinel-2.0/commit/be412c0bcf7e2e1ba615485e08c1a27ba80c60bf))
+* discord logger redesign ([614494a](https://github.com/Lionvsx/sentinel-2.0/commit/614494ae88713782100d7a9b3a65a0055b56583d))
+* loading bar feature in nuke members ([bbd1e51](https://github.com/Lionvsx/sentinel-2.0/commit/bbd1e51d3903531f851bec478ea8daec79dd25a8))
+* new dashboard bureau ([b72a233](https://github.com/Lionvsx/sentinel-2.0/commit/b72a233ef19e29d5ee5ed5638daba22838f77b61))
+* new teams smart manager ([33e0f7a](https://github.com/Lionvsx/sentinel-2.0/commit/33e0f7aa43ad80e200c43acb8ec42cd79e8a3977))
+* smart manager context ([a76d97c](https://github.com/Lionvsx/sentinel-2.0/commit/a76d97ce094d9d5c67758259470f47a022f81743))
+* Smart manager implementation for events ([248fff5](https://github.com/Lionvsx/sentinel-2.0/commit/248fff5197ae2181d49eb3e31f7185ec1581d78f))
+
+
+### Bug Fixes
+
+* add admin save member in cache ([8db58da](https://github.com/Lionvsx/sentinel-2.0/commit/8db58da73d31179eaf8bda43b311c4db78934c36))
+* add bureau save member in cache ([f393c63](https://github.com/Lionvsx/sentinel-2.0/commit/f393c636ad9b8cdc8301dcb00e44919549794099))
+* add config category to logs ([58a2324](https://github.com/Lionvsx/sentinel-2.0/commit/58a2324e20ac2aa48d5172eb140406bfb1d35e17))
+* await defer update ([6f618c5](https://github.com/Lionvsx/sentinel-2.0/commit/6f618c50787f401acbd899f01ab7a8e522996d39))
+* await defer update ([6b9b299](https://github.com/Lionvsx/sentinel-2.0/commit/6b9b2991f17798b27e839a638b15a7be992038ba))
+* await functions design ([6225d10](https://github.com/Lionvsx/sentinel-2.0/commit/6225d10ab8aeb1fd4cf31ccc039db493c770122f))
+* await showcommandload ([f827ea6](https://github.com/Lionvsx/sentinel-2.0/commit/f827ea6d6462e3b807b5182b6ccd12733b2ff884))
+* base structures warning logger ([40c7645](https://github.com/Lionvsx/sentinel-2.0/commit/40c7645b6f9956baf67374da7758b1c239d9aad3))
+* button commit switch selections ([f6fc3d9](https://github.com/Lionvsx/sentinel-2.0/commit/f6fc3d945713b0b355683442441928b191ea2ad0))
+* button fix DB selections, unused params ([d00be3c](https://github.com/Lionvsx/sentinel-2.0/commit/d00be3cc82451d09e174f2521e2c8aac4a03ee22))
+* button fix DB, add notion support ([20f17c3](https://github.com/Lionvsx/sentinel-2.0/commit/20f17c39a3d6ac25fa07cd4e9ecf389a7456068f))
+* cache members ([4f150cd](https://github.com/Lionvsx/sentinel-2.0/commit/4f150cd7fcc8c0816148cebe48b74b0939ea3b3f))
+* change function documentation ([8050820](https://github.com/Lionvsx/sentinel-2.0/commit/8050820dddd4d5f2390e820278a14ccafa51f3fb))
+* change log category of ready event ([8718ebb](https://github.com/Lionvsx/sentinel-2.0/commit/8718ebbe027ebfa1263007f728a9525a6dbe3fb0))
+* coercion error fix ([c2a07b3](https://github.com/Lionvsx/sentinel-2.0/commit/c2a07b311d44ef0be000050cdcc93fcba59b00ec))
+* coercion error fix ([775d3d8](https://github.com/Lionvsx/sentinel-2.0/commit/775d3d8ee5044ce2825324fd4d8b5e50f145a95b))
+* color code ([1453390](https://github.com/Lionvsx/sentinel-2.0/commit/1453390e53c738f853e4df7e4b491e7ff2d9ff60))
+* config commands ([794716d](https://github.com/Lionvsx/sentinel-2.0/commit/794716d5c573e9f2f22dde3a3282a97a79694876))
+* copy paste category synthax error ([84a3706](https://github.com/Lionvsx/sentinel-2.0/commit/84a37069d49f711ed2700dfaa818a303030674f4))
+* custom tickets channel creation emoji ([03244dc](https://github.com/Lionvsx/sentinel-2.0/commit/03244dc3fa72c3601372354b360fc1d9e9aaf9bb))
+* database sync on notion ([7ef9bd3](https://github.com/Lionvsx/sentinel-2.0/commit/7ef9bd316da17a967b3fe8a297e0e70b847300f9))
+* deleted unused function ([fa31cc3](https://github.com/Lionvsx/sentinel-2.0/commit/fa31cc3407ee1bd74ecbc6024f01bf4e8e33bd35))
+* deleting an event message also deletes the event ([76e5f71](https://github.com/Lionvsx/sentinel-2.0/commit/76e5f71206a6da760be9b90795da1727088fc247))
+* deleting useless files ([2b485cb](https://github.com/Lionvsx/sentinel-2.0/commit/2b485cbda095453f51683e6de91124e47c443415))
+* emoji buttons ([75937c7](https://github.com/Lionvsx/sentinel-2.0/commit/75937c70f68ca0e0157ee88127c71c392b667e36))
+* form on end message change ([c720fa0](https://github.com/Lionvsx/sentinel-2.0/commit/c720fa04275c3774b5e68af2bb3d6e7ee576fdcf))
+* **functions:** add function description ([164cf27](https://github.com/Lionvsx/sentinel-2.0/commit/164cf27a3bddb8f10d314d7b9a18296e312c5bcb))
+* logger issues ([11e99f2](https://github.com/Lionvsx/sentinel-2.0/commit/11e99f200158382645dc697e5eeeaa6669e60781))
+* notion sync bug with notion API fixed ([c54b9ab](https://github.com/Lionvsx/sentinel-2.0/commit/c54b9ab2136bd727c86e2c663290b3a53494ca41))
+* nuke button also nuke school and year info ([a0cd802](https://github.com/Lionvsx/sentinel-2.0/commit/a0cd802a8fd49ba0bb70fc9c0ca5595a472e937a))
+* paste category error ([57c363c](https://github.com/Lionvsx/sentinel-2.0/commit/57c363c7969360ab206536d8f007daad32e72e3c))
+* Permission error ([0a82129](https://github.com/Lionvsx/sentinel-2.0/commit/0a82129eb1871e75eabfa395668c284de88dc5ca))
+* permission system for bureau and admin management commands ([37f3bc7](https://github.com/Lionvsx/sentinel-2.0/commit/37f3bc7511c7faaa4ec96345789c3b3b24f07052))
+* permission system for bureau and admin management commands ([31b7434](https://github.com/Lionvsx/sentinel-2.0/commit/31b7434c1b1386e05aa313ff893ff330d46181a7))
+* planning showing every availability ([5570d2f](https://github.com/Lionvsx/sentinel-2.0/commit/5570d2f4a6c883a7b84f2fc51849c01b6ea5314f))
+* reformat functions in functions files ([beed900](https://github.com/Lionvsx/sentinel-2.0/commit/beed900c56c622553dea4c5cd5baf6d30378623e))
+* role id update ([b9af485](https://github.com/Lionvsx/sentinel-2.0/commit/b9af485ae13ab0a70fd3a6d39e51c4c56fa6d734))
+* role nuke command ([36b4891](https://github.com/Lionvsx/sentinel-2.0/commit/36b4891a4889f3375f57053d11742be6fb20d349))
+* role nuke command ([0b0b535](https://github.com/Lionvsx/sentinel-2.0/commit/0b0b5357a9fe62eb8f0a6eb990a94c8e9b4ad643))
+* role nuke command ([b29e518](https://github.com/Lionvsx/sentinel-2.0/commit/b29e518212a747feaf5444075ce1eff0a435e7f1))
+* security updates ([f53da70](https://github.com/Lionvsx/sentinel-2.0/commit/f53da704076221b874aaeae99c9aafffac5d094c))
+* selection users sync and clean ([3b9ef6e](https://github.com/Lionvsx/sentinel-2.0/commit/3b9ef6e2df02f7ead78430e04d4c5caafe3e765c))
+* Smart manager staff interface join embed bug ([b12e2b7](https://github.com/Lionvsx/sentinel-2.0/commit/b12e2b7bd1611446d0e7825676d46d28c196f22a))
+* spacing ([7bd999b](https://github.com/Lionvsx/sentinel-2.0/commit/7bd999bd6f228cb678ba6424cda60d7b37b3fad0))
+* sync on notion bug ([f2dd7b7](https://github.com/Lionvsx/sentinel-2.0/commit/f2dd7b79634083b1ca315b2f426103de6341997b))
+* team deletion not working properly ([7d131a0](https://github.com/Lionvsx/sentinel-2.0/commit/7d131a0f7bd8e6c005d03070bd6b624cff0b0008))
+* teams dashboard buttons ([6512f07](https://github.com/Lionvsx/sentinel-2.0/commit/6512f07fb66fac687704d585bfbb11257ee4340c))
+* ticket add error on user mistake ([61b7186](https://github.com/Lionvsx/sentinel-2.0/commit/61b71864dd2b12f49c6584ae1c84c9b5c6a5d077))
+* ticket close if member left discord ([85febee](https://github.com/Lionvsx/sentinel-2.0/commit/85febeed92a2742d0539cfa09100da03c7c29200))
+* ticket close member not fetchable ([1c4bfc6](https://github.com/Lionvsx/sentinel-2.0/commit/1c4bfc614fe794ccabee500e168bb9159c963e37))
+* typo ([7ab1a01](https://github.com/Lionvsx/sentinel-2.0/commit/7ab1a016bdfada72d13d460478f0849bd5e593b6))
+* update gitignore ([7ca9107](https://github.com/Lionvsx/sentinel-2.0/commit/7ca910793565601a7d5dec27034eced1ab649a87))
+* validate availabilities was clickable several times ([b0f3e11](https://github.com/Lionvsx/sentinel-2.0/commit/b0f3e11cba65ded14d8bb48b571eb0c7f8aef3ba))
+* winston warn log error ([7d33327](https://github.com/Lionvsx/sentinel-2.0/commit/7d33327622d2c36154a12bc7b65b92c3e92908e4))
+
 ## [2.0.0](https://github.com/Lionvsx/sentinel-2.0/compare/v1.3.0...v2.0.0) (2021-11-03)
 
 
