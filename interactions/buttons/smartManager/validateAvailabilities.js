@@ -26,6 +26,11 @@ module.exports = class ValidateAvailabilities extends BaseInteraction {
         let teamCategory = await ldvGuild.channels.fetch(Team.linkedCategoryId)
         let staffChannel = teamCategory.children.find(channel => channel.name.includes('staff'))
 
+
+        if (Team.playersAnswered.includes(interaction.user.id)) return interaction.reply({
+            content: '<:x_:1137419292946727042> Vous avez déjà confirmé vos disponibilités pour la semaine prochaine',
+        })
+
         Team.availabilitiesAnswered++
         Team.playersAnswered.push(interaction.user.id)
         await Team.save()
@@ -43,8 +48,8 @@ module.exports = class ValidateAvailabilities extends BaseInteraction {
         await interaction.update({components: interaction.message.components})
 
         if (Team.availabilitiesAnswered >= Team.minPlayers && !Team.planningSent) {
-            let smartManager = new SmartAIScheduler(client, Team)
-            let possiblePlanning = await smartManager.loadTeamData(Team)
+            let smartScheduler = new SmartAIScheduler(client, Team)
+            let possiblePlanning = await smartScheduler.loadTeamData(Team)
             Team.planningSent = true
             await Team.save()
             if (!possiblePlanning) return staffChannel.send({
@@ -54,7 +59,7 @@ module.exports = class ValidateAvailabilities extends BaseInteraction {
                         .setColor('#2b2d31')
                 ]
             })
-            let response = await smartManager.callGPT()
+            let response = await smartScheduler.callGPT()
 
             let responseData = JSON.parse(response.message.function_call.arguments)
             for (const event of responseData.events) {
