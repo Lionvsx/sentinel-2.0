@@ -18,7 +18,7 @@ module.exports = class ViewTeamPlanning extends BaseInteraction {
             ephemeral: true
         });
 
-        let availabilities = Team.availabilities;
+        let availabilities = Team.availabilities.filter(av => av.availability === "available");
 
         // Sort by day
         function customSortDays(a, b) {
