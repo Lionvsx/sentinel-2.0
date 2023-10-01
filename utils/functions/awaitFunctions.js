@@ -65,7 +65,7 @@ function buttonInteraction(channel, message) {
 function menuInteraction(message) {
     return new Promise((resolve, reject) => {
         const filter = interaction => interaction.isSelectMenu() === true && interaction.user.bot === false && interaction.message.id === message.id;
-        message.awaitMessageComponent({ filter, time: 30000 })
+        message.awaitMessageComponent({ filter, time: 60000 })
           .then(interaction => resolve(interaction))
           .catch(error => {
             message.edit({
@@ -81,7 +81,7 @@ function modalInteraction(interaction, customId) {
     return new Promise((resolve, reject) => {
         interaction.awaitModalSubmit({
             // Timeout after a minute of not receiving any valid Modals
-            time: 60000,
+            time: 200000,
             // Make sure we only accept Modals from the User who sent the original Interaction we're responding to
             filter: i => i.user.id === interaction.user.id && i.customId === customId,
         }).catch(error => {
