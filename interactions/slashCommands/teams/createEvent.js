@@ -77,6 +77,13 @@ module.exports = class CreateEventCommand extends BaseInteraction {
                     .setPlaceholder('Ajoutez le nombre de joueurs de l\'événement')
                     .setStyle('SHORT')
                     .setRequired(true),
+
+                new TextInputComponent()
+                    .setCustomId('name')
+                    .setLabel('Nom')
+                    .setPlaceholder('Ajoutez le nom de l\'événement')
+                    .setStyle('SHORT')
+                    .setRequired(true)
             )
 
         await showModal(modal, {
@@ -142,37 +149,38 @@ module.exports = class CreateEventCommand extends BaseInteraction {
 
         let title
         let type = interaction.options.getString('type')
+        let name = modalResponse.fields.components[4].components[0].value
         switch (type) {
             case 'training':
-                title = '<:zap:1137424324144410736> ` TRAINING `'
+                title = '<:zap:1137424324144410736> ` ' + name + ' `'
                 event.type = 'training'
                 break
             case 'entrainement':
-                title = '<:zap:1137424324144410736> ` ENTRAINEMENT `'
+                title = '<:zap:1137424324144410736> ` ' + name + ' `'
                 event.type = 'entrainement'
                 break
             case 'pracc':
-                title = '<:crosshair:1137436482248904846> ` PRACC `'
+                title = '<:crosshair:1137436482248904846> ` ' + name + ' `'
                 event.type = 'pracc'
                 break
             case 'tournament':
-                title = '<:flag:1153289152536772659> ` TOURNAMENT `'
+                title = '<:flag:1153289152536772659> ` ' + name + ' `'
                 event.type = 'tournament'
                 break
             case 'scrim':
-                title = '<:zap2:1137424322399571988> ` SCRIM `'
+                title = '<:zap2:1137424322399571988> ` ' + name + ' `'
                 event.type = 'scrim'
                 break
             case 'team-building':
-                title = '<:users:1137390672194850887> ` TEAM BUILDING `'
+                title = '<:users:1137390672194850887> ` ' + name + ' `'
                 event.type = 'team-building'
                 break
             case 'review':
-                title = '<:search:1153289155405680721> ` REVIEW `'
+                title = '<:search:1153289155405680721> ` ' + name + ' `'
                 event.type = 'review'
                 break
             default:
-                title = '<:calendar:1137424147056689293> ` EVENT `'
+                title = '<:calendar:1137424147056689293> ` ' + name + ' `'
                 event.type = 'event'
                 break
         }
@@ -191,7 +199,7 @@ module.exports = class CreateEventCommand extends BaseInteraction {
 
         let embedDescription = `<:calendar:1137424147056689293> \` DATE \` <t:${event.discordTimestamp}:F>\n<:clock:1139536765837901916> \` DURÉE \` ${minutesToHHMM(event.duration)}\n`
 
-        if (type !== 'review' && type !== 'team-building') {
+        if (type !== 'review' && type !== 'team-building' && type !== 'tournament') {
             embedDescription += `<:arrowrightcircle:1137421115766083726> \` GAMES \` ${event.nbGames}\n`
         }
         embedDescription += `<:pluscircle:1137390650690650172> \` JOINED \` 0/${event.slots}`
