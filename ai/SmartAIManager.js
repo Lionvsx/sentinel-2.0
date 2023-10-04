@@ -1,20 +1,20 @@
 const OpenAIInterface = require('./OpenAIInterface');
-const { getDateOfCurrentWeek, getParisUTCOffset, getDateOfToday} = require('../utils/functions/systemFunctions');
+const { getDateOfCurrentWeek, getDateOfToday,
+    getParisISOString, getParisUTCOffset, getParisCurrentDay
+} = require('../utils/functions/systemFunctions');
 const {getCurrentPlayerAvailability} = require("../utils/functions/teamsFunctions");
+const {DateTime} = require("luxon");
 module.exports = class SmartAIManager extends OpenAIInterface {
     constructor(client) {
-        const currentDate = new Date(Date.now());
-        const options = { weekday: 'long' };
-        const day = currentDate.toLocaleDateString('en-US', options);
-        super(client, `You are Sentinel, an AI assistant powered by advanced GPT-3.5 technology, your responsibilities lie in managing an esport team's events on a Discord server. You will actively listen and respond to all user requests centered around Esport Team Manager jobs, specifically focusing on the planning, re-scheduling of existing events and giving upcoming events information to players. If an user is unavailable for a scheduled event, it will be your task to find the most feasible alternative and reschedule accordingly. 
+        super(client, `You are Sentinel, an AI assistant powered by advanced GPT-3.5 technology, your responsibilities lie in managing an esport team's events on a Discord server. You will actively listen and respond to all user requests centered around Esport Team Manager jobs.
 
-You will be able to tap into all the slots indicating team member availability, as well as have access to upcoming events for efficient and time-sensitive rescheduling. However, take note to ignore all irrelevant requests outside of the scope of your role as a Team Manager assistant.
+You will be able to tap into all the slots indicating team member availability, as well as have access to upcoming events for efficient and time-sensitive scheduling. However, take note to ignore all irrelevant requests outside of the scope of your role as a Team Manager assistant.
 
 Your task is to address and solve such requests effectively and efficiently by leveraging the resources available to you.
 
 Only use functions you have been provided with to perform actions. Anything outside your provided functions are outside of your scope.
 
-Today’s date is ${currentDate.toISOString()} and we are ${day}`);
+Today’s is the ${getParisCurrentDay()} and the date is ${getParisISOString()}`);
 
         this.functions = [];
     }
@@ -36,7 +36,6 @@ Today’s date is ${currentDate.toISOString()} and we are ${day}`);
         });
 
         let formattedSlots = [];
-        let offset = getParisUTCOffset();
 
         for (let [day, avail] of Object.entries(groupedByDay)) {
 
@@ -74,7 +73,7 @@ Today’s date is ${currentDate.toISOString()} and we are ${day}`);
                 // Skip if not enough players are available
                 if (availableCount < FULL_TEAM_COUNT) {
                     if (currentSlot) {
-                        formattedSlots.push(`${currentSlot.day}-${getDateOfCurrentWeek(currentSlot.day)} from ${(currentSlot.startHour - offset) % 24}h to ${(currentSlot.endHour - offset) % 24}h`);
+                        formattedSlots.push(`${currentSlot.day}-${getDateOfCurrentWeek(currentSlot.day)} from ${(currentSlot.startHour) % 24}h to ${(currentSlot.endHour) % 24}h`);
                         currentSlot = null;
                     }
                     continue;
@@ -83,7 +82,7 @@ Today’s date is ${currentDate.toISOString()} and we are ${day}`);
                 // If this is the start of a new slot or a non-consecutive hour
                 if (!currentSlot || (previousHour !== null && previousHour + 1 !== hour)) {
                     if (currentSlot) {
-                        formattedSlots.push(`${currentSlot.day}-${getDateOfCurrentWeek(currentSlot.day)} from ${(currentSlot.startHour - offset) % 24}h to ${(currentSlot.endHour - offset) % 24}h`);
+                        formattedSlots.push(`${currentSlot.day}-${getDateOfCurrentWeek(currentSlot.day)} from ${(currentSlot.startHour) % 24}h to ${(currentSlot.endHour) % 24}h`);
                     }
                     currentSlot = {
                         day: day,
@@ -99,7 +98,7 @@ Today’s date is ${currentDate.toISOString()} and we are ${day}`);
 
             // Handle the final slot if any
             if (currentSlot) {
-                formattedSlots.push(`${currentSlot.day}-${getDateOfCurrentWeek(currentSlot.day)} from ${(currentSlot.startHour - offset) % 24}h to ${(currentSlot.endHour - offset) % 24}h`);
+                formattedSlots.push(`${currentSlot.day}-${getDateOfCurrentWeek(currentSlot.day)} from ${(currentSlot.startHour) % 24}h to ${(currentSlot.endHour) % 24}h`);
             }
         }
 
@@ -107,9 +106,10 @@ Today’s date is ${currentDate.toISOString()} and we are ${day}`);
         let upCommingEvents = Team.events.filter(event => event.discordTimestamp > unixTimestamp);
         let events = upCommingEvents.map(event => {
             return {
+                eventName: event.name,
                 eventId: event._id,
                 eventType: event.type,
-                date: new Date((event.discordTimestamp + offset * 3600) * 1000).toISOString(),
+                date: DateTime.fromSeconds(event.discordTimestamp).setZone('Europe/Paris').toISO(),
                 duration: event.duration + "minutes",
                 numberOfGames: event.nbGames
             }
@@ -184,18 +184,19 @@ Today’s date is ${currentDate.toISOString()} and we are ${day}`);
     }
 
     async staffInput(client, message, Team) {
-        this.loadStaffFunctions()
+        this.loadStaffFunctions(Team)
+        this.loadPlayerFunctions()
         let teamData = this.loadTeamData(Team);
         this.messages.push({
             "role": "system",
-            "content": `Slots where all players are available are: ${teamData.availabilities.length > 0 ? teamData.availabilities.join('\n') : "\"No available slot found\""}\n\nUpcoming events are: ${teamData.events.length > 0 ? teamData.events.map(event => JSON.stringify(event)).join('\n') : "No upcomming events for this team"}\nDuration for 1 game is ${Team.trainingTime} minutes`
+            "content": `Slots where all players are available are: ${teamData.availabilities.length > 0 ? teamData.availabilities.join('\n') : "\"No available common slot found\""}\n\nUpcoming events are: ${teamData.events.length > 0 ? teamData.events.map(event => JSON.stringify(event)).join('\n') : "No upcomming events for this team"}\nDuration for 1 game is ${Team.trainingTime} minutes`
         })
 
         message = message.replace(`<@${client.user.id}>`, "").trim();
         this.messages.push({
             "role": "user",
             "content": "Please answer my request with these instructions :\n" +
-                "- Your can only EDIT or CANCEL events, any other request should be ignored.\n" +
+                "- Your can only EDIT, CREATE, CANCEL events or SHOW PLAYER COMMON SLOTS, any other request should be ignored.\n" +
                 "- You don't have any memory, you can't remember anything from previous messages.\n" +
                 "- You are not programmed to answer questions about the team or its members, you can only manage events and show the team planning.\n" +
                 "- DO NOT answer any question NOT related to your job. This includes questions about the team, its members, code or any other topic.\n" +
@@ -217,7 +218,8 @@ Today’s date is ${currentDate.toISOString()} and we are ${day}`);
         return await this.callGPTNoFunctions();
     }
 
-    loadStaffFunctions() {
+    loadStaffFunctions(Team) {
+        let parisOffset = getParisUTCOffset();
         this.functions.push({
             "name": 'edit-event',
             "description": "Edit an event.",
@@ -230,7 +232,7 @@ Today’s date is ${currentDate.toISOString()} and we are ${day}`);
                     },
                     "newDate": {
                         "type": "string",
-                        "format": "yyyy-MM-ddTHH:mm:ss.sssZ",
+                        "format": `yyyy-MM-ddTHH:mm:ss.sss${parisOffset > 0 ? '+' : '-'}${Math.abs(parisOffset)}:00`,
                         "description": "New date and time of the event. Follow ISO 8601 Format for dates."
                     },
                     "newDuration": {
@@ -260,9 +262,58 @@ Today’s date is ${currentDate.toISOString()} and we are ${day}`);
                 "required": ["eventID"]
             }
         })
+
+        this.functions.push(
+            {
+                "name": 'create-events',
+                "description": "Create events and training sessions for an esports team based on player availability.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "events": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "eventName": {
+                                        "type": "string",
+                                        "description": "Name of the event to be created, in french"
+                                    },
+                                    "eventType": {
+                                        "type": "string",
+                                        "enum": Team.trainTags.concat(["team-building", "review", "tournament"]),
+                                        "description": "Type of event to be created."
+                                    },
+                                    "date": {
+                                        "type": "string",
+                                        "format": `yyyy-MM-ddTHH:mm:ss.sss${parisOffset > 0 ? '+' : '-'}${Math.abs(parisOffset)}:00`,
+                                        "description": "Start date and time of the event. Follow ISO 8601 Format for dates, use the right timezone format"
+                                    },
+                                    "duration": {
+                                        "type": "number",
+                                        "description": "Duration of the event in minutes. If there is games refer to the duration for 1 game"
+                                    },
+                                    "numberOfGames": {
+                                        "type": "number",
+                                        "description": "Number of games for a " + Team.trainTags.join(' or ') + "0 for ANY OTHER TYPE"
+                                    },
+                                    "requiredPlayers": {
+                                        "type": "number",
+                                        "description": "Number of players required for the event, leave empty or 0 for default value"
+                                    }
+                                },
+                                "required": ["eventType", "date", "duration", "eventName"]
+                            }
+                        }
+                    },
+                    "required": ["events"]
+                }
+            }
+        )
     }
 
     loadPlayerFunctions() {
+        let parisOffset = getParisUTCOffset();
         this.functions.push({
             "name": 'add-availability',
             "description": "Add an availability for a slot.",
@@ -276,13 +327,13 @@ Today’s date is ${currentDate.toISOString()} and we are ${day}`);
                             "properties": {
                                 "slotStartTime": {
                                     "type": "string",
-                                    "format": "yyyy-MM-ddTHH:mm:ss.sssZ",
+                                    "format": `yyyy-MM-ddTHH:mm:ss.sss${parisOffset > 0 ? '+' : '-'}${Math.abs(parisOffset)}:00`,
                                     "description": "Start time of the slot. Follow ISO 8601 Format for dates."
                                 },
-                                "slotDuration": {
-                                    "type": "number",
-                                    "format": "integer",
-                                    "description": "Duration of the availability in minutes, Example: 480 for 8 hours."
+                                "slotEndTime": {
+                                    "type": "string",
+                                    "format": `yyyy-MM-ddTHH:mm:ss.sss${parisOffset > 0 ? '+' : '-'}${Math.abs(parisOffset)}:00`,
+                                    "description": "End time of the slot. Follow ISO 8601 Format for dates."
                                 },
                                 "availability": {
                                     "type": "string",

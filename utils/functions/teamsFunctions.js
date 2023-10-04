@@ -3,12 +3,14 @@ const {getNotionPageById} = require("./notionFunctions");
 const {MessageEmbed, TextChannel} = require("discord.js");
 const {
     createButtonActionRow,
-    createEmojiButton
+    createEmojiButton, createMessageActionRow
 } = require("./messageComponents");
-const {minutesToHHMM, getParisUTCOffset, getCurrentWeekNumber,
+const {minutesToHHMM, getCurrentWeekNumber,
     getDateOfCurrentWeek,
     getDateOfToday
 } = require("./systemFunctions");
+const { DateTime } = require('luxon');
+const {Types} = require("mongoose");
 async function updateTeamChannels(guild, teamCategory, role, staffPermissions) {
     let childChannels = teamCategory.children
     let organisationChannel = childChannels.find(channel => channel.name === "📌┃organisation")
@@ -213,17 +215,17 @@ function updateEventEmbed(event) {
         .addFields([
             {
                 name: '<:check:1137390614296678421> ` CONFIRMES `',
-                value: playerYes.length > 0 ? playerYes.map(player => `<@!${player.userId}>`).join('\n') : '\u200b',
+                value: playerYes.length > 0 ? playerYes.map(player => `<@${player.userId}>`).join('\n') : '\u200b',
                 inline: true
             },
             {
                 name: '<:users:1137390672194850887> ` PEUT-ÊTRE `',
-                value: playerMaybe.length > 0 ? playerMaybe.map(player => `<@!${player.userId}>`).join('\n') : '\u200b',
+                value: playerMaybe.length > 0 ? playerMaybe.map(player => `<@${player.userId}>`).join('\n') : '\u200b',
                 inline: true
             },
             {
                 name: '<:x_:1137419292946727042> ` INDISPONIBLES `',
-                value: playerNo.length > 0 ? playerNo.map(player => `<@!${player.userId}>`).join('\n') : '\u200b',
+                value: playerNo.length > 0 ? playerNo.map(player => `<@${player.userId}>`).join('\n') : '\u200b',
                 inline: true
             }
         ])
@@ -589,52 +591,62 @@ async function addAvailability(guild, Team, functionArgs, userId) {
     try {
         let returnMessage = []
         for (const avail of functionArgs.availabilities) {
-            const { slotStartTime, slotDuration, availability } = avail;
+            const { slotStartTime, slotEndTime, availability } = avail;
 
-            if (!slotStartTime || !slotDuration || !availability || !userId) {
+            if (!slotStartTime || !slotEndTime || !availability || !userId) {
                 return "Missing arguments"
             }
 
-            const startTime = new Date(slotStartTime);
-            const endTime = new Date(startTime.getTime() + slotDuration * 60000); // converting duration to milliseconds
-
+            const startTime = DateTime.fromISO(slotStartTime, {zone: 'Europe/Paris'});
+            const endTime = DateTime.fromISO(slotEndTime, {zone: 'Europe/Paris'});
 
             if (!Team) {
                 return "Team not found"
             }
 
-            let guildMember = await guild.members.fetch(userId)
+            let guildMember = await guild.members.fetch(userId);
 
-            let offset = getParisUTCOffset();
             const overlappingEvents = Team.events.filter(event => {
-                const eventStartTime = new Date(event.discordTimestamp * 1000 + offset * 3600000);
-                const eventEndTime = new Date(eventStartTime.getTime() + event.duration * 60000); // converting duration to milliseconds
+                const eventStartTime = DateTime.fromSeconds(event.discordTimestamp).setZone('Europe/Paris');
+                const eventEndTime = eventStartTime.plus({ minutes: event.duration });
                 return (startTime <= eventEndTime && endTime >= eventStartTime) && event.attendance;
             });
 
             if (availability === 'unavailable' && overlappingEvents.length > 0) {
                 for (const event of overlappingEvents) {
                     sendPlanningConflictMessage(guild, Team, event, guildMember.user.username);
+                    // Update the event rsvps
+                    if (event.rsvps.some(rsvp => rsvp.userId === userId)) {
+                        let rsvpToUpdate = event.rsvps.find(rsvp => rsvp.userId === userId);
+                        rsvpToUpdate.attending = "no";
+                    } else {
+                        event.rsvps.push({
+                            userId: userId,
+                            attending: "no"
+                        });
+                    }
                 }
             }
 
-            const day = startTime.toLocaleDateString('en-US', { weekday: 'long' });
-            const startHour = startTime.getUTCHours();
-            const endHour = startTime.getUTCHours() + slotDuration / 60
-            const weekNumber = getCurrentWeekNumber(startTime);
+            const day = startTime.toFormat('EEEE');  // Get the day of the week
+            const startHour = startTime.hour;
+            const endHour = endTime.hour;
+            const weekNumber = getCurrentWeekNumber(startTime.toJSDate());  // Assuming getCurrentWeekNumber accepts a JS Date object
 
             for (let hour = startHour; hour <= endHour; hour++) {
-                let relativeHour = hour % 24;
+                if (hour < 6) {
+                    continue;
+                }
                 const existingAvailabilityIndex = Team.availabilities.findIndex(avail =>
                     avail.discordId === userId &&
-                    avail.hour === relativeHour &&
+                    avail.hour === hour &&
                     avail.day === day &&
                     avail.weekNumber === weekNumber
                 );
 
                 const newAvailability = {
                     day: day,
-                    hour: relativeHour,
+                    hour: hour,
                     weekNumber: weekNumber,
                     discordId: userId,
                     availability: availability
@@ -648,7 +660,8 @@ async function addAvailability(guild, Team, functionArgs, userId) {
             }
 
             await Team.save();
-            returnMessage.push("User availabilities updated successfully from " + startTime.toLocaleString() + " to " + endTime.toLocaleString() + " with status " + availability);
+            const dayOfWeek = startTime.toFormat('EEEE');
+            returnMessage.push(`User availabilities updated successfully on ${dayOfWeek}, from ${startTime.toISO()} to ${endTime.toISO()} with status ${availability}`);
         }
         return returnMessage.join('\n');
     } catch (error) {
@@ -657,6 +670,111 @@ async function addAvailability(guild, Team, functionArgs, userId) {
     }
 }
 
+async function createEvents(guild, Team, responseData) {
+    let parentCategory = guild.channels.cache.get(Team.linkedCategoryId)
+    let organisationChannel = parentCategory.children.find(channel => channel.name.includes('organisation'))
+    let resultMessages = []
+    for (const event of responseData.events) {
+
+        // Switch emoji on event type :
+        let title = ''
+        event.eventName = event.eventName.toUpperCase()
+        switch (event.eventType) {
+            case 'training':
+                title = '<:zap:1137424324144410736> ` ' + event.eventName + ' `'
+                break
+            case 'pracc':
+                title = '<:crosshair:1137436482248904846> ` ' + event.eventName + ' `'
+                break
+            case 'tournament':
+                title = '<:flag:1153289152536772659> ` ' + event.eventName + ' `'
+                break
+            case 'scrim':
+                title = '<:zap2:1137424322399571988> ` ' + event.eventName + ' `'
+                break
+            case 'team-building':
+                title = '<:users:1137390672194850887> ` ' + event.eventName + ' `'
+                break
+            case 'review':
+                title = '<:search:1153289155405680721> ` ' + event.eventName + ' `'
+                break
+            case 'entrainement':
+                title = '<:zap:1137424324144410736> ` ' + event.eventName + ' `'
+                break
+            default:
+                title = '<:calendar:1137424147056689293> ` ' + event.eventName + ' `'
+                break
+        }
+        const unixTimestamp = Math.floor(new Date(event.date).getTime() / 1000);
+
+        let embedDescription = `<:calendar:1137424147056689293> \` DATE \` <t:${unixTimestamp}:F>\n<:clock:1139536765837901916> \` DURÉE \` ${minutesToHHMM(event.duration)}\n`
+
+        if (event.eventType !== 'review' && event.eventType !== 'team-building' && event.eventType !== 'tournament') {
+            embedDescription += `<:arrowrightcircle:1137421115766083726> \` GAMES \` ${event.numberOfGames}\n`
+        }
+        let requiredPlayers = Team.minPlayers
+        if (event.requiredPlayers || event.requiredPlayers !== 0) {
+            requiredPlayers = event.requiredPlayers
+        }
+        embedDescription += `<:pluscircle:1137390650690650172> \` JOINED \` 0/${requiredPlayers}`
+
+
+        let eventEmbed = new MessageEmbed()
+            .setTitle(title)
+            .setColor('#2b2d31')
+            .setDescription(embedDescription)
+
+        const myId = Types.ObjectId();
+
+
+        let buttonAccept = createEmojiButton(`acceptEvent|${myId}`, '', 'SECONDARY', '<:usercheck:1137390666490589274>')
+        let buttonMaybe = createEmojiButton(`maybeEvent|${myId}`, '', 'SECONDARY', '<:userplus3:1153405260812005547>')
+        let buttonDecline = createEmojiButton(`declineEvent|${myId}`, '', 'SECONDARY', '<:userx:1137394869812351006>')
+        let buttonSettings = createEmojiButton(`eventSettings|${myId}`, '', 'SECONDARY', '<:settings2:1153405967409623141>')
+
+
+        eventEmbed.addFields([
+            {
+                name: '<:check:1137390614296678421> ` CONFIRMES `',
+                value: '\u200b',
+                inline: true
+            },
+            {
+                name: '<:users:1137390672194850887> ` PEUT-ÊTRE `',
+                value: '\u200b',
+                inline: true
+            },
+            {
+                name: '<:x_:1137419292946727042> ` INDISPONIBLES `',
+                value: '\u200b',
+                inline: true
+            }
+        ])
+        let eventMessage = await organisationChannel.send({
+            content: "<@&" + Team.linkedRoleId + ">",
+            embeds: [eventEmbed],
+            components: [
+                createMessageActionRow([buttonAccept, buttonMaybe, buttonDecline, buttonSettings])
+            ]
+        })
+
+
+        Team.events.push({
+            _id: myId,
+            name: title,
+            type: event.eventType,
+            attendance: true,
+            discordTimestamp: unixTimestamp,
+            duration: event.duration,
+            nbGames: event.numberOfGames,
+            slots: requiredPlayers,
+            messageId: eventMessage.id
+        })
+        await Team.save()
+        resultMessages.push(`Event ${event.eventName} created successfully`)
+    }
+    return resultMessages.join('\n')
+}
 function sendPlanningConflictMessage(guild, Team, event, displayName) {
     let staffChannel = guild.channels.cache.get(Team.linkedCategoryId).children.find(channel => channel.name.includes('staff'))
 
@@ -695,7 +813,6 @@ function getCurrentPlayerAvailability(Team, userId) {
     });
 
     let formattedSlots = [];
-    let offset = getParisUTCOffset();
 
     for (let [day, avail] of Object.entries(groupedByDay)) {
 
@@ -729,7 +846,7 @@ function getCurrentPlayerAvailability(Team, userId) {
             // If this is the start of a new slot or a non-consecutive hour
             if (!currentSlot || (previousHour !== null && previousHour + 1 !== hour)) {
                 if (currentSlot) {
-                    formattedSlots.push(`${currentSlot.day}-${getDateOfCurrentWeek(currentSlot.day)} from ${(currentSlot.startHour - offset) % 24}h to ${(currentSlot.endHour - offset) % 24}h`);
+                    formattedSlots.push(`${currentSlot.day}-${getDateOfCurrentWeek(currentSlot.day)} from ${(currentSlot.startHour) % 24}h to ${(currentSlot.endHour) % 24}h`);
                 }
                 currentSlot = {
                     day: day,
@@ -745,7 +862,7 @@ function getCurrentPlayerAvailability(Team, userId) {
 
         // Handle the final slot if any
         if (currentSlot) {
-            formattedSlots.push(`${currentSlot.day}-${getDateOfCurrentWeek(currentSlot.day)} from ${(currentSlot.startHour - offset) % 24}h to ${(currentSlot.endHour - offset) % 24}h`);
+            formattedSlots.push(`${currentSlot.day}-${getDateOfCurrentWeek(currentSlot.day)} from ${(currentSlot.startHour) % 24}h to ${(currentSlot.endHour) % 24}h`);
         }
     }
 
@@ -760,53 +877,52 @@ async function editEvent(guild, Team, functionArgs) {
     let event = Team.events.find(event => String(event._id) === functionArgs.eventID)
     if (!event) return "Event not found"
 
-    let newDate = new Date(functionArgs.newDate)
-    let newDuration = functionArgs.newDuration
-    let newNumberOfGames = functionArgs.newNumberOfGames
-
-    let offset = getParisUTCOffset()
-    let unixTimestamp = newDate.getTime() / 1000 - (offset * 3600)
+    const newDate = DateTime.fromISO(functionArgs.newDate, {zone: 'Europe/Paris'});
+    let newDuration = functionArgs.newDuration;
+    let newNumberOfGames = functionArgs.newNumberOfGames;
+    let unixTimestamp = newDate.toSeconds();
 
     // Send message to all event participants
-    let eventParticipants = event.rsvps.map(rsvp => rsvp.userId)
+    let eventParticipants = event.rsvps.map(rsvp => rsvp.userId);
     for (const participant of eventParticipants) {
-        let user = await guild.members.fetch(participant)
-        let dmChannel = await user.createDM()
+        let user = await guild.members.fetch(participant);
+        let dmChannel = await user.createDM();
         dmChannel.send({
             embeds: [
                 new MessageEmbed()
-                    .setDescription(`<:editpen:1137390632445431950> L'événement ${event.name} qui débutait <t:${event.discordTimestamp}:R> a été modifié et commence maintenant <t:${unixTimestamp}:R>`)
+                    .setDescription(`<:editpen:1137390632445431950> L'événement ${event.name} qui débutait <t:${event.discordTimestamp}:R> a été modifié et commence <t:${unixTimestamp}:R>`)
                     .setColor("#2b2d31")
             ]
-        })
+        });
     }
 
-    let parentChannel = guild.channels.cache.get(Team.linkedCategoryId)
-    let organisationChannel = parentChannel.children.find(channel => channel.name.includes('organisation'))
-    let staffChannel = parentChannel.children.find(channel => channel.name.includes('staff'))
-    let eventMessage = await organisationChannel.messages.fetch(event.messageId)
+    let oldDate = DateTime.fromSeconds(event.discordTimestamp, {zone: 'Europe/Paris'});
+
+    let parentChannel = guild.channels.cache.get(Team.linkedCategoryId);
+    let organisationChannel = parentChannel.children.find(channel => channel.name.includes('organisation'));
+    let staffChannel = parentChannel.children.find(channel => channel.name.includes('staff'));
+    let eventMessage = await organisationChannel.messages.fetch(event.messageId);
 
     staffChannel.send({
         content: "<@&624715536693198888>",
         embeds: [
             new MessageEmbed()
-                .setDescription(`<:editpen:1137390632445431950> L'événement ${event.name} qui débutait <t:${event.discordTimestamp}:F> a été modifié et commence maintenant <t:${unixTimestamp}:F>`)
+                .setDescription(`<:editpen:1137390632445431950> L'événement ${event.name} qui débutait <t:${event.discordTimestamp}:F> a été modifié et commence <t:${unixTimestamp}:F>`)
                 .setColor("#2b2d31")
         ]
-    })
+    });
 
+    event.discordTimestamp = unixTimestamp;
+    event.duration = newDuration;
+    event.nbGames = newNumberOfGames;
+    await Team.save();
 
-    event.discordTimestamp = unixTimestamp
-    event.duration = newDuration
-    event.nbGames = newNumberOfGames
-    await Team.save()
-
-    let eventEmbed = updateEventEmbed(event)
+    let eventEmbed = updateEventEmbed(event);  // Assuming updateEventEmbed is defined elsewhere in your code
     eventMessage.edit({
         embeds: [eventEmbed]
-    })
+    });
 
-    return `Event ${event.name} has been edited to start at <t:${unixTimestamp}:R>`
+    return `Event ${event.name} that started at ${oldDate.toFormat('F')} has been edited to start at ${newDate.toFormat('F')} and last ${newDuration} minutes with ${newNumberOfGames} games`;
 }
 
 module.exports = {
@@ -824,5 +940,6 @@ module.exports = {
     editEvent,
     alertTeamMembers,
     addAvailability,
-    getCurrentPlayerAvailability
+    getCurrentPlayerAvailability,
+    createEvents
 }

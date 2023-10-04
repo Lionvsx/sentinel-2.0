@@ -38,6 +38,7 @@ module.exports = class RescheduleEvent extends BaseInteraction {
         let response = await SmartRescheduler.rescheduleEvent(client, Team, event.id)
 
         if (response.finish_reason === "function_call") {
+            console.log(response.message.function_call)
             let args = JSON.parse(response.message.function_call.arguments)
             let cancelEventResponse = await editEvent(interaction.guild, Team, args)
             let functionResponse = await SmartRescheduler.functionInput(cancelEventResponse, 'edit-event')

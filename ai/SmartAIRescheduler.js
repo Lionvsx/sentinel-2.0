@@ -1,17 +1,17 @@
 const OpenAIInterface = require('./OpenAIInterface');
-const { getDateOfCurrentWeek, getParisUTCOffset, getDateOfToday} = require('../utils/functions/systemFunctions');
+const { getDateOfCurrentWeek, getDateOfToday,
+    getParisISOString, getParisCurrentDay, getParisUTCOffset
+} = require('../utils/functions/systemFunctions');
+const {DateTime} = require("luxon");
 module.exports = class SmartAIRescheduler extends OpenAIInterface {
     constructor(client) {
-        const currentDate = new Date(Date.now());
-        const options = { weekday: 'long' };
-        const day = currentDate.toLocaleDateString('en-US', options);
         super(client, `You are Sentinel, an AI assistant powered by advanced GPT-3.5 technology, your responsibilities lie in managing an esport team's events on a Discord server. You will actively listen and respond to all user requests centered around Esport Team Manager jobs, specifically focusing on the re-scheduling of existing events. It will be your task to find the most feasible alternative and reschedule accordingly. 
 
 You will be able to tap into all the slots indicating team member availability, as well as have access to upcoming events for efficient and time-sensitive rescheduling.
 Your task is to address and solve such requests effectively and efficiently by leveraging the resources available to you.
 Only use functions you have been provided with to perform actions. Anything outside your provided functions are outside of your scope.
 
-Today’s date is ${currentDate.toISOString()} and we are ${day}`);
+Today’s is the ${getParisCurrentDay()} and the date is ${getParisISOString()}`);
 
         this.functions = [];
     }
@@ -33,7 +33,6 @@ Today’s date is ${currentDate.toISOString()} and we are ${day}`);
         });
 
         let formattedSlots = [];
-        let offset = getParisUTCOffset();
 
         for (let [day, avail] of Object.entries(groupedByDay)) {
 
@@ -71,7 +70,7 @@ Today’s date is ${currentDate.toISOString()} and we are ${day}`);
                 // Skip if not enough players are available
                 if (availableCount < FULL_TEAM_COUNT) {
                     if (currentSlot) {
-                        formattedSlots.push(`${currentSlot.day}-${getDateOfCurrentWeek(currentSlot.day)} from ${(currentSlot.startHour - offset) % 24}h to ${(currentSlot.endHour - offset) % 24}h`);
+                        formattedSlots.push(`${currentSlot.day}-${getDateOfCurrentWeek(currentSlot.day)} from ${(currentSlot.startHour) % 24}h to ${(currentSlot.endHour) % 24}h`);
                         currentSlot = null;
                     }
                     continue;
@@ -80,7 +79,7 @@ Today’s date is ${currentDate.toISOString()} and we are ${day}`);
                 // If this is the start of a new slot or a non-consecutive hour
                 if (!currentSlot || (previousHour !== null && previousHour + 1 !== hour)) {
                     if (currentSlot) {
-                        formattedSlots.push(`${currentSlot.day}-${getDateOfCurrentWeek(currentSlot.day)} from ${(currentSlot.startHour - offset) % 24}h to ${(currentSlot.endHour - offset) % 24}h`);
+                        formattedSlots.push(`${currentSlot.day}-${getDateOfCurrentWeek(currentSlot.day)} from ${(currentSlot.startHour) % 24}h to ${(currentSlot.endHour) % 24}h`);
                     }
                     currentSlot = {
                         day: day,
@@ -96,7 +95,7 @@ Today’s date is ${currentDate.toISOString()} and we are ${day}`);
 
             // Handle the final slot if any
             if (currentSlot) {
-                formattedSlots.push(`${currentSlot.day}-${getDateOfCurrentWeek(currentSlot.day)} from ${(currentSlot.startHour - offset) % 24}h to ${(currentSlot.endHour - offset) % 24}h`);
+                formattedSlots.push(`${currentSlot.day}-${getDateOfCurrentWeek(currentSlot.day)} from ${(currentSlot.startHour) % 24}h to ${(currentSlot.endHour) % 24}h`);
             }
         }
 
@@ -106,7 +105,7 @@ Today’s date is ${currentDate.toISOString()} and we are ${day}`);
             return {
                 eventId: event._id,
                 eventType: event.type,
-                date: new Date((event.discordTimestamp + offset * 3600) * 1000).toISOString(),
+                date: DateTime.fromSeconds(event.discordTimestamp).setZone('Europe/Paris').toISO(),
                 duration: event.duration + "minutes",
                 numberOfGames: event.nbGames
             }
@@ -181,6 +180,7 @@ Today’s date is ${currentDate.toISOString()} and we are ${day}`);
     }
 
     loadFunction() {
+        let parisOffset = getParisUTCOffset();
         this.functions.push({
             "name": 'edit-event',
             "description": "Edit an event.",
@@ -193,8 +193,8 @@ Today’s date is ${currentDate.toISOString()} and we are ${day}`);
                     },
                     "newDate": {
                         "type": "string",
-                        "format": "yyyy-MM-ddTHH:mm:ss.sssZ",
-                        "description": "New date and time of the event. Follow ISO 8601 Format for dates."
+                        "format": `yyyy-MM-ddTHH:mm:ss.sss${parisOffset > 0 ? '+' : '-'}${Math.abs(parisOffset)}:00`,
+                        "description": "New date and time of the event. Follow ISO 8601 Format for dates, use the right timezone format"
                     },
                     "newDuration": {
                         "type": "number",
