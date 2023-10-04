@@ -65,7 +65,7 @@ module.exports = class CreateChannelTeams extends BaseInteraction {
         const channelPermissions = [
             { id: interaction.guild.roles.everyone.id, deny: Permissions.FLAGS.VIEW_CHANNEL },
             { id: interaction.user.id, allow: [Permissions.FLAGS.VIEW_CHANNEL, Permissions.FLAGS.CONNECT, Permissions.FLAGS.SEND_MESSAGES] },
-            { id: '624715536693198888', allow: [Permissions.FLAGS.VIEW_CHANNEL, Permissions.FLAGS.CONNECT, Permissions.FLAGS.SEND_MESSAGES, Permissions.FLAGS.MUTE_MEMBERS, Permissions.FLAGS.MOVE_MEMBERS, Permissions.FLAGS.DEAFEN_MEMBERS] }
+            { id: '624715536693198888', allow: [Permissions.FLAGS.CONNECT, Permissions.FLAGS.SEND_MESSAGES, Permissions.FLAGS.MUTE_MEMBERS, Permissions.FLAGS.MOVE_MEMBERS, Permissions.FLAGS.DEAFEN_MEMBERS] }
         ]
 
         const channelName = await userResponseContent(dmChannel, `Quel nom voulez vous donner à votre channel ?`).catch(err => console.log(err))
@@ -73,7 +73,7 @@ module.exports = class CreateChannelTeams extends BaseInteraction {
         const channelEmoji = await userResponseContent(dmChannel, `Quel emoji voulez vous donner à votre channel ?`).catch(err => console.log(err))
         if (!channelEmoji) return;
 
-        const userAndRolesToAdd = await userResponseContent(dmChannel, "Quels autres utilisateurs ou rôles souhaitez vous rajouter au channel : \`(pseudos discord ou roles séparés d'une virgule, tapez \"aucun\" si il n'y en a aucun)\`").catch(err => console.log(err))
+        const userAndRolesToAdd = await userResponseContent(dmChannel, "Quels autres utilisateurs ou rôles souhaitez vous rajouter au channel (L'équipe et le staff sont ajoutés de base): \`(pseudos discord ou roles séparés d'une virgule, tapez \"aucun\" si il n'y en a aucun)\`").catch(err => console.log(err))
         if (!userAndRolesToAdd) return;
 
         let audience = undefined
@@ -86,10 +86,10 @@ module.exports = class CreateChannelTeams extends BaseInteraction {
         }
 
         const permissionSelectorMenu = selectionMenuInteraction.values[0] === 'GUILD_TEXT' ? createSelectionMenu('selectPermissionMenu', 'Veuillez sélectionner un modèle de permissions', [
-                createSelectionMenuOption('annonce', 'Channel Annonce', `Seul le Head Staff peut envoyer des messages`, '<:triangle:1137394274816753695>'),
+                createSelectionMenuOption('annonce', 'Channel Annonce', `Seul le staff esport peut envoyer des messages`, '<:triangle:1137394274816753695>'),
                 createSelectionMenuOption('discussion', 'Channel Discussion', `Tout le monde peut parler`, '<:messagecircle:1137423168080973874>'),
                 createSelectionMenuOption('interpole', 'Channel Inter-Team', `Seul la team peut parler, pas les rôles/utilisateurs additionnels`, '<:share:1137426868971245630>'),
-                createSelectionMenuOption('documents', 'Channel Documents', `Seul vous pouvez parler`, '<:folder:1137426389793001572>'),
+                createSelectionMenuOption('documents', 'Channel Documents', `Seul le staff peut parler`, '<:folder:1137426389793001572>'),
 
             ], 1, 1)
             : selectionMenuInteraction.values[0] === 'GUILD_VOICE' ? createSelectionMenu('selectPermissionMenu', 'Veuillez sélectionner un modèle de permissions', [
