@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [3.1.0](https://github.com/Lionvsx/sentinel-2.0/compare/v3.0.0...v3.1.0) (2023-10-04)
+
+
+### Features
+
+* add auto ticket creation for tournaments ([67fc78f](https://github.com/Lionvsx/sentinel-2.0/commit/67fc78f3622dc83a24840908e88277c55b17bbbf))
+* add luxon date package ([2dd70b3](https://github.com/Lionvsx/sentinel-2.0/commit/2dd70b36542632fb264ade4b7c9b82af826e70dc))
+* add new functions for date management ([f83ac23](https://github.com/Lionvsx/sentinel-2.0/commit/f83ac23f37a2afa703cfa13ca9d8a05f95d50a10))
+* ask user to open his dms on dm closed ([44baa1a](https://github.com/Lionvsx/sentinel-2.0/commit/44baa1a7b875f02cda2a4a327ce20ee7701430d3))
+
+
+### Bug Fixes
+
+* add event name in command create event ([3aa5420](https://github.com/Lionvsx/sentinel-2.0/commit/3aa542088ae0db5961d7df7c016f035469c75688))
+* added delete page on user that already left the server ([cf1f1c7](https://github.com/Lionvsx/sentinel-2.0/commit/cf1f1c73362842976319a66d76e89356b49fe983))
+* announcement messages can go in wrong channels ([4d78a7a](https://github.com/Lionvsx/sentinel-2.0/commit/4d78a7a3319e895c1f486ee3325425eb93aca58f))
+* change to UTC + 2 on all AI functions ([fc455b7](https://github.com/Lionvsx/sentinel-2.0/commit/fc455b7b050e815afba1d7c906cfa39af2691799))
+* display fix when you add only registred users ([de42046](https://github.com/Lionvsx/sentinel-2.0/commit/de4204648973059311e5e58462ace2db076827d7))
+* timeout too quick on modals ([c1de2d2](https://github.com/Lionvsx/sentinel-2.0/commit/c1de2d2aa4877b64af9a877d4dab3f4fb4e16fb0))
+* typo and permission errors ([2416744](https://github.com/Lionvsx/sentinel-2.0/commit/2416744885aee0a2ed1ecb7eea5e2618ca2fd50b))
+* typo error for clarity ([9d6f31c](https://github.com/Lionvsx/sentinel-2.0/commit/9d6f31cec18e8e8722f7b1e3157eaba4ce14aa86))
+
 ## [3.0.0](https://github.com/Lionvsx/sentinel-2.0/compare/v2.0.0...v3.0.0) (2023-09-27)
 
 
