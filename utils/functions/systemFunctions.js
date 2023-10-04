@@ -1,4 +1,5 @@
 const date = require('date-and-time');
+const { DateTime } = require('luxon');
 
 
 function getDateTime() {
@@ -18,17 +19,17 @@ function getDateOfCurrentWeek(day) {
         throw new Error('Invalid day name');
     }
 
-    const today = new Date();
-    // Adjust so 0 (Monday) - 6 (Sunday)
-    const todayIndex = (today.getUTCDay() + 6) % 7;
-    const targetIndex = daysOfWeek.indexOf(day);
+    const today = DateTime.now().setZone('Europe/Paris');
+    // Adjust so 1 (Monday) - 7 (Sunday)
+    const todayIndex = today.weekday;
+    const targetIndex = daysOfWeek.indexOf(day) + 1;
 
     // Calculate difference between today and target day
     const diff = targetIndex - todayIndex;
 
-    today.setUTCDate(today.getUTCDate() + diff);
+    const targetDay = today.plus({ days: diff });
 
-    return today.getUTCDate();
+    return targetDay.toFormat('d');
 }
 
 function getDateOfToday() {
@@ -65,12 +66,24 @@ function minutesToHHMM(minutes) {
     return `${formattedHours}:${formattedMinutes}`;
 }
 
+function getParisISOString() {
+    const date = DateTime.now().setZone('Europe/Paris');
+    return date.toISO();
+}
+
+function getParisCurrentDay() {
+    const date = DateTime.now().setZone('Europe/Paris');
+    return date.toFormat('EEEE');
+}
+
 module.exports = {
     getDateTime,
     getTime,
     getDateOfCurrentWeek,
-    getParisUTCOffset,
     getDateOfToday,
     minutesToHHMM,
     getCurrentWeekNumber,
+    getParisISOString,
+    getParisUTCOffset,
+    getParisCurrentDay
 }
