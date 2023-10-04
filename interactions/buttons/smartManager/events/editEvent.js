@@ -3,8 +3,8 @@ const Teams = require("../../../../src/schemas/TeamSchema");
 const { Modal, TextInputComponent, showModal} = require('discord-modals');
 const {modalInteraction} = require("../../../../utils/functions/awaitFunctions");
 const {updateEventEmbed} = require("../../../../utils/functions/teamsFunctions");
-const {getParisUTCOffset} = require("../../../../utils/functions/systemFunctions");
 const {MessageEmbed} = require("discord.js");
+const {DateTime} = require("luxon");
 module.exports = class EditEvent extends BaseInteraction {
     constructor() {
         super('editEvent', 'smartManager', 'button', {
@@ -59,6 +59,12 @@ module.exports = class EditEvent extends BaseInteraction {
                     .setLabel('Nombre de joueurs')
                     .setPlaceholder('Ajoutez le nouveau nombre de joueurs de l\'événement')
                     .setStyle('SHORT'),
+
+                new TextInputComponent()
+                    .setCustomId('name')
+                    .setLabel('Nom')
+                    .setPlaceholder('Ajoutez le nouveau nom de l\'événement')
+                    .setStyle('SHORT')
             )
 
         await showModal(modal, {
@@ -78,14 +84,9 @@ module.exports = class EditEvent extends BaseInteraction {
             })
 
             // Transform to discordJS timestamp
-            let dateArray = date.split(' ')
-            let dateArray2 = dateArray[0].split('/')
-            let dateArray3 = dateArray[1].split(':')
-            let currentYear = new Date().getFullYear()
-            let offset = getParisUTCOffset()
-            let dateTimestamp = new Date(currentYear, dateArray2[1] - 1, dateArray2[0], dateArray3[0] - offset, dateArray3[1]).getTime()
+            const parisDateTime = DateTime.fromFormat(date, 'dd/MM HH:mm', {zone: 'Europe/Paris'});
 
-            event.discordTimestamp = dateTimestamp / 1000
+            event.discordTimestamp = parisDateTime.toSeconds()
         }
 
         if (modalResponse.fields.components[1].components[0].value) {
@@ -115,6 +116,35 @@ module.exports = class EditEvent extends BaseInteraction {
             event.slots = nbPlayers
         }
 
+        if (modalResponse.fields.components[4].components[0].value) {
+            switch (event.type) {
+                case 'training':
+                    event.name = '<:zap:1137424324144410736> ` ' + modalResponse.fields.components[4].components[0].value + ' `'
+                    break
+                case 'pracc':
+                    event.name = '<:crosshair:1137436482248904846> ` ' + modalResponse.fields.components[4].components[0].value + ' `'
+                    break
+                case 'tournament':
+                    event.name = '<:flag:1153289152536772659> ` ' + modalResponse.fields.components[4].components[0].value + ' `'
+                    break
+                case 'scrim':
+                    event.name = '<:zap2:1137424322399571988> ` ' + modalResponse.fields.components[4].components[0].value + ' `'
+                    break
+                case 'team-building':
+                    event.name = '<:users:1137390672194850887> ` ' + modalResponse.fields.components[4].components[0].value + ' `'
+                    break
+                case 'review':
+                    event.name = '<:search:1153289155405680721> ` ' + modalResponse.fields.components[4].components[0].value + ' `'
+                    break
+                case 'entrainement':
+                    event.name = '<:zap:1137424324144410736> ` ' + modalResponse.fields.components[4].components[0].value + ' `'
+                    break
+                default:
+                    event.name = '<:calendar:1137424147056689293> ` ' + modalResponse.fields.components[4].components[0].value + ' `'
+                    break
+            }
+        }
+
         modalResponse.reply({
             content: '<:check:1137387353846063184> Informations modifiées',
             ephemeral: true
@@ -127,7 +157,7 @@ module.exports = class EditEvent extends BaseInteraction {
             dmChannel.send({
                 embeds: [
                     new MessageEmbed()
-                        .setDescription(`<:editpen:1137390632445431950> L'événement ${event.name} qui débutait <t:${event.discordTimestamp}:R> a été modifié et commence maintenant <t:${unixTimestamp}:R>`)
+                        .setDescription(`<:editpen:1137390632445431950> L'événement ${event.name} a été modifié et débute <t:${event.discordTimestamp}:R>`)
                         .setColor("#2b2d31")
                 ]
             })

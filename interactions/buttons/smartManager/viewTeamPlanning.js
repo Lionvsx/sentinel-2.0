@@ -43,7 +43,6 @@ module.exports = class ViewTeamPlanning extends BaseInteraction {
 
 
 
-
         for (let [day, avail] of groupedByDay.entries()) {
             function customSortHours(a, b) {
                 if (a.hour >= 0 && a.hour < 6) {
@@ -70,9 +69,28 @@ module.exports = class ViewTeamPlanning extends BaseInteraction {
                 groupedByHour.get(av.hour).push(av);
             });
 
+            let mergedHours = []; // This array will store the merged hours
+
             for (let [hour, hourAvail] of groupedByHour.entries()) {
-                let availableCount = hourAvail.filter(a => a.availability === 'available').length;
-                let missingPlayers = FULL_TEAM_COUNT - availableCount;
+                let usernames = hourAvail.map(av => interaction.guild.members.cache.get(av.discordId).user.username).sort().join(', ');
+
+                if (mergedHours.length > 0 && mergedHours[mergedHours.length - 1].usernames === usernames &&
+                    mergedHours[mergedHours.length - 1].endHour === hour - 1) {
+                    mergedHours[mergedHours.length - 1].endHour = hour; // Extend the hour range
+                } else {
+                    mergedHours.push({
+                        startHour: hour,
+                        endHour: hour,
+                        usernames: usernames,
+                        hourAvail: hourAvail
+                    }); // Add a new entry
+                }
+            }
+
+            // Now process mergedHours for the final output
+            mergedHours.forEach(hourGroup => {
+                let availableCount = hourGroup.hourAvail.filter(a => a.availability === 'available').length;
+                let missingPlayers = FULL_TEAM_COUNT - availableCount < 0 ? 0 : FULL_TEAM_COUNT - availableCount;
 
                 let emoji;
                 switch (missingPlayers) {
@@ -87,9 +105,14 @@ module.exports = class ViewTeamPlanning extends BaseInteraction {
                         break;
                 }
 
-                let usernames = hourAvail.map(av => interaction.guild.members.cache.get(av.discordId).user.username).join(', ');
-                dayDescription += `${emoji} ${hour}h (${usernames})\n`;
-            }
+                // Modification ici : ajustement de l'heure de fin pour qu'elle corresponde à l'heure de fin du créneau
+                let adjustedEndHour = hourGroup.endHour + 1;
+                let hourRange = hourGroup.startHour === hourGroup.endHour ?
+                    `${hourGroup.startHour}h - ${adjustedEndHour}h` :
+                    `${hourGroup.startHour}h - ${adjustedEndHour}h`;
+                dayDescription += `${emoji} ${hourRange} (${hourGroup.usernames})\n`;
+            });
+
 
             embed.addFields({
                 name: day,

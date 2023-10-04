@@ -97,7 +97,7 @@ module.exports = class AnnonceButtonInteraction extends BaseInteraction {
                 switch (emojiSelectorChannel) {
                     case '<:users:1137390672194850887>':
                         selectorReply(selectorChannelsInteraction, emojiSelectorChannel, 'Envoyez à tous les channels d\'équipe')
-                        let audienceChannels = interaction.guild.channels.filter(channel => channel.name.toLowerCase().includes('organisation'))
+                        let audienceChannels = interaction.guild.channels.cache.filter(channel => channel.name === '📌┃organisation')
                         annonceLogger.setLogData(audienceChannels.map(channel => channel.name).join('\n'))
                         if (audienceChannels.size > 1) broadcastMessageChannels(client, dmChannel, audienceChannels, annonceLogger, {
                             content: annoucementMessage.content,

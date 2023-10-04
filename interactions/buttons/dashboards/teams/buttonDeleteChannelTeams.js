@@ -79,7 +79,7 @@ module.exports = class DeleteChannelTeams extends BaseInteraction {
 
         channelLogger.setLogData(deletedChannelsNames.join('\n'))
 
-        channelLogger.info(`<@!${interaction.user.id}> a supprimé \`${deletedChannelsNames.length}\` channel(s) de la catégorie bureau`)
+        channelLogger.info(`<@!${interaction.user.id}> a supprimé \`${deletedChannelsNames.length}\` channel(s) dans son équipe`)
     }
 }
 

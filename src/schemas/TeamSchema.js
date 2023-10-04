@@ -21,7 +21,7 @@ const EventSchema = new mongoose.Schema({
     trackerLink: String,
     type: {
         type: String,
-        enum: ["match", "training", "tournament", "other", "review", "meeting", "team-building", "scrim", "pracc"],
+        enum: ["match", "training", "tournament", "other", "review", "meeting", "team-building", "scrim", "pracc", "entrainement"],
         default: "other",
         required: true
     },
@@ -38,6 +38,10 @@ const EventSchema = new mongoose.Schema({
     },
     score: String,
     result: String,
+    ticketCreated: {
+        type: Boolean,
+        default: false
+    }
 });
 
 

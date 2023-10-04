@@ -1,7 +1,7 @@
 const BaseEvent = require('../../utils/structures/BaseEvent');
 const Teams = require('../../src/schemas/TeamSchema');
 const SmartAIManager = require("../../ai/SmartAIManager");
-const {cancelEvent, editEvent, addAvailability} = require("../../utils/functions/teamsFunctions");
+const {cancelEvent, editEvent, addAvailability, createEvents} = require("../../utils/functions/teamsFunctions");
 module.exports = class MessageCreateSmartManagerPlayers extends BaseEvent {
     constructor() {
         super('messageCreate')
@@ -31,6 +31,8 @@ module.exports = class MessageCreateSmartManagerPlayers extends BaseEvent {
         } else if (staffMembers.has(message.author.id)) {
             response = await Manager.staffInput(client, message.content, Team)
         } else {
+            await message.reactions.removeAll()
+            await message.react('<:x_:1137419292946727042>')
             message.reply("Vous n'avez pas la permission d'utiliser le Smart Manager")
             return;
         }
@@ -53,10 +55,15 @@ module.exports = class MessageCreateSmartManagerPlayers extends BaseEvent {
                 }
                 case "add-availability": {
                     let args = JSON.parse(response.message.function_call.arguments)
-                    console.log(args)
                     let addAvailabilityResponse = await addAvailability(message.guild, Team, args, message.author.id)
-                    console.log(addAvailabilityResponse)
                     let functionResponse = await Manager.functionInput(addAvailabilityResponse, 'add-availability')
+                    await message.reply(functionResponse.message.content)
+                    break;
+                }
+                case "create-events": {
+                    let args = JSON.parse(response.message.function_call.arguments)
+                    let createEventsResponse = await createEvents(message.guild, Team, args)
+                    let functionResponse = await Manager.functionInput(createEventsResponse, 'create-events')
                     await message.reply(functionResponse.message.content)
                     break;
                 }

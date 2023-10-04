@@ -1,19 +1,19 @@
 const OpenAIInterface = require('./OpenAIInterface');
-const { getDateOfCurrentWeek, getParisUTCOffset, getDateOfToday} = require('../utils/functions/systemFunctions');
+const { getDateOfCurrentWeek, getDateOfToday, getParisISOString,
+    getParisCurrentDay, getParisUTCOffset
+} = require('../utils/functions/systemFunctions');
 module.exports = class SmartAIScheduler extends OpenAIInterface {
     constructor(client, Team) {
-        const currentDate = new Date(Date.now());
-        const options = { weekday: 'long' };
-        const day = currentDate.toLocaleDateString('en-US', options);
         super(client, `You are an intelligent planning agent, operating on an esport team calendar. You will be provided data by the user on the team availabilities and an average game duration.\nWith theses informations, your task is to create events suited for an esport team following these contraints:\n- Game reviews are often 30 or 45 minutes long for long games and cannot happen without prior training
-- Do not create any event that starts after 19.30 in the evening
+- Do not create any event that starts after 21.30 in the evening
 - You MUST create events within the players availabilities
 - Be extra careful for the duration of a game and take pause time into consideration when creating events
 - You MUST assist the user in the best way possible.
 
-Today’s date is ${currentDate.toISOString()} and we are ${day}`);
+Today’s is the ${getParisCurrentDay()} and the date is ${getParisISOString()}`);
 
         let trainTags = Team.trainTags.concat(["team-building", "review"]);
+        let parisOffset = getParisUTCOffset();
         this.openaiFunction = {
             "name": 'create-events',
             "description": "Create events and training sessions for an esports team based on player availability.",
@@ -36,8 +36,8 @@ Today’s date is ${currentDate.toISOString()} and we are ${day}`);
                                 },
                                 "date": {
                                     "type": "string",
-                                    "format": "yyyy-MM-ddTHH:mm:ss.sssZ",
-                                    "description": "Start date and time of the event. Follow ISO 8601 Format for dates."
+                                    "format": `yyyy-MM-ddTHH:mm:ss.sss${parisOffset > 0 ? '+' : '-'}${Math.abs(parisOffset)}:00`,
+                                    "description": "Start date and time of the event. Follow ISO 8601 Format for dates, use the right timezone format"
                                 },
                                 "duration": {
                                     "type": "number",
@@ -74,7 +74,6 @@ Today’s date is ${currentDate.toISOString()} and we are ${day}`);
         });
 
         let formattedSlots = [];
-        let offset = getParisUTCOffset();
 
         for (let [day, avail] of Object.entries(groupedByDay)) {
 
@@ -112,7 +111,7 @@ Today’s date is ${currentDate.toISOString()} and we are ${day}`);
                 // Skip if not enough players are available
                 if (availableCount < FULL_TEAM_COUNT) {
                     if (currentSlot) {
-                        formattedSlots.push(`${currentSlot.day}-${getDateOfCurrentWeek(currentSlot.day)} from ${(currentSlot.startHour - offset) % 24}h to ${(currentSlot.endHour - offset) % 24}h`);
+                        formattedSlots.push(`${currentSlot.day}-${getDateOfCurrentWeek(currentSlot.day)} from ${(currentSlot.startHour) % 24}h to ${(currentSlot.endHour) % 24}h`);
                         currentSlot = null;
                     }
                     continue;
@@ -121,7 +120,7 @@ Today’s date is ${currentDate.toISOString()} and we are ${day}`);
                 // If this is the start of a new slot or a non-consecutive hour
                 if (!currentSlot || (previousHour !== null && previousHour + 1 !== hour)) {
                     if (currentSlot) {
-                        formattedSlots.push(`${currentSlot.day}-${getDateOfCurrentWeek(currentSlot.day)} from ${(currentSlot.startHour - offset) % 24}h to ${(currentSlot.endHour - offset) % 24}h`);
+                        formattedSlots.push(`${currentSlot.day}-${getDateOfCurrentWeek(currentSlot.day)} from ${(currentSlot.startHour) % 24}h to ${(currentSlot.endHour) % 24}h`);
                     }
                     currentSlot = {
                         day: day,
@@ -137,7 +136,7 @@ Today’s date is ${currentDate.toISOString()} and we are ${day}`);
 
             // Handle the final slot if any
             if (currentSlot) {
-                formattedSlots.push(`${currentSlot.day}-${getDateOfCurrentWeek(currentSlot.day)} from ${(currentSlot.startHour - offset) % 24}h to ${(currentSlot.endHour - offset) % 24}h`);
+                formattedSlots.push(`${currentSlot.day}-${getDateOfCurrentWeek(currentSlot.day)} from ${(currentSlot.startHour) % 24}h to ${(currentSlot.endHour) % 24}h`);
             }
         }
 
@@ -148,9 +147,15 @@ Today’s date is ${currentDate.toISOString()} and we are ${day}`);
         if (Team.customPrompt) {
             this.messages.push({
                 "role": "user",
-                "content": `Here are the time slots where all players are available: ${formattedSlots.join('\n')}.\n\nPlease create events for the following week with these instructions :
-                - The average duration for 1 game is ${Team.trainingTime} minutes
-                - 10 minutes between the games is the required time for the players to get ready for the next game
+                "content": `Here are the time slots where all players are available: ${formattedSlots.join('\n')}.\n\nPlease create events for the following week with these constrains : 
+            - Always prioritize scrims, training or praccs over team building or review events
+            - Add team building and review events if the team have a lot of common time slots
+            - Always group consecutive games in the same event
+            - ${Team.trainTags.join(' or ')} events should not exceed 2 hours and 30 minutes.
+            - 10 minutes between the games is the required time for the players to get ready for the next game
+            - The average duration for 1 game is ${Team.trainingTime} minutes
+            
+            The following instructions should be followed very carefully :
                 ${Team.customPrompt}`
             })
         } else {
@@ -160,7 +165,7 @@ Today’s date is ${currentDate.toISOString()} and we are ${day}`);
             - Always prioritize scrims, training or praccs over team building or review events
             - Add team building and review events if the team have a lot of common time slots
             - Always group consecutive games in the same event
-            - ${Team.trainTags.join(' or ')} events should not exceed 3 games
+            - ${Team.trainTags.join(' or ')} events should not exceed 2 hours and 30 minutes.
             - 10 minutes between the games is the required time for the players to get ready for the next game
             - The average duration for 1 game is ${Team.trainingTime} minutes`
             })

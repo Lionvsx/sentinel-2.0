@@ -31,7 +31,7 @@ module.exports = class RegisterAssoMembersButtonInteraction extends BaseInteract
 
         const userAudienceString = await userResponseContent(dmChannel, "Quels utilisateurs veux tu ajouter en tant que membre de LDV Esport? \`(liste de pseudos, séparées d'une virgule)\`").catch(err => console.log(err))
         if (!userAudienceString) return
-        const usersAndErrors = await getUsersAndErrorsFromString(interaction.guild, userAudienceString.split(/\s*[,]\s*/))
+        const usersAndErrors = await getUsersAndErrorsFromString(interaction.guild, userAudienceString.split(/\s*,\s*/))
         const userAudience = usersAndErrors[0];
         const userErrors = usersAndErrors[1];
 
@@ -48,11 +48,14 @@ module.exports = class RegisterAssoMembersButtonInteraction extends BaseInteract
         const summaryEmbed = new MessageEmbed()
             .setTitle('COMPTE RENDU')
             .setDescription(`Compte rendu final de l'opération d'ajout de membres en tant que membres associatifs :\n*(Vous pouvez recopier les champs d'erreur pour les re-envoyer au bot lors d'une prochaine commande)*`)
-            .addField('<:check:1137390614296678421> UTILISATEURS AJOUTES', `\`\`\`${registerResults.success.length > 0 ? registerResults.success.join('\n'): 'Aucun'}\`\`\``, false)
-            .addField('<:info:1137425479914242178> UTILISATEURS DEJA ENREGISTRES', `\`\`\`${registerResults.presence.length > 0 ? registerResults.presence.join('\n'): 'Aucun'}\`\`\``, false)
-            .addField(`<:mail:1137430731925241996> UTILISATEURS INJOIGNABLES EN DM`, `\`\`\`${registerResults.errors.length > 0 ? registerResults.errors.join(',\n') : 'Aucun'}\`\`\``, false)
-            .addField(`<:x_:1137419292946727042> UTILISATEURS INTROUVABLES SUR LE SERVEUR`, `\`\`\`${userErrors.length > 0 ? userErrors.join(',\n') : 'Aucun'}\`\`\``, false)
-            .setColor('2b2d31')
+            .addFields([
+                { name: '<:check:1137390614296678421> UTILISATEURS AJOUTES', value: `\`\`\`${registerResults.success.length > 0 ? registerResults.success.join('\n'): 'Aucun'}\`\`\``, inline: false },
+                { name: '<:info:1137425479914242178> UTILISATEURS DEJA ENREGISTRES', value: `\`\`\`${registerResults.presence.length > 0 ? registerResults.presence.join('\n'): 'Aucun'}\`\`\``, inline: false },
+                { name: '<:mail:1137430731925241996> UTILISATEURS INJOIGNABLES EN DM', value: `\`\`\`${registerResults.errors.length > 0 ? registerResults.errors.join(',\n') : 'Aucun'}\`\`\``, inline: false },
+                { name: '<:x_:1137419292946727042> UTILISATEURS INTROUVABLES SUR LE SERVEUR', value: `\`\`\`${userErrors.length > 0 ? userErrors.join(',\n') : 'Aucun'}\`\`\``, inline: false }
+                ]
+            )
+            .setColor('#2b2d31');
 
         configLogger.setLogData(`ADDED USERS: \n${registerResults.success.length > 0 ? registerResults.success.join('\n'): 'Aucun'}\n\nCANT DM: \n${registerResults.errors.length > 0 ? registerResults.errors.join(',\n') : 'Aucun'}\n\nNOT ON SERVER: \n${userErrors.length > 0 ? userErrors.join(',\n') : 'Aucun'}`)
         
@@ -75,6 +78,7 @@ function registerUsers(audience, tempMsg, loading) {
             const dBUser = await User.findOne({ discordId: member.user.id });
             if (isMember(dBUser)) {
                 presence.push(member.user.tag)
+                await tempMsg.edit(`**${loading} | **Ajout des utilisateurs en cours à la DB : \`${success.length + errors.length + presence.length}/${audience.length}\``)
                 continue;
             }
 
@@ -118,7 +122,14 @@ function registerUsers(audience, tempMsg, loading) {
                 })
             }
         }
-
+        if (success.length + errors.length + presence.length === audience.length) {
+            await tempMsg.edit(`**<:check:1137390614296678421> | **Ajout des utilisateurs terminé`)
+            await resolve({
+                success: success,
+                errors: errors,
+                presence: presence
+            })
+        }
     })
 }
 

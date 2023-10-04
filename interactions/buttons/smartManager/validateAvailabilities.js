@@ -28,7 +28,7 @@ module.exports = class ValidateAvailabilities extends BaseInteraction {
 
 
         if (Team.playersAnswered.includes(interaction.user.id)) return interaction.reply({
-            content: '<:x_:1137419292946727042> Vous avez déjà confirmé vos disponibilités pour la semaine prochaine',
+            content: '<:x_:1137419292946727042> Vous avez déjà confirmé vos disponibilités pour la semaine',
         })
 
         Team.availabilitiesAnswered++
@@ -38,7 +38,7 @@ module.exports = class ValidateAvailabilities extends BaseInteraction {
         staffChannel.send({
             embeds: [
                 new MessageEmbed()
-                    .setDescription(`<:check:1137387353846063184> \` ${interaction.user.username} \` a confirmé ses disponibilités pour la semaine prochaine`)
+                    .setDescription(`<:check:1137387353846063184> \` ${interaction.user.username} \` a confirmé ses disponibilités pour la semaine`)
                     .setColor('#2b2d31')
             ]
         })

@@ -75,6 +75,7 @@ module.exports = class ButtonCleanMembers extends BaseInteraction {
                 }
             } else {
                 await configLogger.info(`Could not kick \`${discordTag}\` : Already left the server`)
+                await deletePage(userPage.id)
                 this.log(`Could not kick \`${discordTag}\` : Already left the server`)
                 alreadyLeft.push(discordTag)
             }

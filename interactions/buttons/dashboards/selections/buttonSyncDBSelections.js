@@ -214,8 +214,14 @@ module.exports = class SyncDatabaseButton extends BaseInteraction {
                 if (isLDVMember) serverState = "Switched"
                 else if (notionPage.properties['Etat'].select.name === 'Accepté' && serverState === 'On server') serverState = "Ready to commit"
                 if (notionPage.properties['Etat'].select.name === 'Accepté' && serverState === 'Not on server') {
-                    await this.inviteUserToServer(member)
-                    serverState = "Invited"
+                    try {
+                        await this.inviteUserToServer(member)
+                        serverState = "Invited"
+                    } catch (e) {
+                        // Tag user in accueil to ask him to open his DMs
+                        let accueilChannel = await interaction.guild.channels.fetch('1146465700479762464')
+                        await accueilChannel.send(`<@${member.user.id}> Bonjour !\nJe n'ai pas pu t'envoyer un message privé.\nPourrais-tu ouvrir tes messages privés ?\nMerci !`)
+                    }
                 }
                 try {
                     await updateSelectionUser(user.linkedNotionPageId, {
@@ -298,9 +304,11 @@ module.exports = class SyncDatabaseButton extends BaseInteraction {
             .setColor('#2b2d31')
             .setTitle(`\` Invitation au serveur LDV Esport ! \``)
             .setDescription(`Bonjour \`${member.user.username}\` !\n\nJe suis LDV Sentinel, le bot en charge de gérer tous les serveurs en relation avec LDV Esport !\nJ'ai remarqué que tu a été accepté chez LDV le semestre prochain mais tu n'es pas sur le serveur LDV !\nJe t'invite donc à rejoindre notre serveur Discord !\nPour cela, clique sur le lien suivant : https://discord.gg/ldvesport\n\nA bientôt !`)
+
         await dmChannel.send({
             embeds: [embed]
         })
+
         this.log(`Sent invitation to ${member.user.tag}`)
     }
 }
