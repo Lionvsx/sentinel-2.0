@@ -101,6 +101,7 @@ module.exports = class ButtonSMConfig extends BaseInteraction {
         let organisationChannel = teamCategory.children.find(channel => channel.name.includes('organisation'))
         let messages = await organisationChannel.messages.fetch()
         for (const event of Team.events) {
+            if (event.archived) continue;
             let eventMessage = messages.find(message => message.id === event.messageId)
             await eventMessage.delete()
         }
@@ -114,7 +115,6 @@ module.exports = class ButtonSMConfig extends BaseInteraction {
         Team.availabilitiesAnswered = 0;
         Team.playersAnswered = [];
         Team.availabilities = [];
-        Team.events = [];
         Team.planningSent = false;
         await Team.save();
 
@@ -189,47 +189,57 @@ async function sendAvailabilitiesForm(interaction, Team) {
 
     for (const playerId of players) {
         let playerDiscord = await interaction.guild.members.fetch(playerId)
-        let playerDM = await playerDiscord.createDM()
+        try {
+            let playerDM = await playerDiscord.createDM()
 
-        await playerDM.send({
-            embeds: [
-                new MessageEmbed()
-                    .setDescription('<:arrowdown:1137420436016214058> Veuillez indiquer vos disponibilités pour la semaine (Lundi-Vendredi): <:arrowdown:1137420436016214058>')
-                    .setColor('#2b2d31')
-            ],
-            components: [
-                createMessageActionRow([mondayMenu]),
-                createMessageActionRow([tuesdayMenu]),
-                createMessageActionRow([wednesdayMenu]),
-                createMessageActionRow([thursdayMenu]),
-                createMessageActionRow([fridayMenu]),
-            ]
-        })
+            await playerDM.send({
+                embeds: [
+                    new MessageEmbed()
+                        .setDescription('<:arrowdown:1137420436016214058> Veuillez indiquer vos disponibilités pour la semaine (Lundi-Vendredi): <:arrowdown:1137420436016214058>')
+                        .setColor('#2b2d31')
+                ],
+                components: [
+                    createMessageActionRow([mondayMenu]),
+                    createMessageActionRow([tuesdayMenu]),
+                    createMessageActionRow([wednesdayMenu]),
+                    createMessageActionRow([thursdayMenu]),
+                    createMessageActionRow([fridayMenu]),
+                ]
+            })
 
-        await playerDM.send({
-            embeds: [
-                new MessageEmbed()
-                    .setDescription('<:arrowdown:1137420436016214058> Veuillez indiquer vos disponibilités pour le week-end (Samedi-Dimanche): <:arrowdown:1137420436016214058>')
-                    .setColor('#2b2d31')
-            ],
-            components: [
-                createMessageActionRow([saturdayMenu]),
-                createMessageActionRow([sundayMenu])
-            ]
-        })
+            await playerDM.send({
+                embeds: [
+                    new MessageEmbed()
+                        .setDescription('<:arrowdown:1137420436016214058> Veuillez indiquer vos disponibilités pour le week-end (Samedi-Dimanche): <:arrowdown:1137420436016214058>')
+                        .setColor('#2b2d31')
+                ],
+                components: [
+                    createMessageActionRow([saturdayMenu]),
+                    createMessageActionRow([sundayMenu])
+                ]
+            })
 
-        await playerDM.send({
-            embeds: [
-                new MessageEmbed()
-                    .setDescription('<:arrowdown:1137420436016214058> Une fois vos disponibilités remplies, veuillez les confirmer <:arrowdown:1137420436016214058>')
-                    .setColor('#2b2d31')
-            ],
-            components: [
-                createMessageActionRow([
-                    createEmojiButton(`validateAvailabilities|${Team.linkedCategoryId}`, 'Je confirme mes disponibilités', 'SECONDARY', '<:check:1137390614296678421>')
-                ])
-            ]
-        })
+            await playerDM.send({
+                embeds: [
+                    new MessageEmbed()
+                        .setDescription('<:arrowdown:1137420436016214058> Une fois vos disponibilités remplies, veuillez les confirmer <:arrowdown:1137420436016214058>')
+                        .setColor('#2b2d31')
+                ],
+                components: [
+                    createMessageActionRow([
+                        createEmojiButton(`validateAvailabilities|${Team.linkedCategoryId}`, 'Je confirme mes disponibilités', 'SECONDARY', '<:check:1137390614296678421>')
+                    ])
+                ]
+            })
+        } catch (e) {
+            staffChannel.send({
+                embeds: [
+                    new MessageEmbed()
+                        .setDescription(`<:x_:1137419292946727042> Impossible d'envoyer les formulaires de disponibilités à <@${playerId}>`)
+                        .setColor('#2b2d31')
+                ]
+            })
+        }
     }
 
     staffChannel.send({

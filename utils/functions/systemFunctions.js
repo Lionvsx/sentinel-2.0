@@ -20,16 +20,16 @@ function getDateOfCurrentWeek(day) {
     }
 
     const today = DateTime.now().setZone('Europe/Paris');
-    // Adjust so 1 (Monday) - 7 (Sunday)
     const todayIndex = today.weekday;
-    const targetIndex = daysOfWeek.indexOf(day) + 1;
 
-    // Calculate difference between today and target day
-    const diff = targetIndex - todayIndex;
-
-    const targetDay = today.plus({ days: diff });
-
-    return targetDay.toFormat('d');
+    if (todayIndex === 7) {  // Si aujourd'hui est dimanche
+        const nextWeekDayIndex = daysOfWeek.indexOf(day) + 1;
+        return today.plus({ days: nextWeekDayIndex }).toFormat('DDD');
+    } else {
+        const targetIndex = daysOfWeek.indexOf(day) + 1;
+        const diff = targetIndex - todayIndex;
+        return today.plus({ days: diff }).toFormat('DDD');
+    }
 }
 
 function getDateOfToday() {
