@@ -27,5 +27,19 @@ module.exports = class OpenAIInterface {
         });
     }
 
-
+    callGPTNoFunctions(prompt) {
+        return new Promise(async (resolve, reject) => {
+            this.messages.push({role: "user", content: prompt});
+            try {
+                let chatCompletion = await this.client.openAIAgent.createChatCompletion({
+                    model: 'gpt-3.5-turbo',
+                    messages: this.messages,
+                    temperature: 1,
+                });
+                resolve(chatCompletion.data.choices[0]);
+            } catch (e) {
+                reject(e);
+            }
+        });
+    }
 }
