@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [3.2.0](https://github.com/Lionvsx/sentinel-2.0/compare/v3.1.0...v3.2.0) (2023-10-09)
+
+
+### Features
+
+* event support for LDV Pôles ([3c34cc1](https://github.com/Lionvsx/sentinel-2.0/commit/3c34cc12262716a8fdd9153bb6dca4b149bd95ce))
+* handling deleting events in staff poles channels ([bc95090](https://github.com/Lionvsx/sentinel-2.0/commit/bc95090f78643b8dd69dd557ff11d6620dbf6e8f))
+* Sentinel fun response in channel accueil ([f8bd550](https://github.com/Lionvsx/sentinel-2.0/commit/f8bd550fdd5180222fc6985ece1a01de469fe1c6))
+
+
+### Bug Fixes
+
+* add call GPT No function to AI Interface ([3b5deec](https://github.com/Lionvsx/sentinel-2.0/commit/3b5deec4144b226eefbf40344f4a92517e158818))
+* auto planning cannot DM bug ([b72a532](https://github.com/Lionvsx/sentinel-2.0/commit/b72a53268b053352c9bcf0341fa529df7158203e))
+* button SM config bug when existing events are deleted ([6afd085](https://github.com/Lionvsx/sentinel-2.0/commit/6afd085f1f03507ca2b9d7029abbad4c9a2d7a88))
+* smart scheduler current week date management ([bf76524](https://github.com/Lionvsx/sentinel-2.0/commit/bf76524f9f8f1024276f1d2b9a229073d4d72930))
+
 ## [3.1.0](https://github.com/Lionvsx/sentinel-2.0/compare/v3.0.0...v3.1.0) (2023-10-04)
 
 
