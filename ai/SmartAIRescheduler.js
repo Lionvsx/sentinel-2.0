@@ -70,7 +70,7 @@ Today’s is the ${getParisCurrentDay()} and the date is ${getParisISOString()}`
                 // Skip if not enough players are available
                 if (availableCount < FULL_TEAM_COUNT) {
                     if (currentSlot) {
-                        formattedSlots.push(`${currentSlot.day}-${getDateOfCurrentWeek(currentSlot.day)} from ${(currentSlot.startHour) % 24}h to ${(currentSlot.endHour) % 24}h`);
+                        formattedSlots.push(`${currentSlot.day} ${getDateOfCurrentWeek(currentSlot.day)} from ${(currentSlot.startHour) % 24}h to ${(currentSlot.endHour) % 24}h`);
                         currentSlot = null;
                     }
                     continue;
@@ -79,7 +79,7 @@ Today’s is the ${getParisCurrentDay()} and the date is ${getParisISOString()}`
                 // If this is the start of a new slot or a non-consecutive hour
                 if (!currentSlot || (previousHour !== null && previousHour + 1 !== hour)) {
                     if (currentSlot) {
-                        formattedSlots.push(`${currentSlot.day}-${getDateOfCurrentWeek(currentSlot.day)} from ${(currentSlot.startHour) % 24}h to ${(currentSlot.endHour) % 24}h`);
+                        formattedSlots.push(`${currentSlot.day} ${getDateOfCurrentWeek(currentSlot.day)} from ${(currentSlot.startHour) % 24}h to ${(currentSlot.endHour) % 24}h`);
                     }
                     currentSlot = {
                         day: day,
@@ -95,7 +95,7 @@ Today’s is the ${getParisCurrentDay()} and the date is ${getParisISOString()}`
 
             // Handle the final slot if any
             if (currentSlot) {
-                formattedSlots.push(`${currentSlot.day}-${getDateOfCurrentWeek(currentSlot.day)} from ${(currentSlot.startHour) % 24}h to ${(currentSlot.endHour) % 24}h`);
+                formattedSlots.push(`${currentSlot.day} ${getDateOfCurrentWeek(currentSlot.day)} from ${(currentSlot.startHour) % 24}h to ${(currentSlot.endHour) % 24}h`);
             }
         }
 
